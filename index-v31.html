@@ -1,0 +1,2648 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>ПЕРУН 42 v31 — Веб-симулятор маршрутов</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" onerror="this.onerror=null;this.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'" />
+<style>
+:root{--bg:#071018;--panel:#0d1822;--panel2:#101f2c;--text:#f5f8fb;--muted:#91a0ad;--blue:#1683ff;--line:#223443;--danger:#ff4d5f;--green:#35d07f}
+*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+button,input,select{font:inherit}button{border:0;color:var(--text);cursor:pointer}.app{height:100%;display:flex;flex-direction:column}
+.top{height:68px;padding:10px 14px env(safe-area-inset-top) 14px;display:flex;align-items:center;gap:10px;background:rgba(7,16,24,.94);z-index:1000;border-bottom:1px solid var(--line)}
+.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#1683ff,#66b6ff);display:grid;place-items:center;font-size:21px;box-shadow:0 5px 20px #1683ff33}.brand{flex:1}.brand b{display:block;font-size:19px}.brand span{font-size:12px;color:var(--muted)}
+.iconbtn{width:42px;height:42px;border-radius:13px;background:#122331;border:1px solid #243949;font-size:19px}
+#map{flex:1;min-height:0}.leaflet-control-attribution{font-size:9px}
+.fab{position:absolute;right:14px;top:82px;z-index:900;background:#1683ff;padding:12px 15px;border-radius:16px;font-weight:700;box-shadow:0 8px 25px #0008}.fab.secondary{top:136px;background:#122331;border:1px solid #2b4050}
+.bottom{background:rgba(7,16,24,.97);border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom));display:flex;gap:6px;z-index:1000}.nav{flex:1;padding:8px 3px;border-radius:12px;background:transparent;color:#8e9ca8;font-size:11px}.nav.active{background:#122536;color:#48a5ff}.nav div{font-size:21px;margin-bottom:2px}
+.sheet{position:absolute;left:10px;right:10px;bottom:76px;z-index:950;max-height:55vh;overflow:auto;background:rgba(10,23,33,.97);border:1px solid #294052;border-radius:22px;padding:14px;box-shadow:0 15px 50px #000b;display:none}.sheet.show{display:block}.sheethead{display:flex;align-items:center;gap:10px;margin-bottom:10px}.sheethead h3{margin:0;font-size:18px}.close{margin-left:auto;background:#1a2b38;border-radius:10px;width:34px;height:34px}.row{display:flex;gap:8px;align-items:center}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.card{background:#10202d;border:1px solid #263c4c;border-radius:16px;padding:12px;margin:8px 0}.machine{display:flex;gap:10px;align-items:center}.dot{width:14px;height:14px;border-radius:50%;flex:none;box-shadow:0 0 12px currentColor}.machine .grow{flex:1}.small{font-size:12px;color:var(--muted)}.name{font-weight:700}.btn{background:#172b3a;border:1px solid #2a4354;padding:10px 12px;border-radius:12px}.btn.primary{background:#1683ff}.btn.green{background:#147a4a}.btn.red{background:#8f2734}.btn.full{width:100%}.input{width:100%;background:#0b1720;color:#fff;border:1px solid #2a4150;border-radius:11px;padding:10px}.label{font-size:11px;color:var(--muted);margin:8px 0 4px}.range{width:100%}.pill{padding:5px 8px;border-radius:9px;background:#182d3b;color:#a9bac7;font-size:11px}.progress{height:6px;border-radius:99px;background:#1a2d3a;overflow:hidden;margin:8px 0}.progress i{display:block;height:100%;width:0;background:var(--color,#1683ff);border-radius:99px}
+.menuTitle{font-size:22px;font-weight:800;margin-bottom:12px}.empty{padding:20px;text-align:center;color:var(--muted)}
+ .tacticalhead{margin:14px 0 8px;padding:10px 12px;border:1px solid #263746;border-radius:13px;background:linear-gradient(90deg,#101d28,#0c171f);display:flex;align-items:center;justify-content:space-between}.tacticalhead b{font-size:13px;letter-spacing:.4px}.tacticalhead span{font-size:10px;color:#7f909e}.npkcard{position:relative;margin:8px 0;padding:11px;border:1px solid #263746;border-radius:15px;background:#101c25}.npkcard.active{border-color:var(--npk);box-shadow:inset 0 0 0 1px var(--npk)}.npkcardtop{display:flex;align-items:center;gap:10px}.npkcardtitle{flex:1;min-width:0}.npkcardtitle b{display:block;font-size:14px}.npkcardtitle small{color:var(--muted);font-size:10px}.npkbadge{font-size:10px;padding:4px 7px;border-radius:8px;background:color-mix(in srgb,var(--npk) 16%,#0b151c);color:var(--npk);border:1px solid color-mix(in srgb,var(--npk) 45%,#263746)}.npkstats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:9px}.npkstat{padding:7px 5px;border-radius:9px;background:#0b151c;text-align:center}.npkstat b{display:block;font-size:12px}.npkstat small{font-size:9px;color:var(--muted)}.npkactions{display:flex;gap:6px;margin-top:8px}.npkactions .btn{flex:1;min-height:38px}.scanline{height:1px;background:linear-gradient(90deg,transparent,#344754,transparent);margin:12px 0}.npkicon{box-shadow:0 0 0 1px color-mix(in srgb,var(--npk) 18%,transparent),0 6px 18px color-mix(in srgb,var(--npk) 15%,transparent)}.npkgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}.npkoption{position:relative;min-height:128px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:10px 6px;margin:0;border:1px solid #2a3b49;border-radius:16px;background:linear-gradient(180deg,#142431,#0d1922);color:#fff;text-align:center;overflow:hidden;transition:.15s}.npkoption:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 15%,color-mix(in srgb,var(--npk) 22%,transparent),transparent 62%);pointer-events:none}.npkoption:active{transform:scale(.97);border-color:var(--npk)}.npkoption b{font-size:14px;position:relative}.npkoption small{display:block;color:var(--muted);font-size:10px;margin-top:2px;position:relative}.npkicon{width:58px;height:58px;display:inline-flex;align-items:center;justify-content:center;border:2px solid var(--npk);border-radius:16px;background:color-mix(in srgb,var(--npk) 13%,#0a141c);font-size:29px;box-shadow:0 5px 18px color-mix(in srgb,var(--npk) 18%,transparent);position:relative}.npkmarker{width:38px;height:38px;border-radius:11px;border:3px solid #fff;box-shadow:0 3px 12px #000b;display:flex;align-items:center;justify-content:center;font-size:22px}.npkmarker span{filter:drop-shadow(0 1px 1px #000)}#hud{position:absolute;left:12px;top:12px;z-index:1200;padding:8px 10px;border:1px solid #314653;border-radius:13px;background:rgba(8,17,24,.92);backdrop-filter:blur(10px);box-shadow:0 7px 22px #0008;pointer-events:none}.hudtitle{font-size:11px;font-weight:800;letter-spacing:1px}.hudtitle small{color:#738692;font-weight:500;letter-spacing:.5px;margin-left:5px}.liveDot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#37d67a;box-shadow:0 0 8px #37d67a;margin-right:5px}.hudstats{display:flex;gap:13px;margin-top:5px}.hudstats span{display:flex;align-items:baseline;gap:3px}.hudstats b{font-size:11px}.hudstats small{font-size:8px;color:#738692}.sheet{backdrop-filter:blur(12px)}.sheet .sheethead h3{letter-spacing:.2px}.btn{transition:transform .12s,opacity .12s,border-color .12s}.btn:active{transform:scale(.97)}.drawbar{position:absolute;left:12px;right:12px;top:82px;z-index:1100;display:none;align-items:center;gap:8px;padding:10px 12px;border-radius:14px;background:rgba(10,23,33,.97);border:1px solid #1683ff;box-shadow:0 8px 25px #0008;font-size:12px}.drawbar span{flex:1;color:var(--muted)}.drawbar button{background:#1683ff;border-radius:10px;padding:8px 12px}.drawbar.show{display:flex}.toast{position:absolute;left:50%;transform:translateX(-50%);top:74px;z-index:1200;background:#102331;border:1px solid #355166;padding:10px 14px;border-radius:13px;display:none}.toast.show{display:block}
+@media(min-width:700px){.sheet{width:420px;right:auto}.bottom{max-width:700px;margin:auto;width:100%}}
+.routepoint{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#071018;border:2px solid #fff;color:#fff;font-size:10px;font-weight:800;box-shadow:0 3px 10px #000b}\n</style>
+
+<style>
+.sim-banner{margin:8px 12px 0;padding:8px 12px;border:1px solid #334155;border-radius:12px;background:#0b1320;color:#cbd5e1;font-size:11px;font-weight:800;letter-spacing:.6px;text-align:center}
+.routepoint.editable{cursor:grab;pointer-events:auto}
+.routepoint.editable:active{cursor:grabbing}
+.edit-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.edit-tools button{flex:1;min-width:110px}
+</style>
+
+<style>
+:root{--glass:rgba(9,15,24,.88);--line:#263445;--muted:#94a3b8;--text:#f8fafc}
+body{background:#050a10}
+.sim-banner{position:sticky;top:0;z-index:1000;margin:0;border-radius:0;border:0;border-bottom:1px solid #263445;background:linear-gradient(90deg,#07111d,#0d1724,#07111d);padding:7px 12px;font-size:10px;letter-spacing:1px}
+.card,.sheet,.panel,.machine-card{border:1px solid var(--line)!important;box-shadow:0 10px 30px #0008}
+.machine-card{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.machine-card:active{transform:scale(.985)}
+.npk-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid #334155;border-radius:999px;font-size:10px;font-weight:800;color:#cbd5e1;background:#0a111b}
+.npk-chip i{width:7px;height:7px;border-radius:50%;display:inline-block}
+.hero-stat{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}
+.hero-stat>div{padding:8px 6px;background:#08111c;border:1px solid #1e2b3b;border-radius:10px;text-align:center}
+.hero-stat b{display:block;font-size:14px;color:#fff}
+.hero-stat span{font-size:9px;color:var(--muted)}
+.mode-pill{font-size:10px;font-weight:900;letter-spacing:.8px;color:#86efac}
+.btn{border-radius:12px!important}
+.routepoint{transition:transform .12s ease,box-shadow .12s ease}
+.routepoint.editable{box-shadow:0 0 0 3px #38bdf833,0 4px 12px #000c}
+.routepoint.editable:active{transform:scale(1.15)}
+#map{filter:saturate(.85) contrast(1.04)}
+</style>
+
+<style>
+.v9-picker{margin:10px 12px;padding:12px;border:1px solid #263445;border-radius:16px;background:linear-gradient(145deg,#0b1420,#071019);box-shadow:0 12px 32px #0007}
+.v9-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.v9-title b{font-size:13px}.v9-title span{font-size:9px;color:#94a3b8;letter-spacing:.8px}
+.v9-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.v9-vehicle{min-height:82px;padding:9px 6px;border:1px solid #263445;border-radius:13px;background:#0a111a;color:#e2e8f0;text-align:center;cursor:pointer;transition:.18s}
+.v9-vehicle:active{transform:scale(.96)}
+.v9-vehicle.active{border-color:#64748b;box-shadow:0 0 0 2px #64748b22 inset,0 8px 20px #0007}
+.v9-icon{font-size:29px;line-height:32px;filter:drop-shadow(0 5px 7px #0008)}
+.v9-name{font-size:11px;font-weight:900;margin-top:5px}
+.v9-desc{font-size:8px;color:#94a3b8;margin-top:2px}
+.v9-stats{position:fixed;left:12px;right:12px;bottom:72px;z-index:1100;display:none;padding:14px;border:1px solid #334155;border-radius:18px;background:rgba(5,10,16,.96);backdrop-filter:blur(14px);box-shadow:0 20px 45px #000b}
+.v9-stats.show{display:block}
+.v9-stats-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.v9-stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.v9-stat{padding:10px;border-radius:12px;background:#09131f;border:1px solid #1e2b3b}
+.v9-stat b{font-size:17px;display:block}.v9-stat span{font-size:9px;color:#94a3b8}
+.v9-close{border:1px solid #334155;background:#0c1724;color:#fff;border-radius:9px;padding:6px 9px}
+.v9-fab{position:fixed;right:14px;bottom:136px;z-index:1090;width:48px;height:48px;border-radius:50%;border:1px solid #334155;background:#0b1622;color:#fff;font-size:18px;box-shadow:0 8px 24px #000b}
+</style>
+
+<style>
+.v10-brand{display:flex;align-items:center;gap:11px;margin:10px 12px;padding:10px 12px;border:1px solid #29384a;border-radius:16px;background:linear-gradient(135deg,#070d15,#0d1724);box-shadow:0 12px 28px #0007}
+.v10-logo{width:48px;height:64px;object-fit:contain;filter:drop-shadow(0 5px 10px #000)}
+.v10-brand-title{font-weight:900;font-size:14px;letter-spacing:.3px}.v10-brand-sub{font-size:9px;color:#94a3b8;margin-top:3px;letter-spacing:.6px}
+.v10-start{margin:0 12px 10px;padding:14px;border:1px solid #263445;border-radius:16px;background:radial-gradient(circle at 80% 20%,#16304a55,transparent 42%),#08111b}
+.v10-start h2{margin:0 0 5px;font-size:18px}.v10-start p{margin:0;color:#94a3b8;font-size:10px;line-height:1.45}
+.v10-actions{display:flex;gap:8px;margin-top:11px}.v10-actions button{flex:1}
+.v10-timeline{margin-top:10px;padding:10px 12px;border:1px solid #1f2d3e;border-radius:13px;background:#07101a}
+.v10-track{height:6px;background:#172333;border-radius:99px;overflow:hidden;margin:8px 0}
+.v10-progress{height:100%;width:0%;background:linear-gradient(90deg,#38bdf8,#22c55e);border-radius:99px;transition:width .2s linear}
+.v10-live{font-size:9px;color:#94a3b8;display:flex;justify-content:space-between}
+</style>
+
+<style>
+/* v11 visual vehicle skins — simulation only */
+.v11-vehicle{position:relative;width:42px;height:28px;border-radius:8px;border:2px solid #dbeafe;background:#182536;box-shadow:0 5px 14px #000b;display:flex;align-items:center;justify-content:center}
+.v11-vehicle:before,.v11-vehicle:after{content:"";position:absolute;width:8px;height:8px;border-radius:50%;background:#020617;border:1px solid #64748b;bottom:-5px}
+.v11-vehicle:before{left:5px}.v11-vehicle:after{right:5px}
+.v11-vehicle .lamp{position:absolute;width:5px;height:5px;border-radius:50%;right:3px;top:5px;background:#f8fafc;box-shadow:0 0 7px #fff}
+.v11-vehicle .stripe{position:absolute;left:4px;right:4px;height:3px;border-radius:3px;bottom:5px;background:#64748b}
+.v11-t{background:linear-gradient(145deg,#493116,#a76516);border-color:#f59e0b}
+.v11-g{width:50px;height:31px;background:linear-gradient(145deg,#173624,#27844b);border-color:#4ade80}
+.v11-r{width:54px;height:33px;background:linear-gradient(145deg,#271936,#6b3192);border-color:#c084fc}
+.v11-marker{background:transparent!important;border:0!important}
+.v11-map-legend{position:absolute;left:12px;top:12px;z-index:800;padding:8px 10px;border:1px solid #334155;border-radius:12px;background:rgba(5,10,16,.9);backdrop-filter:blur(8px);font-size:9px;color:#cbd5e1;box-shadow:0 8px 20px #0008}
+.v11-map-legend b{display:block;margin-bottom:4px;color:#fff}
+.v11-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
+.v11-route-label{font-size:9px;font-weight:900;color:#e2e8f0;text-shadow:0 2px 4px #000;white-space:nowrap}
+</style>
+
+<style>
+.v12-startflash{position:fixed;inset:0;z-index:3000;display:none;align-items:center;justify-content:center;background:rgba(2,6,12,.82);backdrop-filter:blur(8px)}
+.v12-startflash.show{display:flex;animation:v12fade 1.2s ease forwards}
+.v12-flashbox{width:min(330px,88vw);padding:24px;border:1px solid #334155;border-radius:22px;background:#09131f;text-align:center;box-shadow:0 25px 70px #000d}
+.v12-flashicon{font-size:42px;line-height:1;margin-bottom:10px}
+.v12-flashbox h2{margin:0;font-size:22px}.v12-flashbox p{margin:7px 0 0;color:#94a3b8;font-size:11px}
+@keyframes v12fade{0%{opacity:0;transform:scale(.96)}15%{opacity:1;transform:scale(1)}80%{opacity:1}100%{opacity:0}}
+.v12-wheel{transform-box:fill-box;transform-origin:center;animation:v12spin .38s linear infinite}
+@keyframes v12spin{to{transform:rotate(360deg)}}
+.v12-live{animation:v12pulse .9s ease-in-out infinite}
+@keyframes v12pulse{50%{opacity:.45}}
+.v12-complete{position:fixed;left:12px;right:12px;bottom:78px;z-index:2100;display:none;padding:13px 15px;border:1px solid #334155;border-radius:16px;background:rgba(7,16,26,.96);box-shadow:0 15px 35px #000b}
+.v12-complete.show{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.v12-complete small{color:#94a3b8;display:block;font-size:9px}.v12-complete b{font-size:13px}
+</style>
+
+<style>
+.v13-lang{display:flex;gap:6px;margin:8px 12px;padding:6px;border:1px solid #263445;border-radius:13px;background:#071019}
+.v13-lang button{flex:1;padding:8px 5px;border-radius:9px;border:1px solid transparent;background:transparent;color:#94a3b8;font-weight:900;font-size:10px}
+.v13-lang button.active{background:#172333;color:#fff;border-color:#334155}
+</style>
+
+<style>
+/* v14 — premium mobile dashboard */
+body{background:#04080d!important;color:#eef2f7}
+header{backdrop-filter:blur(16px);background:rgba(4,9,15,.92)!important;border-bottom:1px solid #1e2b3a!important}
+.v14-top{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin:10px 12px}
+.v14-brandmini{padding:12px 14px;border:1px solid #263445;border-radius:17px;background:linear-gradient(135deg,#0b1520,#071019);box-shadow:0 10px 28px #0008}
+.v14-kicker{font-size:8px;color:#64748b;letter-spacing:1.4px;font-weight:900}
+.v14-title{font-size:20px;font-weight:950;letter-spacing:-.5px;margin-top:2px}
+.v14-sub{font-size:9px;color:#94a3b8;margin-top:2px}
+.v14-online{padding:9px 10px;border:1px solid #234335;border-radius:14px;background:#07150f;text-align:center}
+.v14-online i{display:block;width:8px;height:8px;border-radius:50%;background:#4ade80;margin:0 auto 4px;box-shadow:0 0 10px #4ade80}
+.v14-online span{font-size:8px;font-weight:900;color:#86efac}
+.v13-lang{margin:8px 12px!important;background:#080f17!important}
+.v10-start{margin:10px 12px!important;border-radius:19px!important;padding:16px!important;background:radial-gradient(circle at 85% 10%,#183c5d66,transparent 40%),linear-gradient(145deg,#0b1622,#071019)!important}
+.v10-start h2{font-size:21px!important}
+.v10-start p{font-size:10px!important}
+.v10-actions button,.edit-tools button{min-height:42px;font-weight:900}
+.v9-picker{border-radius:19px!important;background:linear-gradient(145deg,#0a1420,#060d15)!important}
+.v9-vehicle{min-height:94px!important;border-radius:16px!important}
+.v9-vehicle.active{transform:translateY(-2px);box-shadow:0 10px 24px #0009!important}
+.v9-icon{font-size:34px!important}
+.v14-section{margin:10px 12px 7px;display:flex;align-items:center;justify-content:space-between}
+.v14-section b{font-size:12px}.v14-section span{font-size:9px;color:#64748b}
+.v14-bottom{position:fixed;left:10px;right:10px;bottom:10px;z-index:1200;height:58px;border:1px solid #263445;border-radius:18px;background:rgba(6,12,19,.94);backdrop-filter:blur(16px);display:grid;grid-template-columns:repeat(4,1fr);box-shadow:0 15px 35px #000b}
+.v14-bottom button{border:0;background:transparent;color:#94a3b8;font-size:9px;font-weight:900}
+.v14-bottom button b{display:block;font-size:18px;line-height:20px;margin-bottom:2px}
+.v14-bottom button.active{color:#fff}
+.v14-bottom button.active b{filter:drop-shadow(0 0 5px #fff4)}
+.machine-card{border-radius:17px!important;background:linear-gradient(145deg,#0b1520,#071019)!important}
+#fitFab{bottom:82px!important}
+.v9-stats{bottom:76px!important;border-radius:20px!important}
+</style>
+
+<style>
+/* v15 visual redesign */
+.v15-shell{margin:10px 12px;padding:14px;border:1px solid #263445;border-radius:22px;background:linear-gradient(145deg,#0a1420,#050b12);box-shadow:0 18px 45px #0009}
+.v15-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.v15-head h1{margin:0;font-size:24px;letter-spacing:-.8px}.v15-head p{margin:4px 0 0;color:#94a3b8;font-size:9px}
+.v15-badge{padding:7px 9px;border-radius:10px;border:1px solid #294538;background:#07150f;color:#86efac;font-size:8px;font-weight:900;white-space:nowrap}
+.v15-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:13px}
+.v15-kpi{padding:10px 6px;border:1px solid #1e2b3b;border-radius:13px;background:#07101a;text-align:center}
+.v15-kpi strong{display:block;font-size:17px}.v15-kpi span{font-size:8px;color:#64748b}
+.v15-maphead{display:flex;align-items:center;justify-content:space-between;margin:12px 12px 7px}
+.v15-maphead b{font-size:13px}.v15-maphead span{font-size:8px;color:#64748b}
+.v15-mapframe{margin:0 12px;border:1px solid #263445;border-radius:20px;overflow:hidden;box-shadow:0 16px 35px #0009}
+.v15-quick{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 12px}
+.v15-quick button{min-height:44px;border-radius:13px!important;font-weight:900}
+.v15-divider{height:1px;background:#172333;margin:12px 0}
+.v15-section{font-size:10px;color:#64748b;font-weight:900;letter-spacing:1px;margin:0 12px 7px}
+.v15-mode{font-size:8px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px}
+.v15-bottom{height:62px!important;border-radius:20px!important}
+</style>
+
+<style>
+/* v16 map-first mobile layout */
+body{padding-bottom:76px!important}
+.v16-mapwrap{position:relative;margin:8px 10px 10px;border:1px solid #263445;border-radius:22px;overflow:hidden;box-shadow:0 18px 45px #000b;background:#050b11}
+.v16-mapwrap #map{height:58vh!important;min-height:420px}
+.v16-maptop{position:absolute;left:10px;right:10px;top:10px;z-index:900;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
+.v16-pill{pointer-events:auto;padding:8px 10px;border:1px solid #334155;border-radius:12px;background:rgba(5,10,16,.9);backdrop-filter:blur(10px);font-size:9px;font-weight:900;color:#e2e8f0;box-shadow:0 8px 18px #0008}
+.v16-mapbuttons{position:absolute;right:10px;bottom:12px;z-index:900;display:flex;flex-direction:column;gap:7px}
+.v16-mapbuttons button{width:44px;height:44px;border-radius:14px;border:1px solid #334155;background:rgba(5,10,16,.94);color:#fff;font-size:18px;box-shadow:0 8px 18px #0009}
+.v16-sheet{position:fixed;left:0;right:0;bottom:0;z-index:1500;padding:10px 12px 12px;background:rgba(5,10,16,.96);border-top:1px solid #263445;border-radius:22px 22px 0 0;box-shadow:0 -18px 40px #000b;backdrop-filter:blur(18px);transform:translateY(calc(100% - 68px));transition:transform .25s ease}
+.v16-sheet.open{transform:translateY(0)}
+.v16-handle{width:38px;height:4px;border-radius:99px;background:#475569;margin:0 auto 9px}
+.v16-sheethead{display:flex;justify-content:space-between;align-items:center}.v16-sheethead b{font-size:12px}.v16-sheethead span{font-size:8px;color:#64748b}
+.v16-sheetgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.v16-sheetgrid button{min-height:43px;border-radius:13px!important;font-weight:900}
+.v16-sheetbody{max-height:55vh;overflow:auto;padding-bottom:6px}
+.v16-hide{display:none!important}
+</style>
+<style>.v15-shell,.v10-start,.v14-top{display:none!important}.v14-bottom{display:none!important}</style>
+<style>
+.v17-test{margin:10px 12px;padding:13px;border:1px solid #263445;border-radius:18px;background:#071019;box-shadow:0 12px 30px #0008}
+.v17-test-head{display:flex;align-items:center;justify-content:space-between}.v17-test-head b{font-size:12px}.v17-test-head span{font-size:8px;color:#64748b}
+.v17-run{width:100%;margin-top:9px;min-height:42px;font-weight:900}
+.v17-results{margin-top:9px;display:none}.v17-results.show{display:block}
+.v17-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #162231;font-size:10px}
+.v17-dot{width:8px;height:8px;border-radius:50%;background:#64748b;flex:none}
+.v17-dot.ok{background:#4ade80;box-shadow:0 0 8px #4ade80}.v17-dot.fail{background:#fb7185;box-shadow:0 0 8px #fb7185}
+.v17-summary{margin-top:9px;font-size:10px;font-weight:900;color:#cbd5e1}
+</style>
+
+<style id="off-card-site-v18">
+/* OFF-CARD v18 — WEB SITE ADAPTATION
+   Same simulator logic, redesigned as a responsive website.
+*/
+:root{
+  --site-sidebar:238px;
+  --site-header:72px;
+  --site-panel:390px;
+}
+html,body{overflow:hidden}
+body{background:#050a10}
+
+/* Desktop website shell */
+.app{
+  height:100vh!important;
+  display:grid!important;
+  grid-template-columns:var(--site-sidebar) minmax(0,1fr)!important;
+  grid-template-rows:var(--site-header) minmax(0,1fr)!important;
+  grid-template-areas:"header header" "nav main"!important;
+}
+.app .top{
+  grid-area:header!important;
+  height:var(--site-header)!important;
+  padding:10px 22px!important;
+  border-bottom:1px solid #253545!important;
+  background:rgba(5,11,18,.97)!important;
+}
+.app .top .logo{width:42px;height:42px;border-radius:13px}
+.app .top .brand b{font-size:20px;letter-spacing:.2px}
+.app .top .brand span{font-size:12px}
+.app .sim-banner{
+  position:absolute!important;
+  top:21px!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+  margin:0!important;
+  padding:6px 12px!important;
+  border:1px solid #263747!important;
+  border-radius:999px!important;
+  background:#0b1621!important;
+  white-space:nowrap;
+}
+.app>.bottom{
+  grid-area:nav!important;
+  position:relative!important;
+  left:auto!important;right:auto!important;bottom:auto!important;
+  width:auto!important;max-width:none!important;
+  height:auto!important;
+  margin:0!important;
+  padding:18px 12px!important;
+  border:0!important;
+  border-right:1px solid #253545!important;
+  border-top:0!important;
+  border-radius:0!important;
+  background:#071019!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:flex-start!important;
+  gap:7px!important;
+  box-shadow:none!important;
+}
+.app>.bottom .nav{
+  flex:none!important;
+  width:100%!important;
+  min-height:54px!important;
+  padding:8px 14px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  border-radius:13px!important;
+  text-align:left!important;
+  font-size:13px!important;
+  font-weight:700!important;
+}
+.app>.bottom .nav div{
+  width:28px!important;
+  margin:0!important;
+  font-size:21px!important;
+  text-align:center!important;
+}
+.app>.bottom .nav.active{
+  background:#12283a!important;
+  color:#4aa7ff!important;
+  border:1px solid #24455f!important;
+}
+
+/* Main area */
+.app>#map{
+  grid-area:main!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+}
+#hud{
+  top:16px!important;
+  left:16px!important;
+}
+.fab{
+  right:24px!important;
+  top:88px!important;
+}
+.fab.secondary{
+  top:142px!important;
+}
+.drawbar{
+  left:50%!important;
+  right:auto!important;
+  top:84px!important;
+  transform:translateX(-50%)!important;
+  width:min(680px,calc(100% - 40px))!important;
+}
+.edit-tools{
+  position:fixed!important;
+  left:calc(var(--site-sidebar) + 16px)!important;
+  bottom:18px!important;
+  z-index:1150!important;
+  width:auto!important;
+  margin:0!important;
+  padding:7px!important;
+  border:1px solid #263747!important;
+  border-radius:14px!important;
+  background:rgba(5,11,18,.92)!important;
+  backdrop-filter:blur(12px)!important;
+  box-shadow:0 10px 30px #0009!important;
+}
+.edit-tools button{min-width:140px!important}
+
+/* Right-side web panel instead of mobile bottom sheet */
+.sheet{
+  position:fixed!important;
+  top:calc(var(--site-header) + 14px)!important;
+  right:18px!important;
+  left:auto!important;
+  bottom:18px!important;
+  width:var(--site-panel)!important;
+  max-height:none!important;
+  overflow:auto!important;
+  border-radius:20px!important;
+  padding:18px!important;
+  background:rgba(7,16,24,.96)!important;
+  border:1px solid #304555!important;
+  box-shadow:0 18px 60px #000c!important;
+}
+.sheet.show{display:block!important}
+
+/* Web dashboard elements */
+.v17-test{
+  position:fixed!important;
+  left:calc(var(--site-sidebar) + 18px)!important;
+  top:calc(var(--site-header) + 18px)!important;
+  width:330px!important;
+  z-index:800!important;
+  max-height:calc(100vh - var(--site-header) - 36px)!important;
+  overflow:auto!important;
+  background:rgba(7,16,24,.94)!important;
+  border:1px solid #263747!important;
+  border-radius:18px!important;
+  box-shadow:0 12px 38px #0009!important;
+}
+.v9-picker{
+  position:fixed!important;
+  right:18px!important;
+  top:calc(var(--site-header) + 14px)!important;
+  width:330px!important;
+  z-index:850!important;
+  margin:0!important;
+}
+.v9-picker + *{}
+.v15-shell,.v15-maphead,.v15-quick,.v10-start,.v14-top,.v10-brand{display:none!important}
+.v11-map-legend{top:auto!important;right:18px!important;bottom:18px!important;left:auto!important;z-index:850!important}
+
+/* When a sheet opens, keep it visually dominant */
+.v9-picker:has(+ .v14-top) {}
+
+/* Stats as a desktop modal/panel */
+.v9-stats{
+  left:50%!important;
+  right:auto!important;
+  bottom:auto!important;
+  top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  width:min(560px,calc(100vw - 40px))!important;
+  border-radius:20px!important;
+}
+
+/* Completion notice */
+.v12-complete{
+  left:50%!important;
+  right:auto!important;
+  bottom:28px!important;
+  transform:translateX(-50%)!important;
+  width:min(520px,calc(100vw - 40px))!important;
+}
+
+/* Language switch becomes a small site control */
+.v13-lang{
+  position:fixed!important;
+  top:20px!important;
+  right:88px!important;
+  z-index:1400!important;
+}
+
+/* Hide mobile-only decorative shell */
+.v12-startflash{z-index:3000!important}
+
+/* Tablet */
+@media (max-width:1100px){
+  :root{--site-sidebar:190px;--site-panel:340px}
+  .app .sim-banner{display:none!important}
+  .v17-test{width:280px!important}
+  .v9-picker{width:285px!important}
+  .edit-tools{left:calc(var(--site-sidebar) + 10px)!important}
+}
+
+/* Phone: still a website, but responsive rather than an app shell */
+@media (max-width:700px){
+  html,body{overflow:hidden}
+  .app{
+    display:flex!important;
+    flex-direction:column!important;
+    height:100vh!important;
+  }
+  .app .top{
+    flex:0 0 62px!important;
+    height:62px!important;
+    padding:8px 12px!important;
+  }
+  .app .top .brand b{font-size:17px}
+  .app>.bottom{
+    order:3!important;
+    flex:0 0 auto!important;
+    height:58px!important;
+    padding:6px!important;
+    flex-direction:row!important;
+    border-right:0!important;
+    border-top:1px solid #253545!important;
+    overflow-x:auto!important;
+  }
+  .app>.bottom .nav{
+    min-width:92px!important;
+    min-height:44px!important;
+    justify-content:center!important;
+    flex-direction:column!important;
+    gap:0!important;
+    padding:5px 4px!important;
+    text-align:center!important;
+    font-size:9px!important;
+  }
+  .app>.bottom .nav div{font-size:18px!important;height:20px}
+  .app>#map{order:2!important;flex:1 1 auto!important}
+  .sheet{
+    top:auto!important;
+    left:8px!important;
+    right:8px!important;
+    bottom:66px!important;
+    width:auto!important;
+    max-height:62vh!important;
+    border-radius:18px!important;
+  }
+  .v9-picker{
+    position:absolute!important;
+    left:8px!important;
+    right:8px!important;
+    top:74px!important;
+    width:auto!important;
+  }
+  .v17-test{display:none!important}
+  .edit-tools{
+    left:8px!important;
+    right:8px!important;
+    bottom:68px!important;
+    width:auto!important;
+    overflow-x:auto!important;
+  }
+  .edit-tools button{min-width:110px!important}
+  .v13-lang{top:72px!important;right:10px!important}
+  .v11-map-legend{display:none!important}
+}
+</style>
+
+
+<style id="fleet-menu-v2">
+/* Redesigned vehicle selection */
+.fleet-picker{
+  padding:16px!important;
+  background:linear-gradient(160deg,rgba(9,19,29,.98),rgba(5,12,19,.98))!important;
+  border:1px solid #304656!important;
+}
+.fleet-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}
+.fleet-kicker{display:block;font-size:9px;letter-spacing:1.4px;color:#718594;margin-bottom:3px}
+.fleet-head b{font-size:18px;letter-spacing:.1px}
+.fleet-status{font-size:9px;font-weight:900;letter-spacing:1px;color:#7ee2a5;padding:6px 8px;border:1px solid #214633;border-radius:999px;background:#0a1a13;white-space:nowrap}
+.fleet-status i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#36d47b;box-shadow:0 0 9px #36d47b;margin-right:5px}
+.fleet-list{display:flex;flex-direction:column;gap:8px}
+.fleet-item{
+  --accent:#ff9f1c;
+  position:relative;display:grid;grid-template-columns:58px minmax(0,1fr) 22px;
+  align-items:center;gap:11px;width:100%;min-height:72px;padding:7px 9px;
+  border:1px solid #263847;border-radius:15px;background:#0a131d;color:#fff;
+  text-align:left;cursor:pointer;overflow:hidden;transition:.18s ease;
+}
+.fleet-item:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 9%,transparent),transparent 65%);pointer-events:none}
+.fleet-item:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--accent) 55%,#263847);box-shadow:0 9px 24px #0008}
+.fleet-item:active{transform:scale(.985)}
+.fleet-item.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 10px 26px #0009}
+.fleet-tar{--accent:#ff9f1c}.fleet-gul{--accent:#22c55e}.fleet-rat{--accent:#a855f7}
+.fleet-visual{position:relative;width:54px;height:52px;display:grid;place-items:center}
+.fleet-visual:before,.fleet-visual:after{content:"";position:absolute;bottom:7px;width:12px;height:12px;border-radius:50%;background:#05090d;border:2px solid #5d6b76}
+.fleet-visual:before{left:4px}.fleet-visual:after{right:4px}
+.ugv-body{position:relative;width:42px;height:25px;border-radius:8px 11px 7px 7px;background:linear-gradient(145deg,color-mix(in srgb,var(--accent) 75%,#fff),color-mix(in srgb,var(--accent) 55%,#05090d));border:2px solid #dce6ec;box-shadow:0 7px 16px color-mix(in srgb,var(--accent) 22%,transparent);z-index:1}
+.ugv-body:before{content:"";position:absolute;left:8px;top:-7px;width:22px;height:8px;border-radius:4px 7px 2px 2px;background:#273744;border:1px solid #7f8c95}
+.ugv-body i{position:absolute;right:5px;top:6px;width:6px;height:6px;border-radius:50%;background:#f8fafc;box-shadow:0 0 8px #fff}
+.ugv-body em{position:absolute;left:6px;bottom:4px;width:11px;height:3px;border-radius:3px;background:#111820}
+.fleet-gul .ugv-body{width:46px;height:29px;border-radius:5px 8px 6px 6px}
+.fleet-gul .ugv-body:before{left:12px;width:25px}
+.fleet-rat .ugv-body{width:48px;height:31px;border-radius:9px}
+.fleet-rat .ugv-body:before{left:9px;width:28px;height:10px;top:-9px}
+.fleet-copy{min-width:0;position:relative}
+.fleet-copy b{display:block;font-size:14px;line-height:1.1}
+.fleet-copy small{display:block;margin-top:5px;color:#8fa0ad;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fleet-arrow{position:relative;color:#647887;font-size:25px;font-weight:300;transition:.18s}
+.fleet-item:hover .fleet-arrow{color:var(--accent);transform:translateX(2px)}
+.fleet-foot{margin-top:11px;padding-top:10px;border-top:1px solid #1d2c39;color:#657887;font-size:9px;line-height:1.3}
+@media(max-width:700px){
+  .fleet-picker{top:72px!important;right:10px!important;left:10px!important;padding:12px!important}
+  .fleet-head b{font-size:16px}
+  .fleet-item{min-height:64px;grid-template-columns:52px minmax(0,1fr) 20px}
+  .fleet-foot{font-size:8px}
+}
+</style>
+
+
+<style id="off-card-v20-menu">
+/* v20 — cleaner, quieter fleet selector */
+.v9-picker{
+  width:360px!important;
+  padding:16px!important;
+  border:1px solid rgba(148,163,184,.18)!important;
+  border-radius:18px!important;
+  background:rgba(6,13,21,.94)!important;
+  box-shadow:0 18px 50px rgba(0,0,0,.34)!important;
+}
+.v9-title{
+  margin-bottom:12px!important;
+  padding:0 2px!important;
+}
+.v9-title b{
+  font-size:14px!important;
+  letter-spacing:.2px!important;
+}
+.v9-title span{
+  font-size:9px!important;
+  opacity:.7;
+}
+.v9-grid{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:7px!important;
+}
+.v9-vehicle{
+  position:relative!important;
+  min-height:72px!important;
+  padding:10px 12px!important;
+  display:grid!important;
+  grid-template-columns:48px 1fr auto!important;
+  align-items:center!important;
+  gap:12px!important;
+  text-align:left!important;
+  border:1px solid rgba(148,163,184,.13)!important;
+  border-radius:13px!important;
+  background:#0a121b!important;
+  box-shadow:none!important;
+}
+.v9-vehicle:hover{
+  background:#0d1721!important;
+  border-color:rgba(148,163,184,.25)!important;
+}
+.v9-vehicle.active{
+  border-color:rgba(74,167,255,.55)!important;
+  background:#0c1824!important;
+  box-shadow:inset 3px 0 0 #4aa7ff!important;
+}
+.v9-icon{
+  width:44px!important;
+  height:44px!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:11px!important;
+  font-size:25px!important;
+  line-height:1!important;
+  background:#111c27!important;
+  filter:none!important;
+}
+.v9-name{
+  margin:0!important;
+  font-size:13px!important;
+  font-weight:800!important;
+}
+.v9-desc{
+  margin-top:3px!important;
+  font-size:9px!important;
+  color:#7f8d9b!important;
+}
+.v9-vehicle:after{
+  content:'›';
+  color:#667585;
+  font-size:22px;
+  font-weight:300;
+}
+.v9-vehicle.active:after{
+  content:'✓';
+  color:#4aa7ff;
+  font-size:15px;
+  font-weight:800;
+}
+@media(max-width:700px){
+  .v9-picker{
+    left:12px!important;
+    right:12px!important;
+    width:auto!important;
+    padding:12px!important;
+    border-radius:16px!important;
+  }
+  .v9-vehicle{min-height:64px!important}
+  .v9-icon{width:40px!important;height:40px!important;font-size:23px!important}
+}
+</style>
+
+
+<style id="perun42-brand-map">
+.perun-logo{background:#0a1118!important;border:1px solid #2b3c4b!important;overflow:hidden!important;padding:4px!important;box-shadow:0 5px 20px #0008!important}
+.perun-logo img{width:100%;height:100%;object-fit:contain;display:block}
+.perun-satellite{position:absolute;right:20px;top:84px;z-index:1100;padding:7px 10px;border:1px solid #2e4352;border-radius:10px;background:rgba(7,15,22,.9);color:#cbd5e1;font-size:10px;font-weight:800;backdrop-filter:blur(8px)}
+@media(max-width:700px){.perun-satellite{top:72px;right:10px}}
+</style>
+
+<style id="perun-v21-points">
+.v21-points{
+  margin-top:14px;padding-top:14px;border-top:1px solid #22313e
+}
+.v21-points-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.v21-points-title b{font-size:12px;letter-spacing:.5px}
+.v21-add{
+  width:100%;padding:10px 12px;border-radius:11px;border:1px solid #2d4353;
+  background:#101f2b;color:#eaf2f7;font-weight:800;cursor:pointer
+}
+.v21-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.v21-point{
+  display:flex;align-items:center;gap:9px;padding:9px 10px;border:1px solid #20313e;
+  border-radius:11px;background:#0a141d
+}
+.v21-point .num{width:25px;height:25px;border-radius:8px;display:grid;place-items:center;
+  background:#122638;color:#63b1ff;font-size:10px;font-weight:900}
+.v21-point .info{flex:1;min-width:0}.v21-point .info b{display:block;font-size:11px}
+.v21-point .info span{display:block;font-size:8px;color:#728391;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v21-point button{background:transparent;color:#8293a0;font-size:15px;padding:4px}
+.v21-dialog{
+  position:fixed;inset:0;z-index:5000;display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.62);backdrop-filter:blur(5px)
+}
+.v21-dialog.show{display:flex}
+.v21-box{
+  width:min(380px,calc(100vw - 30px));padding:18px;border:1px solid #314555;border-radius:18px;
+  background:#08121b;box-shadow:0 25px 80px #000d
+}
+.v21-box h3{margin:0 0 5px;font-size:17px}.v21-box p{margin:0 0 12px;color:#80909d;font-size:10px}
+.v21-box input{width:100%;padding:11px;border-radius:10px;border:1px solid #29404f;background:#0c1822;color:#fff;outline:none}
+.v21-actions{display:flex;gap:8px;margin-top:10px}.v21-actions button{flex:1;padding:10px;border-radius:10px;font-weight:800}
+.v21-cancel{background:#12212c;color:#d8e0e6}.v21-save{background:#1683ff;color:#fff}
+.v21-toast{
+  position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:5100;
+  padding:10px 14px;border:1px solid #30485a;border-radius:11px;background:#0b1822;color:#fff;
+  box-shadow:0 12px 30px #0009;display:none;font-size:11px;font-weight:800
+}
+.v21-toast.show{display:block}
+</style>
+
+
+<style id="perun-v21-responsive">
+@media(max-width:700px){
+  #v21SavedPanel{left:8px!important;right:8px!important;bottom:66px!important;width:auto!important}
+}
+</style>
+
+
+<style id="perun-v22-route-points">
+.v22-route-tools{display:flex;gap:7px;margin-top:8px}
+.v22-route-tools button{flex:1;padding:9px 8px;border-radius:10px;border:1px solid #2a4050;background:#0e1b25;color:#dce7ee;font-size:10px;font-weight:800}
+.v22-route-tools button.primary{background:#122d20;border-color:#28633f;color:#8df0b3}
+.v22-point-list{display:flex;flex-direction:column;gap:6px;margin-top:9px;max-height:230px;overflow:auto}
+.v22-rp{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;padding:8px;border:1px solid #1e303d;border-radius:10px;background:#09131c}
+.v22-rp .n{width:25px;height:25px;border-radius:8px;display:grid;place-items:center;background:#102638;color:#63b1ff;font-size:10px;font-weight:900}
+.v22-rp .txt b{display:block;font-size:10px}.v22-rp .txt span{display:block;color:#70818e;font-size:8px;margin-top:2px}
+.v22-rp button{padding:6px 8px;border-radius:8px;border:1px solid #294050;background:#101f2b;color:#b9cad5;font-size:9px;font-weight:800}
+.v22-saved-tools{display:flex;gap:6px;margin-top:8px}
+.v22-saved-tools button{flex:1;padding:9px 7px;border-radius:10px;border:1px solid #263c4b;background:#0c1923;color:#dce7ee;font-size:9px;font-weight:800}
+.v22-saved-tools .green{border-color:#285b3e;background:#10251a;color:#86e9aa}
+@media(max-width:700px){
+  #v21SavedPanel{max-height:48vh;overflow:auto}
+}
+</style>
+
+
+<style id="perun-v23-cargo-route">
+.v23-block{margin-top:14px;padding-top:14px;border-top:1px solid #22313e}
+.v23-block-title{font-size:12px;font-weight:900;letter-spacing:.5px;margin-bottom:9px}
+.v23-weight{display:flex;align-items:center;gap:8px}
+.v23-weight input{flex:1;min-width:0;padding:10px;border:1px solid #29404f;border-radius:10px;background:#0b1720;color:#fff;font-size:13px}
+.v23-weight span{font-size:10px;color:#788a98}
+.v23-cargo{display:flex;align-items:center;gap:10px;margin-top:9px;padding:10px;border:1px solid #203541;border-radius:11px;background:#09131c}
+.v23-cargo-icon{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:#111f2b;font-size:18px}
+.v23-cargo-info{flex:1}.v23-cargo-info b{display:block;font-size:11px}.v23-cargo-info span{font-size:9px;color:#788a98}
+.v23-toggle{width:38px;height:22px;border-radius:20px;background:#263642;position:relative;cursor:pointer;border:0}
+.v23-toggle:after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#aab7c0;transition:.18s}
+.v23-toggle.on{background:#176a42}.v23-toggle.on:after{left:19px;background:#fff}
+.v23-route-save{width:100%;margin-top:8px;padding:10px;border-radius:10px;border:1px solid #2b4c60;background:#102230;color:#e7f1f7;font-weight:800}
+.v23-route-save:hover{background:#143043}
+.v23-route-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;max-height:130px;overflow:auto}
+.v23-route-row{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid #1e303c;border-radius:10px;background:#08121a}
+.v23-route-row .ri{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:#112536;color:#68b5ff;font-size:10px;font-weight:900}
+.v23-route-row .rt{flex:1;min-width:0}.v23-route-row .rt b{display:block;font-size:10px}.v23-route-row .rt span{display:block;font-size:8px;color:#738491;margin-top:2px}
+.v23-route-row button{padding:5px 7px;border-radius:7px;border:1px solid #273d4b;background:#0d1a24;color:#b9c7d0;font-size:9px}
+.v23-cargo-badge{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:4px 7px;border-radius:8px;background:#10251a;border:1px solid #285a3c;color:#82e7a5;font-size:9px;font-weight:800}
+.v23-cargo-badge.empty{background:#101c25;border-color:#253946;color:#8b9aa6}
+.v23-weight-note{margin-top:5px;font-size:8px;color:#71818d}
+.v23-cargo-overlay{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);z-index:2400;
+padding:9px 13px;border:1px solid #294455;border-radius:11px;background:rgba(7,16,24,.94);color:#fff;
+box-shadow:0 12px 35px #000a;font-size:10px;font-weight:800;display:none}
+.v23-cargo-overlay.show{display:block}
+</style>
+
+
+<style id="perun-v24-reference-layout">
+/* v24 — desktop web layout inspired by the supplied reference */
+html,body{background:#03070b!important;overflow:hidden!important}
+.app{
+  display:grid!important;
+  grid-template-columns:190px minmax(0,1fr)!important;
+  grid-template-rows:64px minmax(0,1fr)!important;
+  grid-template-areas:"head head" "rail map"!important;
+  height:100vh!important;
+}
+.app .top{
+  grid-area:head!important;height:64px!important;padding:7px 14px!important;
+  background:#071019!important;border-bottom:1px solid #1e2b36!important;
+  z-index:2000!important;display:flex!important;align-items:center!important
+}
+.app .top .logo{width:44px!important;height:50px!important;background:transparent!important}
+.app .top .logo img{width:40px!important;height:48px!important;object-fit:contain!important}
+.app .top .brand b{font-size:17px!important;letter-spacing:.2px!important}
+.app .top .brand span{font-size:8px!important;color:#71818e!important}
+.app .top .sim-banner{
+  position:absolute!important;left:50%!important;top:13px!important;transform:translateX(-50%)!important;
+  background:transparent!important;border:0!important;font-size:9px!important;color:#6f808d!important
+}
+.app .top .iconbtn{display:none!important}
+.app .top:after{
+  content:"БАЧИМО  КЕРУЄМО  ПЕРЕМАГАЄМО";
+  position:absolute;right:15px;top:17px;font-size:8px;font-weight:800;
+  letter-spacing:.8px;color:#71818d;white-space:pre
+}
+
+/* Existing bottom nav becomes compact top navigation */
+.app>.bottom{
+  position:fixed!important;left:205px!important;right:205px!important;top:11px!important;bottom:auto!important;
+  width:auto!important;height:42px!important;z-index:2500!important;
+  display:flex!important;flex-direction:row!important;justify-content:center!important;gap:4px!important;
+  padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important
+}
+.app>.bottom .nav{
+  width:auto!important;min-width:72px!important;height:38px!important;min-height:38px!important;
+  padding:7px 10px!important;border-radius:8px!important;background:transparent!important;
+  color:#748592!important;font-size:9px!important;text-align:center!important
+}
+.app>.bottom .nav div{display:none!important}
+.app>.bottom .nav.active{background:#102433!important;color:#e8f0f5!important;border:1px solid #244052!important}
+
+/* Map is the whole right content area */
+.app>#map{grid-area:map!important;width:100%!important;height:100%!important;min-height:0!important}
+.leaflet-control-zoom{margin-right:10px!important;margin-bottom:95px!important}
+.leaflet-control-attribution{font-size:7px!important}
+
+/* Fleet selector becomes a left rail */
+.fleet-picker{
+  position:fixed!important;left:8px!important;right:auto!important;top:75px!important;
+  width:174px!important;max-height:calc(100vh - 300px)!important;overflow:auto!important;
+  z-index:1800!important;padding:10px!important;border-radius:12px!important;
+  background:#071019!important;border:1px solid #1e303c!important;box-shadow:0 10px 30px #0009!important
+}
+.fleet-head{margin-bottom:8px!important}.fleet-head b{font-size:11px!important}
+.fleet-kicker{font-size:7px!important}.fleet-status{display:none!important}
+.fleet-list{gap:5px!important}
+.fleet-item{
+  grid-template-columns:42px 1fr 12px!important;gap:7px!important;min-height:60px!important;
+  padding:6px!important;border-radius:9px!important
+}
+.fleet-visual{width:40px!important;height:40px!important;border-radius:8px!important}
+.fleet-copy b{font-size:10px!important}.fleet-copy span{font-size:7px!important}
+.fleet-foot{display:none!important}
+
+/* Put simulator controls in a compact rail under fleet */
+.v24-rail{
+  position:fixed;left:8px;bottom:72px;width:174px;z-index:1800;
+  padding:9px;background:#071019;border:1px solid #1e303c;border-radius:12px;box-shadow:0 10px 30px #0009
+}
+.v24-rail-title{font-size:7px;color:#738491;letter-spacing:1px;font-weight:900;margin-bottom:7px}
+.v24-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.v24-actions button{padding:8px 4px;border-radius:8px;border:1px solid #263b49;background:#0c1923;color:#dce6ec;font-size:8px;font-weight:800}
+.v24-actions button.active{background:#103225;border-color:#28613f;color:#8de6aa}
+.v24-speed{margin-top:7px;display:flex;align-items:center;gap:5px}
+.v24-speed input{width:65px;padding:7px;border:1px solid #29404f;border-radius:7px;background:#0a151e;color:#fff;font-size:9px}
+.v24-speed span{font-size:8px;color:#748491}
+
+/* Saved points/routes stay available but are compact */
+#v21SavedPanel{
+  left:8px!important;right:auto!important;bottom:8px!important;width:174px!important;
+  max-height:55vh!important;overflow:auto!important;padding:10px!important;
+  background:#071019!important;border:1px solid #1e303c!important;border-radius:12px!important
+}
+#v21SavedPanel .v21-point{padding:6px!important}.v21-add{padding:7px!important;font-size:8px!important}
+#v21SavedPanel .v22-route-tools,#v21SavedPanel .v23-block{margin-top:8px!important;padding-top:8px!important}
+#v21SavedPanel .v23-block{display:block!important}
+#v21SavedPanel .v23-route-list{max-height:90px!important}
+
+/* Hide mobile-only and diagnostic overlays in normal web view */
+.v17-test,.v10-start,.v12-startflash,.v12-complete,.v14-top,.v13-lang,.v10-brand{display:none!important}
+.v11-map-legend{left:204px!important;right:auto!important;bottom:88px!important;top:auto!important}
+
+/* Search/layer controls */
+.v24-map-tools{
+  position:fixed;left:207px;right:205px;top:75px;z-index:1700;
+  display:flex;justify-content:space-between;pointer-events:none
+}
+.v24-search{pointer-events:auto;width:245px;padding:9px 12px;border:1px solid #263b49;border-radius:9px;
+background:rgba(6,13,19,.91);color:#cdd8df;font-size:9px;box-shadow:0 8px 22px #0007}
+.v24-layers{display:flex;pointer-events:auto;border:1px solid #263b49;border-radius:9px;overflow:hidden;background:rgba(6,13,19,.91)}
+.v24-layers button{padding:8px 11px;border:0;border-right:1px solid #263b49;background:transparent;color:#71818e;font-size:8px}
+.v24-layers button.active{background:#153128;color:#9ce9b8}
+
+/* Bottom route information */
+.v24-bottominfo{
+  position:fixed;left:207px;right:205px;bottom:8px;z-index:1750;
+  height:64px;background:rgba(6,13,19,.95);border:1px solid #243642;border-radius:12px;
+  display:grid;grid-template-columns:repeat(4,1fr) 125px;align-items:center;
+  box-shadow:0 12px 35px #000a;backdrop-filter:blur(10px)
+}
+.v24-stat{text-align:center;border-right:1px solid #1e2c36}.v24-stat b{display:block;font-size:13px}.v24-stat span{font-size:7px;color:#6f808c}
+.v24-clear{margin:0 10px;padding:8px;border-radius:8px;border:1px solid #2b3e4b;background:#0c1720;color:#c9d3da;font-size:8px;font-weight:800}
+.v24-status{position:fixed;left:207px;bottom:82px;z-index:1760;padding:6px 9px;border-radius:8px;background:rgba(5,14,10,.9);border:1px solid #24533a;color:#7ee0a1;font-size:8px;font-weight:800}
+
+/* Desktop-first; phone remains a responsive website */
+@media(max-width:850px){
+  .app{display:flex!important;flex-direction:column!important}
+  .app .top{height:58px!important;flex:0 0 58px!important}
+  .app>.bottom{position:fixed!important;left:0!important;right:0!important;top:auto!important;bottom:0!important;height:54px!important;z-index:2500!important;background:#071019!important;border-top:1px solid #1e2b36!important}
+  .app>.bottom .nav{min-width:62px!important}
+  .fleet-picker{left:7px!important;top:67px!important;width:170px!important}
+  .v24-rail{left:7px!important;width:170px!important}
+  #v21SavedPanel{left:7px!important;width:170px!important}
+  .v24-map-tools{left:184px!important;right:7px!important;top:66px!important}
+  .v24-search{width:150px!important}
+  .v24-bottominfo{left:184px!important;right:7px!important;bottom:61px!important}
+  .v24-status{left:184px!important;bottom:132px!important}
+  .app>#map{flex:1!important}
+}
+</style>
+
+
+<style id="perun-v29-reference-menu">
+/* Точная компоновка меню по предоставленному наброску */
+.perun-v27 .topbar{
+  height:60px!important;
+  padding:0 10px!important;
+  gap:14px!important;
+  background:#071018!important;
+}
+.perun-v27 .p27-brand{min-width:172px!important;gap:8px!important}
+.perun-v27 .p27-logo{width:38px!important;height:46px!important}
+.perun-v27 .p27-brand b{font-size:15px!important;letter-spacing:.7px!important}
+.perun-v27 .p27-brand small{font-size:7px!important;line-height:1.2!important}
+.perun-v27 .p27-nav{gap:2px!important}
+.perun-v27 .p27-nav button{
+  height:34px!important;padding:0 12px!important;border-radius:6px!important;
+  font-size:9px!important;color:#73828c!important
+}
+.perun-v27 .p27-nav button.active{background:#102432!important;border-color:#223c4a!important}
+.perun-v27 .p27-right{gap:6px!important}
+.perun-v27 .p27-right:before{
+  content:"☾";color:#cbd5dc;font-size:16px;margin-right:5px
+}
+.perun-v27 .p27-right button{height:30px!important;padding:0 9px!important;font-size:9px!important}
+.perun-v27 .p27-right button:last-child{display:none!important}
+.perun-v27 .p27-right:after{
+  content:"БАЧИМО\\AКЕРУЄМО\\AПЕРЕМАГАЄМО";
+  white-space:pre;text-align:right;font-size:7px;line-height:1.25;font-weight:900;
+  color:#71818b;margin-left:9px
+}
+
+.perun-v27 .p27-sidebar{
+  top:60px!important;width:192px!important;padding:9px!important;
+  background:#071018!important
+}
+.perun-v27 .p27-kicker{font-size:7px!important;letter-spacing:1.1px!important;margin:1px 0 7px!important}
+.perun-v27 .p27-npk{gap:6px!important}
+.perun-v27 .p27-npk button{
+  grid-template-columns:48px 1fr 10px!important;gap:7px!important;
+  min-height:55px!important;padding:5px 6px!important;border-radius:8px!important
+}
+.perun-v27 .p27-npk .pic{
+  width:48px!important;height:38px!important;border-radius:6px!important;
+  font-size:0!important;position:relative!important;background:#111c23!important;overflow:hidden!important
+}
+/* маленькие стилизованные модели НРК вместо эмодзи */
+.perun-v27 .p27-npk .pic:before{
+  content:"";position:absolute;left:8px;right:8px;top:11px;height:13px;
+  border-radius:5px 7px 4px 4px;background:#5b6263;
+  box-shadow:0 12px 0 -3px #161c20
+}
+.perun-v27 .p27-npk button:nth-child(1) .pic:before{background:linear-gradient(145deg,#b66c24,#34383a)}
+.perun-v27 .p27-npk button:nth-child(2) .pic:before{left:6px;right:5px;top:9px;height:16px;background:linear-gradient(145deg,#65706d,#222a2c)}
+.perun-v27 .p27-npk button:nth-child(3) .pic:before{left:5px;right:5px;top:10px;height:17px;border-radius:7px;background:linear-gradient(145deg,#555c5e,#171d20)}
+.perun-v27 .p27-npk .pic:after{
+  content:"";position:absolute;left:7px;right:7px;bottom:5px;height:7px;
+  border-radius:50%;border:2px solid #6e777a
+}
+.perun-v27 .p27-npk b{font-size:10px!important}
+.perun-v27 .p27-npk small{font-size:7px!important;line-height:1.25!important}
+.perun-v27 .p27-arrow{font-size:15px!important}
+
+.perun-v27 .p27-section{
+  margin-top:11px!important;padding-top:9px!important
+}
+.perun-v27 .p27-row{gap:5px!important}
+.perun-v27 .p27-btn{
+  padding:8px 6px!important;border-radius:7px!important;font-size:8px!important
+}
+.perun-v27 .p27-speed{margin-top:6px!important}
+.perun-v27 .p27-speed input{width:62px!important;padding:7px!important;font-size:9px!important}
+.perun-v27 .p27-speed span{font-size:7px!important}
+.perun-v27 #p27Start{font-size:9px!important;padding:9px!important}
+.perun-v27 #p27Stop{font-size:8px!important;padding:7px!important}
+
+.perun-v27 .p27-mapbar{
+  left:202px!important;right:9px!important;top:73px!important
+}
+.perun-v27 .p27-search{
+  max-width:250px!important;padding:9px 11px!important;font-size:8px!important
+}
+.perun-v27 .p27-layers button{padding:8px 11px!important;font-size:7px!important}
+
+.perun-v27 .p27-bottom{
+  left:202px!important;right:9px!important;bottom:8px!important;height:70px!important;
+  border-radius:9px!important;grid-template-columns:repeat(4,1fr) 88px!important
+}
+.perun-v27 .p27-stat b{font-size:12px!important}
+.perun-v27 .p27-stat span{font-size:7px!important}
+.perun-v27 .p27-bottom .p27-btn{margin:15px 7px!important;font-size:7px!important}
+.perun-v27 .p27-status{
+  left:202px!important;bottom:87px!important;font-size:7px!important;padding:6px 8px!important
+}
+.perun-v27 .p27-toast{top:67px!important;font-size:8px!important}
+
+/* Небольшая строка подсказки как на наброске */
+.perun-v27 .p27-route-mode{
+  font-size:7px!important;padding:6px!important;line-height:1.3!important
+}
+
+/* На компьютере именно веб-компоновка; на телефоне оставляем адаптивность */
+@media(min-width:851px){
+  .perun-v27 .p27-sidebar{overflow-y:auto!important}
+  .perun-v27 .p27-nav button{min-width:58px!important}
+}
+</style>
+
+
+<style id="perun-v30-exact-reference">
+/* v30 — максимально близько до наданого макету */
+.perun-v27{
+  position:fixed!important;inset:0!important;background:#02070b!important;
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif!important;
+}
+.perun-v27 .topbar{
+  position:absolute!important;left:0!important;right:0!important;top:0!important;
+  height:58px!important;padding:0 10px!important;
+  background:#071018!important;border-bottom:1px solid #1c2a34!important;
+  display:flex!important;align-items:center!important;z-index:3000!important;
+}
+.perun-v27 .p27-brand{
+  width:180px!important;min-width:180px!important;display:flex!important;
+  align-items:center!important;gap:7px!important
+}
+.perun-v27 .p27-logo{width:38px!important;height:46px!important;object-fit:contain!important}
+.perun-v27 .p27-brand b{font-size:15px!important;line-height:1!important;letter-spacing:.4px!important}
+.perun-v27 .p27-brand small{display:block!important;margin-top:4px!important;font-size:7px!important;line-height:1.15!important;color:#6e7d87!important}
+.perun-v27 .p27-nav{display:flex!important;align-items:center!important;height:100%!important;gap:2px!important}
+.perun-v27 .p27-nav button{
+  height:34px!important;padding:0 11px!important;border:1px solid transparent!important;
+  border-radius:6px!important;background:transparent!important;color:#75838d!important;
+  font-size:8px!important;font-weight:700!important
+}
+.perun-v27 .p27-nav button.active{background:#102432!important;border-color:#1e3a49!important;color:#e3edf2!important}
+.perun-v27 .p27-right{margin-left:auto!important;display:flex!important;align-items:center!important;gap:7px!important}
+.perun-v27 .p27-right:before{content:"☾";font-size:15px;color:#c9d4db}
+.perun-v27 .p27-right button:first-child{
+  min-width:48px!important;height:28px!important;padding:0 8px!important;
+  border:1px solid #263a48!important;border-radius:6px!important;background:#0d1a24!important;
+  color:#dce6ec!important;font-size:8px!important
+}
+.perun-v27 .p27-right button:nth-child(2){display:none!important}
+.perun-v27 .p27-right:after{
+  content:"БАЧИМО\AКЕРУЄМО\AПЕРЕМАГАЄМО";white-space:pre;text-align:right;
+  color:#697984;font-size:6px;line-height:1.35;font-weight:900;letter-spacing:.7px;margin-left:8px
+}
+
+/* карта */
+.perun-v27 #map{
+  position:absolute!important;left:192px!important;right:0!important;top:58px!important;bottom:0!important;
+  width:auto!important;height:auto!important
+}
+.perun-v27 .p27-sidebar{
+  position:absolute!important;left:0!important;top:58px!important;bottom:0!important;
+  width:192px!important;padding:8px!important;overflow:auto!important;
+  background:#071018!important;border-right:1px solid #182832!important;z-index:2200!important
+}
+.perun-v27 .p27-kicker{
+  margin:3px 0 7px!important;color:#72828c!important;font-size:7px!important;
+  font-weight:900!important;letter-spacing:1px!important
+}
+.perun-v27 .p27-npk{display:flex!important;flex-direction:column!important;gap:5px!important}
+.perun-v27 .p27-npk button{
+  display:grid!important;grid-template-columns:48px 1fr 10px!important;align-items:center!important;
+  min-height:55px!important;padding:5px!important;gap:7px!important;
+  border:1px solid #182b36!important;border-radius:7px!important;background:#0a151e!important;
+  text-align:left!important
+}
+.perun-v27 .p27-npk button.active{border-color:#218b5c!important;background:#0c1d19!important;box-shadow:inset 0 0 0 1px #16583e!important}
+.perun-v27 .p27-npk .pic{
+  width:48px!important;height:38px!important;border-radius:6px!important;
+  background:#121d24!important;overflow:hidden!important;position:relative!important
+}
+.perun-v27 .p27-npk .pic:before{
+  content:"";position:absolute;left:7px;right:7px;top:11px;height:14px;
+  border-radius:5px 8px 4px 4px;background:#5e6567;box-shadow:0 11px 0 -3px #171d20
+}
+.perun-v27 .p27-npk button:nth-child(1) .pic:before{background:linear-gradient(145deg,#a9672d,#3d4142)}
+.perun-v27 .p27-npk button:nth-child(2) .pic:before{left:5px;right:4px;top:9px;height:16px;background:linear-gradient(145deg,#65716e,#242b2d)}
+.perun-v27 .p27-npk button:nth-child(3) .pic:before{left:4px;right:4px;top:10px;height:17px;background:linear-gradient(145deg,#575f61,#171c1e)}
+.perun-v27 .p27-npk .pic:after{
+  content:"";position:absolute;left:6px;right:6px;bottom:5px;height:7px;
+  border-radius:50%;border:2px solid #707a7d
+}
+.perun-v27 .p27-npk b{font-size:9px!important;color:#e6edf1!important}
+.perun-v27 .p27-npk small{font-size:6.5px!important;line-height:1.25!important;color:#71818b!important}
+.perun-v27 .p27-arrow{font-size:16px!important;color:#82919a!important}
+
+/* управление */
+.perun-v27 .p27-section{margin-top:10px!important;padding-top:9px!important;border-top:1px solid #142630!important}
+.perun-v27 .p27-row{gap:4px!important}
+.perun-v27 .p27-btn{
+  min-height:28px!important;padding:7px 5px!important;border:1px solid #1d3441!important;
+  border-radius:6px!important;background:#0b1720!important;color:#cdd9df!important;
+  font-size:7px!important;font-weight:800!important
+}
+.perun-v27 .p27-btn.green{background:#0c2d20!important;border-color:#1c6844!important;color:#8ce5ad!important}
+.perun-v27 .p27-speed{display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;margin-top:5px!important}
+.perun-v27 .p27-speed input{
+  width:66px!important;height:27px!important;padding:4px 7px!important;border-radius:6px!important;
+  border:1px solid #243b48!important;background:#09151e!important;color:#fff!important;text-align:center!important;font-size:8px!important
+}
+.perun-v27 .p27-speed span{font-size:7px!important;color:#6f808a!important}
+.perun-v27 #p27Start{width:100%!important;margin-top:7px!important;height:31px!important;font-size:8px!important}
+.perun-v27 #p27Stop{width:100%!important;margin-top:5px!important;height:27px!important}
+
+/* маршрут */
+.perun-v27 #p27CreateRoute{
+  width:100%!important;height:30px!important;margin:0!important;font-size:8px!important;
+  background:#0d251c!important;border-color:#235e40!important;color:#8de3ab!important
+}
+.perun-v27 .p27-route-mode{
+  margin-top:5px!important;padding:6px!important;border-radius:6px!important;
+  font-size:6.5px!important;line-height:1.35!important;background:#08131a!important
+}
+.perun-v27 .p27-route-mode.active{background:#0d241d!important;border-color:#2d7856!important;color:#9ce8b9!important}
+.perun-v27 #p27Finish{height:28px!important;font-size:7px!important}
+.perun-v27 .p27-saved{display:flex!important;flex-direction:column!important;gap:4px!important}
+.perun-v27 .p27-saved button{
+  width:100%!important;text-align:left!important;padding:7px 8px!important;border-radius:6px!important;
+  border:1px solid #1b303b!important;background:#0a151d!important;color:#bdcbd2!important;font-size:7px!important
+}
+
+/* карта controls */
+.perun-v27 .p27-mapbar{
+  position:absolute!important;left:202px!important;right:10px!important;top:68px!important;
+  z-index:2300!important;display:flex!important;justify-content:space-between!important;pointer-events:none!important
+}
+.perun-v27 .p27-search{
+  pointer-events:auto!important;width:250px!important;height:31px!important;padding:0 10px!important;
+  border-radius:7px!important;border:1px solid #243b48!important;background:rgba(6,14,20,.92)!important;
+  color:#82919a!important;font-size:7px!important;text-align:left!important
+}
+.perun-v27 .p27-layers{pointer-events:auto!important;display:flex!important;border:1px solid #243b48!important;border-radius:7px!important;overflow:hidden!important;background:rgba(6,14,20,.92)!important}
+.perun-v27 .p27-layers button{height:31px!important;padding:0 12px!important;border:0!important;border-right:1px solid #243b48!important;background:transparent!important;color:#6d7d87!important;font-size:7px!important}
+.perun-v27 .p27-layers button.active{background:#123429!important;color:#9be8b5!important}
+
+/* нижняя панель */
+.perun-v27 .p27-bottom{
+  position:absolute!important;left:202px!important;right:10px!important;bottom:8px!important;height:68px!important;
+  display:grid!important;grid-template-columns:repeat(4,1fr) 92px!important;align-items:center!important;
+  border:1px solid #243742!important;border-radius:8px!important;background:rgba(6,14,20,.96)!important;
+  z-index:2300!important;box-shadow:0 8px 25px #0008!important
+}
+.perun-v27 .p27-stat{text-align:center!important;border-right:1px solid #172832!important}
+.perun-v27 .p27-stat b{display:block!important;font-size:12px!important;line-height:1.2!important;color:#e2ebef!important}
+.perun-v27 .p27-stat span{font-size:6px!important;color:#71818a!important}
+.perun-v27 .p27-bottom .p27-btn{margin:14px 7px!important;font-size:6.5px!important}
+.perun-v27 .p27-status{
+  position:absolute!important;left:202px!important;bottom:82px!important;z-index:2310!important;
+  padding:5px 7px!important;border:1px solid #1f5b3e!important;border-radius:6px!important;
+  background:rgba(5,14,10,.92)!important;color:#82e0a4!important;font-size:6.5px!important;font-weight:900!important
+}
+.perun-v27 .p27-toast{top:64px!important;font-size:7px!important}
+
+/* leaflets */
+.perun-v27 .leaflet-control-zoom{margin-right:9px!important;margin-bottom:87px!important}
+.perun-v27 .leaflet-control-attribution{font-size:6px!important}
+.perun-v27 .leaflet-marker-icon{z-index:1200!important}
+
+@media(max-width:850px){
+  .perun-v27 .topbar{height:56px!important}
+  .perun-v27 .p27-brand{width:150px!important;min-width:150px!important}
+  .perun-v27 .p27-brand b{font-size:12px!important}
+  .perun-v27 .p27-brand small{font-size:6px!important}
+  .perun-v27 .p27-nav button{padding:0 7px!important;font-size:7px!important}
+  .perun-v27 .p27-right:after{display:none!important}
+  .perun-v27 .p27-sidebar{top:56px!important;width:170px!important}
+  .perun-v27 #map{left:170px!important;top:56px!important}
+  .perun-v27 .p27-mapbar{left:178px!important;right:7px!important;top:64px!important}
+  .perun-v27 .p27-search{width:145px!important}
+  .perun-v27 .p27-bottom{left:178px!important;right:7px!important;bottom:7px!important}
+  .perun-v27 .p27-status{left:178px!important}
+}
+</style>
+
+
+<style id="perun-v31-labels">
+.perun-v31-label{
+  pointer-events:none!important;
+  background:rgba(5,12,18,.78)!important;
+  border:1px solid rgba(210,225,235,.42)!important;
+  color:#f3f7fa!important;
+  border-radius:5px!important;
+  padding:2px 5px!important;
+  box-shadow:0 2px 7px #0009!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  text-shadow:0 1px 2px #000!important;
+  white-space:nowrap!important;
+}
+.perun-v31-road{
+  pointer-events:none!important;
+  background:transparent!important;
+  border:0!important;
+  color:#e7edf1!important;
+  font-size:8px!important;
+  font-weight:700!important;
+  text-shadow:0 1px 3px #000,0 0 4px #000!important;
+  white-space:nowrap!important;
+}
+</style>
+
+</head>
+<body>
+<div id="v12Flash" class="v12-startflash">
+ <div class="v12-flashbox">
+   <div id="v12FlashIcon" class="v12-flashicon">▶</div>
+   <h2 id="v12FlashTitle">СИМУЛЯЦИЯ</h2>
+   <p id="v12FlashText">Маршрут запущен · 1× real time</p>
+ </div>
+</div>
+<div id="v12Complete" class="v12-complete">
+ <div><b id="v12CompleteTitle">Маршрут завершён</b><small id="v12CompleteText">Симуляция остановлена</small></div>
+ <button class="btn" onclick="document.getElementById('v12Complete').classList.remove('show')">OK</button>
+</div>
+
+<div class="v11-map-legend" id="v11Legend">
+<b>СИМУЛЯЦИЯ</b>
+<span><i class="v11-dot" style="background:#ff9f1c"></i>Тарган</span><br>
+<span><i class="v11-dot" style="background:#22c55e"></i>Гулливер</span><br>
+<span><i class="v11-dot" style="background:#a855f7"></i>Ратель</span>
+</div>
+
+
+
+
+<section class="v15-shell">
+ <div class="v15-head">
+  <div><h1>ПЕРУН 42</h1><p>ВЕБ-СИМУЛЯТОР МАРШРУТОВ</p></div>
+  <div class="v15-badge">● SIM READY</div>
+ </div>
+ <div class="v15-kpis">
+  <div class="v15-kpi"><strong id="v15Count">0</strong><span>НРК</span></div>
+  <div class="v15-kpi"><strong id="v15Moving">0</strong><span>В ДВИЖЕНИИ</span></div>
+  <div class="v15-kpi"><strong id="v15Km">0.00</strong><span>КМ МАРШРУТОВ</span></div>
+ </div>
+</section>
+<div class="v15-maphead"><b>Карта симуляции</b><span class="v15-mode">1× REAL TIME</span></div>
+<div class="v15-quick">
+ <button class="btn" onclick="fitAll()">⌖ Показать всё</button>
+ <button class="btn" onclick="v14GoNpk()">◈ Выбрать НРК</button>
+</div>
+<div class="v10-start">
+  <h2>ПЕРУН 42</h2>
+  <p>Планирование и визуальная симуляция виртуальных маршрутов. Скорость движения соответствует выбранному значению в режиме 1× real time.</p>
+  <div class="v10-actions">
+    <button class="btn" onclick="fitAll()">⌖ Показать карту</button>
+    <button class="btn" onclick="v10ScrollToPicker()">🚗 Выбрать НРК</button>
+  </div>
+  <div class="v10-timeline">
+    <div class="v10-live"><span>Ход симуляции</span><span id="v10Time">0%</span></div>
+    <div class="v10-track"><div id="v10Progress" class="v10-progress"></div></div>
+  </div>
+</div>
+
+<section class="v17-test">
+  <div class="v17-test-head"><b>Диагностика сайта</b><span>LOCAL SELF-TEST</span></div>
+  <button class="btn v17-run" onclick="v17RunTests()">▶ Запустить полный тест</button>
+  <div id="v17Results" class="v17-results"></div>
+</section>
+<div class="v9-picker fleet-picker">
+  <div class="fleet-head">
+    <div>
+      <span class="fleet-kicker">ВИРТУАЛЬНЫЙ ФЛОТ</span>
+      <b>Выберите НРК</b>
+    </div>
+    <span class="fleet-status"><i></i> READY</span>
+  </div>
+  <div class="fleet-list">
+    <button class="fleet-item fleet-tar" onclick="v9Create('Тарган')" data-v9="Тарган">
+      <span class="fleet-visual"><span class="ugv-body"><i></i><em></em></span></span>
+      <span class="fleet-copy"><b>Тарган</b><small>Компактный · манёвренный</small></span>
+      <span class="fleet-arrow">›</span>
+    </button>
+    <button class="fleet-item fleet-gul" onclick="v9Create('Гулливер')" data-v9="Гулливер">
+      <span class="fleet-visual"><span class="ugv-body"><i></i><em></em></span></span>
+      <span class="fleet-copy"><b>Гулливер</b><small>Крупный · универсальный</small></span>
+      <span class="fleet-arrow">›</span>
+    </button>
+    <button class="fleet-item fleet-rat" onclick="v9Create('Ратель')" data-v9="Ратель">
+      <span class="fleet-visual"><span class="ugv-body"><i></i><em></em></span></span>
+      <span class="fleet-copy"><b>Ратель</b><small>Тяжёлый · устойчивый</small></span>
+      <span class="fleet-arrow">›</span>
+    </button>
+  </div>
+  <div class="fleet-foot">Нажмите на модель, чтобы добавить её в симуляцию</div>
+</div>
+
+
+
+<div class="v14-top">
+  <div class="v14-brandmini">
+    <div class="v14-kicker">TACTICAL ROUTE SIMULATOR</div>
+    <div class="v14-title">ПЕРУН 42</div>
+    <div class="v14-sub">Виртуальная среда · 1× real time</div>
+  </div>
+  <div class="v14-online"><i></i><span>READY</span></div>
+</div>
+<div class="v13-lang" aria-label="Language">
+  <button data-lang="uk" onclick="v13SetLang('uk')">УКР</button>
+  <button data-lang="en" onclick="v13SetLang('en')">ENG</button>
+  <button data-lang="ru" onclick="v13SetLang('ru')">РУС</button>
+</div>
+<div class="v10-brand">
+  <img class="v10-logo" src="https://upload.wikimedia.org/wikipedia/commons/6/6c/42mech_perun.png" alt="ПЕРУН · 42 ОМБР">
+  <div>
+    <div class="v10-brand-title">ПЕРУН 42</div>
+    <div class="v10-brand-sub">ВИРТУАЛЬНЫЙ СИМУЛЯТОР МАРШРУТОВ</div>
+  </div>
+</div>
+<div class="app">
+  <header class="top"><div class="logo perun-logo"><img src="data:image/png;base64,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" alt="ПЕРУН 42"></div><div class="brand"><b>ПЕРУН 42</b><span>42 ОМБР · СИЛА ТОЧНОСТИ</span></div><button class="iconbtn" id="settingsBtn">⚙️</button><button class="iconbtn" id="helpBtn">?</button></header><div class="sim-banner">СИМУЛЯЦИЯ · Виртуальные НРК · без управления реальной техникой</div>
+  
+<div class="v16-mapwrap">
+  <div class="v16-maptop">
+    <div class="v16-pill">⌖ MAP · SIMULATION</div>
+  <div class="v16-mapbuttons">
+    <button onclick="fitAll()" title="Показать всё">⌗</button>
+    <button onclick="v16LocateMap()" title="Центр карты">⌖</button>
+  </div>
+</div>
+
+    <div class="v16-pill" id="v16MapStatus">READY</div>
+  </div>
+<div id="map"></div><div class="perun-satellite">🛰 СПУТНИК · GOOGLE</div><div id="hud"><div class="hudtitle"><span class="liveDot"></span> ПЕРУН 42 <small>SIMULATION</small></div><div class="hudstats"><span><b id="hudCount">0</b><small>НРК</small></span><span><b id="hudActive">0</b><small>АКТИВНЫ</small></span><span><b id="hudKm">0.0</b><small>КМ</small></span></div></div><div id="drawBar" class="drawbar"><b>📍 Режим маршрута</b><span id="drawHint">Нажми на карту, чтобы поставить первую точку</span><button onclick="finishDrawing()">Готово</button></div><div class="edit-tools">
+<button class="btn" onclick="deleteLastRoutePoint()">🗑️ Удалить последнюю</button>
+<button class="btn" onclick="reverseRoute()">↔️ Развернуть</button>
+<button class="btn" onclick="clearRoute()">✕ Очистить</button>
+</div>
+  <button class="fab" id="addMachine">＋ Машинка</button><button class="fab secondary" id="fitAll">⌖ Все</button>
+  <div class="toast" id="toast"></div>
+  <section class="sheet" id="sheet"></section>
+  <nav class="bottom">
+    <button class="nav active" data-page="home"><div>⌂</div>Главная</button><button class="nav" data-page="map"><div>▱</div>Карта</button><button class="nav" data-page="machines"><div>🚗</div>Машинки</button><button class="nav" data-page="routes"><div>⌁</div>Маршруты</button><button class="nav" data-page="scenarios"><div>▣</div>Сценарии</button>
+  </nav>
+</div>
+<script>
+function loadLeaflet(done){
+  if(window.L){done();return;}
+  const urls=['https://unpkg.com/leaflet@1.9.4/dist/leaflet.js','https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js'];
+  let i=0;
+  function next(){
+    if(window.L){done();return;}
+    if(i>=urls.length){document.getElementById('map').innerHTML='<div style="padding:30px;text-align:center;color:#91a0ad">Не удалось загрузить карту. Проверь интернет-соединение и обнови страницу.</div>';return;}
+    const s=document.createElement('script'); s.src=urls[i++]; s.onload=()=>done(); s.onerror=next; document.head.appendChild(s);
+  }
+  next();
+}
+loadLeaflet(()=>{try{initApp()}catch(e){document.getElementById('map').innerHTML='<div style="padding:30px;text-align:center;color:#ff9aa5">Ошибка запуска приложения. Обнови страницу.</div>';console.error(e)}});
+function initApp(){
+const COLORS=['#1683ff','#ff4056','#35d07f','#ffc53d','#b06cff','#ff8b3d','#00c8c8'];
+let machines=[];let savedRoutes=JSON.parse(localStorage.getItem('offcard_routes')||'[]');let scenarios=JSON.parse(localStorage.getItem('offcard_scenarios')||'[]');let selected=null;let drawing=null;let last=performance.now();
+const STATE_KEY='offcard_state_v17';const NPK_TYPES={
+  'Тарган':{color:'#ff9f1c',emoji:'🪲',desc:'компактный НРК'},
+  'Гулливер':{color:'#22c55e',emoji:'🛻',desc:'крупный НРК'},
+  'Ратель':{color:'#a855f7',emoji:'🐗',desc:'тяжёлый НРК'}
+};
+function npkType(name){return NPK_TYPES[name]||NPK_TYPES['Тарган']}
+function npkIcon(name){
+  const t=npkType(name);
+  return `<span class="npkicon" style="--npk:${t.color}">${t.emoji}</span>`;
+}
+function npkMenu(){
+  return '<div class="npkgrid">'+Object.keys(NPK_TYPES).map(n=>{
+    const t=NPK_TYPES[n];
+    return `<button class="npkoption" style="--npk:${t.color}" onclick="createNpk('${n}')">${npkIcon(n)}<span><b>${n}</b><small>${t.desc}</small></span></button>`;
+  }).join('')+'</div>';
+}
+function createNpk(type){
+  const m=createMachine(type);
+  m.type=type; m.name=type+' '+(machines.length);
+  m.color=npkType(type).color;
+  persistState(); refresh(); startDrawing(m.id); openMachine(m.id);
+}
+
+function persistState(){try{localStorage.setItem(STATE_KEY,JSON.stringify(machines.map(m=>({id:m.id,name:m.name,type:m.type||'Тарган',color:npkType(m.type||'Тарган').color,speed:m.speed,route:m.route,travelled:m.travelled}))));}catch(e){}}
+function restoreState(){try{const a=JSON.parse(localStorage.getItem(STATE_KEY)||'[]');machines=a.map((x,i)=>({id:x.id||String(Date.now()+i),name:x.name||('НРК '+(i+1)),type:NPK_TYPES[x.type]?x.type:Object.keys(NPK_TYPES)[i%3],color:npkType(NPK_TYPES[x.type]?x.type:Object.keys(NPK_TYPES)[i%3]).color,speed:Number(x.speed)||50,route:Array.isArray(x.route)?x.route:[],travelled:Number(x.travelled)||0,running:false,routeLine:null,progressLine:null,marker:null,routePointLayers:[]}));}catch(e){machines=[];}}
+const map=L.map('map',{zoomControl:false}).setView([48.45,35.05],7);L.control.zoom({position:'bottomright'}).addTo(map);
+const baseSatellite=L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{maxZoom:20,attribution:'© Google'});
+const baseMap=L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{maxZoom:20,attribution:'© Google'});
+const baseHybrid=L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',{maxZoom:20,attribution:'© Google'});
+baseSatellite.addTo(map);
+function setBaseLayer(k){[baseSatellite,baseMap,baseHybrid].forEach(x=>{if(map.hasLayer(x))map.removeLayer(x)});const x=k==='map'?baseMap:k==='hyb'?baseHybrid:baseSatellite;x.addTo(map);document.querySelectorAll('#v24Layers button').forEach(b=>b.classList.toggle('active',b.dataset.layer===k));}
+
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
+function dist(a,b){const R=6371, p=Math.PI/180, dlat=(b.lat-a.lat)*p,dlon=(b.lng-a.lng)*p;const x=Math.sin(dlat/2)**2+Math.cos(a.lat*p)*Math.cos(b.lat*p)*Math.sin(dlon/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
+function routeStats(route){let total=0,seg=[];for(let i=1;i<route.length;i++){const d=dist(route[i-1],route[i]);total+=d;seg.push(d)}return {total,seg}}
+function posAt(m){if(m.route.length<2)return m.route[0]||map.getCenter();const s=routeStats(m.route),d=Math.max(0,Math.min(m.travelled,s.total));let acc=0;for(let i=0;i<s.seg.length;i++){const len=s.seg[i],a=m.route[i],b=m.route[i+1];if(len===0){if(d===acc)return {lat:a.lat,lng:a.lng};continue}if(d<=acc+len){const t=(d-acc)/len;return {lat:a.lat+(b.lat-a.lat)*t,lng:a.lng+(b.lng-a.lng)*t}}acc+=len}return m.route[m.route.length-1]}
+function progressPoints(m){if(!m.route.length)return [];if(m.route.length===1)return [m.route[0]];const d=Math.max(0,m.travelled),s=routeStats(m.route);if(d<=0)return [m.route[0]];let acc=0,out=[m.route[0]];for(let i=1;i<m.route.length;i++){const len=s.seg[i-1];if(len===0)continue;if(d>=acc+len){out.push(m.route[i]);acc+=len;continue}out.push(posAt(m));break}return out}
+function icon(type,color){const t=npkType(type);return L.divIcon({className:'',html:`<div class="npkmarker" style="--npk:${t.color};background:${t.color}"><span>${t.emoji}</span></div>`,iconSize:[42,42],iconAnchor:[21,21]})}
+function createMachine(name){const id=crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random());const type=NPK_TYPES[name]?name:Object.keys(NPK_TYPES)[machines.length%3];const m={id,name:name||type+' '+(machines.length+1),type,color:npkType(type).color,speed:50,route:[],travelled:0,running:false,routeLine:null,progressLine:null,marker:null,routePointLayers:[]};machines.push(m);selected=id;refresh();return m}
+function removeLayers(m){if(m.routeLine)map.removeLayer(m.routeLine);if(m.progressLine)map.removeLayer(m.progressLine);if(m.marker)map.removeLayer(m.marker);removeRoutePoints(m)}
+function drawRoutePoints(m){
+  if(!m.routePointLayers)m.routePointLayers=[];
+  m.routePointLayers.forEach(x=>map.removeLayer(x));
+  m.routePointLayers=[];
+  m.route.forEach((p,i)=>{
+    const editable=(drawing===m.id);
+    const marker=L.marker(p,{
+      draggable:editable,
+      interactive:editable,
+      icon:L.divIcon({
+        className:'',
+        html:`<div class="routepoint ${editable?'editable':''}">${i===0?'S':i+1}</div>`,
+        iconSize:[24,24],iconAnchor:[12,12]
+      })
+    }).addTo(map);
+    if(editable){
+      marker.on('drag',e=>{
+        const ll=e.target.getLatLng();
+        m.route[i]={lat:Number(ll.lat),lng:Number(ll.lng)};
+        m.travelled=0;
+        drawMachine(m);
+      });
+      marker.on('dragend',()=>{
+        persistState();
+        toast('📍 Точка перемещена');
+      });
+    }
+    m.routePointLayers.push(marker);
+  });
+}
+function removeRoutePoints(m){
+  if(m.routePointLayers)m.routePointLayers.forEach(x=>map.removeLayer(x));
+  m.routePointLayers=[];
+}
+function drawMachine(m){removeLayers(m);drawRoutePoints(m);if(m.route.length>1){m.routeLine=L.polyline(m.route,{color:m.color,weight:5,opacity:selected===m.id?.95:.55}).addTo(map);m.progressLine=L.polyline(progressPoints(m),{color:m.color,weight:7,opacity:.95}).addTo(map)}if(m.route.length){m.marker=L.marker(posAt(m),{icon:icon(m.type,m.color)}).addTo(map).on('click',()=>openMachine(m.id))}}
+function updateHud(){
+  const count=machines.length, active=machines.filter(m=>m.running).length;
+  const km=machines.reduce((s,m)=>s+routeStats(m.route).total,0);
+  const a=document.getElementById('hudCount'),b=document.getElementById('hudActive'),c=document.getElementById('hudKm');
+  if(a)a.textContent=count;if(b)b.textContent=active;if(c)c.textContent=km.toFixed(1);
+}
+function redraw(){machines.forEach(drawMachine);updateHud()}
+function openSheet(html){const s=document.getElementById('sheet');s.innerHTML=html;s.classList.add('show')}
+function closeSheet(){document.getElementById('sheet').classList.remove('show')}
+function machineCard(m){
+  const st=routeStats(m.route), pct=st.total?Math.min(100,m.travelled/st.total*100):0, t=npkType(m.type);
+  return `<div class="npkcard ${selected===m.id?'active':''}" style="--npk:${t.color}">
+    <div class="npkcardtop">
+      ${npkIcon(m.type)}
+      <div class="npkcardtitle"><b>${t.emoji} ${esc(m.name)}</b><small>${t.desc}</small></div>
+      <span class="npkbadge">${m.running?'● В ДВИЖЕНИИ':'Ⅱ ПАУЗА'}</span>
+    </div>
+    <div class="npkstats">
+      <div class="npkstat"><b>${Number(m.speed).toFixed(0)}</b><small>км/ч</small></div>
+      <div class="npkstat"><b>${st.total.toFixed(1)}</b><small>км маршрут</small></div>
+      <div class="npkstat"><b>${pct.toFixed(0)}%</b><small>пройдено</small></div>
+    </div>
+    <div class="progress"><i style="width:${pct}%;--color:${m.color}"></i></div>
+    <div class="small" style="margin-top:6px">⏱ ${etaText(m)} · 📍 ${posAt(m).lat.toFixed(5)}, ${posAt(m).lng.toFixed(5)}</div>
+    <div class="npkactions">
+      <button class="btn ${m.running?'green':'primary'}" onclick="toggleRun('${m.id}')">${m.running?'⏸ Пауза':'▶️ Старт'}</button>
+      <button class="btn" onclick="openMachine('${m.id}')">⚙️ Управление</button>
+    </div>
+  </div>`;
+}
+function openMachines(){
+  selected=null;
+  openSheet(`<div class="sheethead"><h3>🤖 ПУЛЬТ НРК</h3><button class="close" onclick="closeSheet()">×</button></div>
+  <div class="tacticalhead"><b>ВЫБОР ПЛАТФОРМЫ</b><span>ПЕРУН 42 / CONTROL</span></div>
+  <div class="small">Выберите НРК для добавления. После выбора сразу можно поставить стартовую точку на карте.</div>
+  ${npkMenu()}
+  ${machines.length?'<div class="scanline"></div><div class="tacticalhead"><b>АКТИВНЫЕ НРК</b><span>'+machines.length+' ЕД.</span></div>'+machines.map(machineCard).join(''):''}`);
+}
+function createAndDraw(){openMachines()}
+function etaText(m){
+  const st=routeStats(m.route);
+  const remain=Math.max(0,st.total-m.travelled);
+  const speed=Math.max(0,Number(m.speed)||0);
+  if(!remain)return 'Финиш';
+  if(!speed)return 'Скорость 0 км/ч';
+  const sec=remain/speed*3600;
+  const h=Math.floor(sec/3600), min=Math.floor((sec%3600)/60), s=Math.floor(sec%60);
+  return 'Осталось: '+(h?`${h} ч `:'')+`${String(min).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function openMachine(id){selected=id;const m=machines.find(x=>x.id===id);if(!m)return;const st=routeStats(m.route),pct=st.total?Math.min(100,m.travelled/st.total*100):0;openSheet(`<div class="sheethead"><span class="dot" style="color:${m.color};background:${m.color}"></span><h3>${npkType(m.type).emoji} ${esc(m.name)}</h3><button class="close" onclick="closeSheet()">×</button></div><div class="small" style="margin-bottom:8px">Тип НРК: <b>${npkType(m.type).emoji} ${m.type||"Тарган"}</b></div><div class="grid2"><div><div class="label">Название</div><input class="input" id="mname" value="${esc(m.name)}"></div><div><div class="label">Скорость, км/ч <span class="pill">реальная</span></div><input class="input" id="mspeed" type="number" min="0" max="1000" value="${m.speed}"></div></div><div class="label">Маршрут</div><div class="small">${m.route.length} точек · ${st.total.toFixed(2)} км · ${Number(m.speed).toFixed(1)} км/ч</div><div class="progress"><i style="width:${pct}%;--color:${m.color}"></i></div><div class="row" style="margin-top:10px"><button class="btn ${m.running?'green':'primary'}" onclick="toggleRun('${m.id}')">${m.running?'⏸ Пауза':'▶️ Старт'}</button><button class="btn" onclick="resetMachine('${m.id}')">🔄 Сброс</button><button class="btn" onclick="startDrawing('${m.id}')">📍 Поставить маршрут</button></div><div class="row" style="margin-top:8px"><button class="btn" onclick="saveRoute('${m.id}')">💾 Сохранить маршрут</button><button class="btn red" onclick="deleteMachine('${m.id}')">🗑 Удалить</button></div><button class="btn full" style="margin-top:8px" onclick="saveMachineSettings('${m.id}')">Сохранить настройки</button>`)}
+function saveMachineSettings(id){const m=machines.find(x=>x.id===id);if(!m)return;m.name=document.getElementById('mname').value||m.name;m.speed=Math.max(0,Math.min(1000,+document.getElementById('mspeed').value||0));persistState();redraw();openMachine(id);toast('Настройки сохранены')}
+function toggleRun(id){const m=machines.find(x=>x.id===id);if(!m.route.length){toast('Сначала нарисуй маршрут');startDrawing(id);return}m.running=!m.running;selected=id;refresh();}
+function resetMachine(id){const m=machines.find(x=>x.id===id);m.travelled=0;m.running=false;selected=id;persistState();refresh();toast(`${m.name}: сброшена`)}
+function deleteMachine(id){const m=machines.find(x=>x.id===id);if(!m)return;removeLayers(m);machines=machines.filter(x=>x.id!==id);selected=null;persistState();openMachines();toast('Машинка удалена')}
+function addRoutePoint(latlng){
+  if(!drawing){toast('Сначала нажми «Поставить маршрут»');return;}
+  const m=machines.find(x=>x.id===drawing);
+  if(!m)return;
+  m.running=false;
+  m.route.push({lat:Number(latlng.lat),lng:Number(latlng.lng)});
+  m.travelled=0;
+  persistState();
+  drawMachine(m);
+  const n=m.route.length;
+  document.getElementById('drawHint').textContent =
+    n===1 ? 'Старт установлен. Нажимай карту для следующих точек.' :
+    `${n} точек · ${routeStats(m.route).total.toFixed(2)} км`;
+  toast(n===1?'📍 Старт установлен':'📍 Точка маршрута добавлена');
+}
+map.on('click',e=>addRoutePoint(e.latlng));
+function deleteLastRoutePoint(){
+  const m=machines.find(x=>x.id===selected);
+  if(!m||!m.route.length){toast('Нет точек для удаления');return;}
+  m.running=false;m.route.pop();m.travelled=0;
+  persistState();drawMachine(m);toast('🗑️ Последняя точка удалена');
+}
+function reverseRoute(){
+  const m=machines.find(x=>x.id===selected);
+  if(!m||m.route.length<2){toast('Нужно минимум 2 точки');return;}
+  m.running=false;m.route.reverse();m.travelled=0;
+  persistState();drawMachine(m);toast('↔️ Направление изменено');
+}
+function clearRoute(){
+  const m=machines.find(x=>x.id===selected);
+  if(!m)return;
+  m.running=false;m.route=[];m.travelled=0;
+  persistState();drawMachine(m);toast('🧹 Маршрут очищен');
+}
+function startDrawing(id){
+  const m=machines.find(x=>x.id===id);
+  if(!m)return;
+  drawing=id; selected=id;
+  map.getContainer().style.cursor='crosshair';
+  document.getElementById('drawBar').classList.add('show');
+  document.getElementById('drawHint').textContent=m.route.length?'Продолжай маршрут с карты':'Нажми на карту, чтобы поставить первую точку';
+  toast(m.route.length?'Режим маршрута включён':'📍 Поставь стартовую точку на карте');
+  openSheet(`<div class="sheethead"><h3>✏️ Маршрут</h3><button class="close" onclick="finishDrawing()">Готово</button></div><div class="small">Первая точка = старт. Каждое следующее касание карты добавляет точку маршрута.</div><div class="row" style="margin-top:10px"><button class="btn" onclick="undoPoint()">↩️ Удалить точку</button><button class="btn" onclick="clearRouteById('${id}')">🧹 Очистить</button></div>`)
+}
+function undoPoint(){
+  if(!drawing)return;
+  const m=machines.find(x=>x.id===drawing);
+  if(!m||!m.route.length){toast('Точек пока нет');return}
+  m.route.pop(); m.travelled=0; persistState(); drawMachine(m);
+  document.getElementById('drawHint').textContent=m.route.length?'Продолжай маршрут с карты':'Нажми на карту, чтобы поставить первую точку';
+}
+function clearRouteById(id){
+  const m=machines.find(x=>x.id===id);
+  if(!m)return;
+  m.route=[]; m.travelled=0; persistState(); drawMachine(m);
+  document.getElementById('drawHint').textContent='Нажми на карту, чтобы поставить первую точку';
+}
+function finishDrawing(){
+  drawing=null; map.getContainer().style.cursor='';
+  document.getElementById('drawBar').classList.remove('show');
+  if(selected)openMachine(selected);else closeSheet();
+  toast('Маршрут готов');
+}
+function saveRoute(id){const m=machines.find(x=>x.id===id);if(m.route.length<2){toast('Нужно минимум 2 точки');return}const name=prompt('Название маршрута',m.name+' — маршрут');if(!name)return;savedRoutes.push({id:Date.now(),name,route:m.route});localStorage.setItem('offcard_routes',JSON.stringify(savedRoutes));toast('Маршрут сохранён')}
+function openRoutes(){openSheet(`<div class="sheethead"><h3>🛣 Маршруты</h3><button class="close" onclick="closeSheet()">×</button></div><button class="btn primary full" onclick="createAndDraw()">＋ Новый маршрут</button>${savedRoutes.length?savedRoutes.map(r=>`<div class="card"><div class="name">${esc(r.name)}</div><div class="small">${r.route.length} точек · ${routeStats(r.route).total.toFixed(2)} км</div><div class="row" style="margin-top:8px"><button class="btn primary" onclick="loadRoute(${r.id})">Загрузить</button><button class="btn red" onclick="deleteRoute(${r.id})">🗑</button></div></div>`).join(''):'<div class="empty">Сохранённых маршрутов пока нет.</div>'}`)}
+function loadRoute(id){const r=savedRoutes.find(x=>x.id===id);let m=selected?machines.find(x=>x.id===selected):null;if(!m)m=createMachine();m.route=r.route.map(x=>({...x}));m.travelled=0;m.running=false;persistState();drawMachine(m);openMachine(m.id);map.fitBounds(L.latLngBounds(m.route));toast('Маршрут загружен')}
+function deleteRoute(id){savedRoutes=savedRoutes.filter(x=>x.id!==id);localStorage.setItem('offcard_routes',JSON.stringify(savedRoutes));openRoutes()}
+function saveScenario(){const name=prompt('Название сценария','Мой сценарий');if(!name)return;scenarios.push({id:Date.now(),name,machines:machines.map(m=>({name:m.name,color:m.color,speed:m.speed,route:m.route,travelled:m.travelled}))});localStorage.setItem('offcard_scenarios',JSON.stringify(scenarios));toast('Сценарий сохранён')}
+function openScenarios(){openSheet(`<div class="sheethead"><h3>🎬 Сценарии</h3><button class="close" onclick="closeSheet()">×</button></div><button class="btn primary full" onclick="saveScenario()">💾 Сохранить текущий сценарий</button>${scenarios.length?scenarios.map(s=>`<div class="card"><div class="name">${esc(s.name)}</div><div class="small">${s.machines.length} машин · ${s.machines.reduce((a,m)=>a+routeStats(m.route).total,0).toFixed(1)} км</div><div class="row" style="margin-top:8px"><button class="btn primary" onclick="loadScenario(${s.id})">Загрузить</button><button class="btn red" onclick="deleteScenario(${s.id})">🗑</button></div></div>`).join(''):'<div class="empty">Сохрани текущую карту как сценарий — все машинки, цвета, скорости и маршруты восстановятся вместе.</div>'}`)}
+function loadScenario(id){const s=scenarios.find(x=>x.id===id);machines.forEach(removeLayers);machines=s.machines.map((x,i)=>({...x,id:(crypto.randomUUID?crypto.randomUUID():Date.now()+i),running:false,routeLine:null,progressLine:null,marker:null,routePointLayers:[]}));selected=null;persistState();redraw();openMachines();fitAll();toast('Сценарий загружен')}
+function deleteScenario(id){scenarios=scenarios.filter(x=>x.id!==id);localStorage.setItem('offcard_scenarios',JSON.stringify(scenarios));openScenarios()}
+function fitAll(){const pts=machines.flatMap(m=>m.route);if(!pts.length)return;map.fitBounds(L.latLngBounds(pts),{padding:[30,30]})}
+function home(){openSheet(`<div class="menuTitle">ПЕРУН 42</div><div class="small" style="margin-bottom:12px">Планируй. Запускай. Контролируй.</div><button class="btn primary full" onclick="createAndDraw()">▶️ Быстрый старт</button><div class="grid2" style="margin-top:8px"><button class="btn" onclick="openMachines()">🚗 Машинки</button><button class="btn" onclick="openRoutes()">🛣 Маршруты</button><button class="btn" onclick="openScenarios()">🎬 Сценарии</button><button class="btn" onclick="openStats()">📊 Статистика</button></div><div class="card"><div class="name">Сейчас</div><div class="small">${machines.length} машинок · ${machines.filter(m=>m.running).length} движутся</div></div>`)}
+function openStats(){let total=machines.reduce((a,m)=>a+routeStats(m.route).total,0);openSheet(`<div class="sheethead"><h3>📊 Статистика</h3><button class="close" onclick="closeSheet()">×</button></div><div class="card"><div class="small">Машинок</div><div style="font-size:28px;font-weight:800">${machines.length}</div></div><div class="card"><div class="small">Общая длина маршрутов</div><div style="font-size:28px;font-weight:800">${total.toFixed(1)} км</div></div>${machines.map(m=>`<div class="card"><div class="name" style="color:${m.color}">${esc(m.name)}</div><div class="small">${routeStats(m.route).total.toFixed(2)} км · ${m.speed} км/ч · ${m.running?'движется':'пауза'}</div></div>`).join('')}`)}
+function openSettings(){openSheet(`<div class="sheethead"><h3>⚙️ Настройки</h3><button class="close" onclick="closeSheet()">×</button></div><div class="card"><div class="name">Единицы</div><div class="small">Скорость: км/ч · расстояние: км</div></div><button class="btn full red" onclick="if(confirm('Очистить все сохранённые маршруты и сценарии?')){localStorage.clear();savedRoutes=[];scenarios=[];machines.forEach(removeLayers);machines=[];selected=null;toast('Данные очищены');openSettings()}">Очистить сохранённые данные</button>`)}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function refresh(){redraw();if(document.getElementById('sheet').classList.contains('show')){if(selected)openMachine(selected);else openMachines()}}
+function loop(now){
+  const dt=Math.max(0,(now-last)/1000);
+  last=now;
+  let changed=false;
+  for(const m of machines){
+    if(m.running&&m.route.length>1){
+      const total=routeStats(m.route).total;
+      // m.speed is km/h; divide by 3600 to get km per second.
+      // Therefore 12 km/h = 1 km every 5 real minutes.
+      m.travelled+=Math.max(0,m.speed)*dt/3600;
+      if(m.travelled>=total){
+        m.travelled=total;
+        m.running=false;
+        toast(m.name+' завершила маршрут');
+      }
+      changed=true;
+    }
+  }
+  if(changed)redraw();
+  requestAnimationFrame(loop);
+}
+setTimeout(()=>map.invalidateSize(),250);
+requestAnimationFrame(loop);
+
+document.getElementById('addMachine').onclick=createAndDraw;document.getElementById('fitAll').onclick=fitAll;document.getElementById('settingsBtn').onclick=openSettings;document.getElementById('helpBtn').onclick=()=>openSheet(`<div class="sheethead"><h3>❓ Как пользоваться</h3><button class="close" onclick="closeSheet()">×</button></div><div class="small">Добавь машинку → нарисуй маршрут точками на карте → задай скорость → Старт. Можно запускать несколько машинок одновременно. Кнопка «Сброс» перезапускает только выбранную машинку.</div>`);
+document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');const p=b.dataset.page;if(p==='home')home();if(p==='machines')openMachines();if(p==='routes')openRoutes();if(p==='scenarios')openScenarios();if(p==='map')closeSheet()});
+restoreState();updateHud();
+machines.forEach((m,i)=>{m.type=NPK_TYPES[m.type]?m.type:Object.keys(NPK_TYPES)[i%3];m.color=npkType(m.type).color});persistState();home();
+// Public UI bridge: inline handlers and desktop/mobile shell use these safely.
+Object.assign(window,{getPerunState:()=>({machines,savedRoutes,scenarios,selected,drawing}),createNpk,createMachine,openMachines,openMachine,closeSheet,toggleRun,resetMachine,deleteMachine,startDrawing,finishDrawing,undoPoint,deleteLastRoutePoint,reverseRoute,clearRoute,saveRoute,loadRoute,deleteRoute,saveScenario,loadScenario,deleteScenario,fitAll,openRoutes,openScenarios,openStats,openSettings,createAndDraw,v9Create,v9ToggleStats,v13SetLang,refresh,redraw,setBaseLayer});
+}
+
+</script>
+<script>
+function updateSimStatus(){
+  const running=machines.filter(m=>m.running).length;
+  const el=document.getElementById('simStatus');
+  if(el)el.textContent=running?`● СИМУЛЯЦИЯ · ${running} НРК В ДВИЖЕНИИ · 1× REAL TIME`:'● ГОТОВ · СИМУЛЯТОР 1× REAL TIME';
+}
+const _origLoop=loop;
+loop=function(now){_origLoop(now);updateSimStatus()};
+</script>
+
+
+<button id="fitFab" class="btn" onclick="fitAll()" style="position:fixed;right:14px;bottom:82px;z-index:900;width:48px;height:48px;border-radius:50%!important;font-size:18px;background:#0b1622;border:1px solid #334155;box-shadow:0 8px 22px #000b" title="Показать все">⌖</button>
+
+
+<button class="v9-fab" onclick="v9ToggleStats()" title="Статистика">▦</button>
+<div id="v9Stats" class="v9-stats">
+  <div class="v9-stats-head"><b>Статистика симуляции</b><button class="v9-close" onclick="v9ToggleStats()">Закрыть</button></div>
+  <div class="v9-stat-grid">
+    <div class="v9-stat"><b id="v9Vehicles">0</b><span>НРК</span></div>
+    <div class="v9-stat"><b id="v9Running">0</b><span>в движении</span></div>
+    <div class="v9-stat"><b id="v9Distance">0.00 км</b><span>суммарный маршрут</span></div>
+    <div class="v9-stat"><b id="v9Travelled">0.00 км</b><span>пройдено</span></div>
+    <div class="v9-stat"><b id="v9MaxSpeed">0 км/ч</b><span>макс. скорость</span></div>
+    <div class="v9-stat"><b id="v9Routes">0</b><span>маршрутов</span></div>
+  </div>
+</div>
+
+
+<script>
+function v9Create(type){
+  if(typeof createNpk==='function') createNpk(type);
+  document.querySelectorAll('.v9-vehicle').forEach(b=>b.classList.toggle('active',b.dataset.v9===type));
+}
+function v9ToggleStats(){
+  const el=document.getElementById('v9Stats');
+  if(!el)return;
+  el.classList.toggle('show');
+  v9UpdateStats();
+}
+function v9UpdateStats(){
+  if(typeof machines==='undefined')return;
+  const totalRoute=machines.reduce((s,m)=>s+(typeof routeStats==='function'?routeStats(m.route).total:0),0);
+  const travelled=machines.reduce((s,m)=>s+(Number(m.travelled)||0),0);
+  const maxSpeed=machines.reduce((s,m)=>Math.max(s,Number(m.speed)||0),0);
+  const routes=machines.filter(m=>m.route&&m.route.length>=2).length;
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+  set('v9Vehicles',machines.length);
+  set('v9Running',machines.filter(m=>m.running).length);
+  set('v9Distance',totalRoute.toFixed(2)+' км');
+  set('v9Travelled',travelled.toFixed(2)+' км');
+  set('v9MaxSpeed',maxSpeed.toFixed(0)+' км/ч');
+  set('v9Routes',routes);
+}
+const v9Timer=setInterval(v9UpdateStats,500);
+</script>
+
+
+<script>
+function v10ScrollToPicker(){
+  const el=document.querySelector('.v9-picker');
+  if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function v10Update(){
+  if(typeof machines==='undefined')return;
+  let pct=0, count=0;
+  machines.forEach(m=>{
+    if(m.route&&m.route.length>=2){
+      const total=typeof routeStats==='function'?routeStats(m.route).total:0;
+      if(total>0){pct+=Math.min(1,(Number(m.travelled)||0)/total);count++;}
+    }
+  });
+  pct=count?pct/count:0;
+  const p=document.getElementById('v10Progress'), t=document.getElementById('v10Time');
+  if(p)p.style.width=(pct*100).toFixed(1)+'%';
+  if(t)t.textContent=(pct*100).toFixed(0)+'%';
+}
+setInterval(v10Update,250);
+</script>
+
+
+<script>
+function v11MarkerIcon(m){
+  const type=m.type||m.name||'Тарган';
+  let cls='v11-t', symbol='T';
+  if(type==='Гулливер'){cls='v11-g';symbol='G'}
+  if(type==='Ратель'){cls='v11-r';symbol='R'}
+  return L.divIcon({
+    className:'v11-marker',
+    html:`<div class="v11-vehicle ${cls}"><span>${symbol}</span><i class="lamp"></i><i class="stripe"></i></div>`,
+    iconSize:[58,42],iconAnchor:[29,21]
+  });
+}
+function v11RefreshMarker(m){
+  if(m && m.marker){
+    m.marker.setIcon(v11MarkerIcon(m));
+    m.marker.setZIndexOffset(1000);
+  }
+}
+function v11RefreshAll(){
+  if(typeof machines==='undefined')return;
+  machines.forEach(v11RefreshMarker);
+}
+</script>
+<script>setTimeout(v11RefreshAll,200);setInterval(v11RefreshAll,1000);</script>
+<script>
+function v12Flash(title,text,icon='▶'){
+ const box=document.getElementById('v12Flash'),ti=document.getElementById('v12FlashTitle'),tx=document.getElementById('v12FlashText'),ic=document.getElementById('v12FlashIcon');
+ if(!box)return;ti.textContent=title;tx.textContent=text;ic.textContent=icon;
+ box.classList.remove('show');void box.offsetWidth;box.classList.add('show');
+ setTimeout(()=>box.classList.remove('show'),1200);
+}
+function v12Done(m){
+ const el=document.getElementById('v12Complete');
+ if(!el)return;
+ document.getElementById('v12CompleteTitle').textContent=(m.name||'НРК')+' · маршрут завершён';
+ document.getElementById('v12CompleteText').textContent='Симуляция остановлена · '+(Number(m.travelled)||0).toFixed(2)+' км';
+ el.classList.add('show');
+ setTimeout(()=>el.classList.remove('show'),5000);
+}
+function v12DecorateMarker(m){
+ if(!m.marker)return;
+ const el=m.marker.getElement();
+ if(!el)return;
+ const body=el.querySelector('.v11-vehicle');
+ if(!body)return;
+ body.classList.toggle('v12-live',!!m.running);
+}
+const _v12Start=typeof startMachine==='function'?startMachine:null;
+if(_v12Start){
+ window.startMachine=function(id){
+   const r=_v12Start(id);
+   const m=machines.find(x=>x.id===id);
+   if(m)v12Flash('МАРШРУТ ЗАПУЩЕН',(m.name||'НРК')+' · 1× real time','▶');
+   return r;
+ };
+}
+setInterval(()=>{
+ if(typeof machines==='undefined')return;
+ machines.forEach(v12DecorateMarker);
+},200);
+</script>
+
+<script>
+const v12PrevRun={};
+setInterval(()=>{
+ if(typeof machines==='undefined')return;
+ machines.forEach(m=>{
+   const was=!!v12PrevRun[m.id], now=!!m.running;
+   if(was && !now && m.route && m.route.length>=2){
+     const total=typeof routeStats==='function'?routeStats(m.route).total:0;
+     if(total>0 && (Number(m.travelled)||0)>=total-0.0005) v12Done(m);
+   }
+   v12PrevRun[m.id]=now;
+ });
+},250);
+</script>
+
+<script>
+const V13_LANG={
+ uk:{
+  sim:'СИМУЛЯЦІЯ · Віртуальні НРК · без керування реальною технікою',
+  ready:'● ГОТОВО · СИМУЛЯТОР 1× REAL TIME',
+  moving:'● СИМУЛЯЦІЯ · {n} НРК У РУСІ · 1× REAL TIME',
+  choose:'Вибір віртуального НРК', simulation:'СИМУЛЯЦІЯ',
+  compact:'компактний', large:'великий', heavy:'важкий',
+  offcard:'Планування та візуальна симуляція віртуальних маршрутів.',
+  showmap:'⌖ Показати карту', chooseNpk:'🚗 Вибрати НРК',
+  progress:'Хід симуляції', stats:'Статистика симуляції', close:'Закрити',
+  vehicles:'НРК', running:'у русі', distance:'сумарний маршрут',
+  travelled:'пройдено', maxspeed:'макс. швидкість', routes:'маршрутів'
+ },
+ en:{
+  sim:'SIMULATION · Virtual UGVs · no real vehicle control',
+  ready:'● READY · SIMULATOR 1× REAL TIME',
+  moving:'● SIMULATION · {n} UGV(s) MOVING · 1× REAL TIME',
+  choose:'Virtual UGV selection', simulation:'SIMULATION',
+  compact:'compact', large:'large', heavy:'heavy',
+  offcard:'Planning and visual simulation of virtual routes.',
+  showmap:'⌖ Show map', chooseNpk:'🚗 Choose UGV',
+  progress:'Simulation progress', stats:'Simulation statistics', close:'Close',
+  vehicles:'UGVs', running:'moving', distance:'total route',
+  travelled:'travelled', maxspeed:'max speed', routes:'routes'
+ },
+ ru:{
+  sim:'СИМУЛЯЦИЯ · Виртуальные НРК · без управления реальной техникой',
+  ready:'● ГОТОВ · СИМУЛЯТОР 1× REAL TIME',
+  moving:'● СИМУЛЯЦИЯ · {n} НРК В ДВИЖЕНИИ · 1× REAL TIME',
+  choose:'Выбор виртуального НРК', simulation:'СИМУЛЯЦИЯ',
+  compact:'компактный', large:'крупный', heavy:'тяжёлый',
+  offcard:'Планирование и визуальная симуляция виртуальных маршрутов.',
+  showmap:'⌖ Показать карту', chooseNpk:'🚗 Выбрать НРК',
+  progress:'Ход симуляции', stats:'Статистика симуляции', close:'Закрыть',
+  vehicles:'НРК', running:'в движении', distance:'суммарный маршрут',
+  travelled:'пройдено', maxspeed:'макс. скорость', routes:'маршрутов'
+ }
+};
+let v13Lang=localStorage.getItem('offcard_lang')||'ru';
+function v13T(k){return (V13_LANG[v13Lang]||V13_LANG.ru)[k]||k}
+function v13SetLang(lang){
+ if(!V13_LANG[lang])return;
+ v13Lang=lang;localStorage.setItem('offcard_lang',lang);
+ document.documentElement.lang=lang;
+ document.querySelectorAll('.v13-lang button').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));
+ const banner=document.querySelector('.sim-banner'); if(banner)banner.textContent=v13T('sim');
+ const status=document.getElementById('simStatus');
+ if(status)status.textContent=status.textContent.includes('· 0 ') ? v13T('ready') : status.textContent;
+ const title=document.querySelector('.v9-title b'); if(title)title.textContent=v13T('choose');
+ const startP=document.querySelector('.v10-start p'); if(startP)startP.textContent=v13T('offcard');
+ const a=document.querySelector('.v10-actions'); if(a){
+   const bs=a.querySelectorAll('button'); if(bs[0])bs[0].textContent=v13T('showmap'); if(bs[1])bs[1].textContent=v13T('chooseNpk');
+ }
+ const statHead=document.querySelector('.v9-stats-head b'); if(statHead)statHead.textContent=v13T('stats');
+ const close=document.querySelector('.v9-close'); if(close)close.textContent=v13T('close');
+ const progress=document.querySelector('.v10-live span'); if(progress)progress.textContent=v13T('progress');
+ const desc=document.querySelectorAll('.v9-desc');
+ if(desc.length>=3){desc[0].textContent=v13T('compact');desc[1].textContent=v13T('large');desc[2].textContent=v13T('heavy')}
+}
+function v13UpdateStatus(){
+ if(typeof machines==='undefined')return;
+ const el=document.getElementById('simStatus'); if(!el)return;
+ const n=machines.filter(m=>m.running).length;
+ el.textContent=n?v13T('moving').replace('{n}',n):v13T('ready');
+}
+setInterval(v13UpdateStatus,500);
+setTimeout(()=>v13SetLang(v13Lang),0);
+</script>
+
+<nav class="v14-bottom">
+  <button class="active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><b>⌂</b>Главная</button>
+  <button onclick="v14GoMap()"><b>⌖</b>Карта</button>
+  <button onclick="v9ToggleStats()"><b>▦</b>Статистика</button>
+  <button onclick="v14GoNpk()"><b>◈</b>НРК</button>
+</nav>
+
+<script>
+function v14GoMap(){
+ const el=document.getElementById('map');
+ if(el){el.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>{if(typeof map!=='undefined')map.invalidateSize()},400)}
+}
+function v14GoNpk(){
+ const el=document.querySelector('.v9-picker');
+ if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+</script>
+
+<script>
+function v15Update(){
+ if(typeof machines==='undefined')return;
+ const count=machines.length;
+ const moving=machines.filter(m=>m.running).length;
+ let km=0;
+ machines.forEach(m=>{if(typeof routeStats==='function')km+=routeStats(m.route||[]).total});
+ const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+ set('v15Count',count);set('v15Moving',moving);set('v15Km',km.toFixed(2));
+}
+setInterval(v15Update,400);
+</script>
+
+<div id="v16Sheet" class="v16-sheet">
+  <div class="v16-handle"></div>
+  <div class="v16-sheethead">
+    <b>Панель управления</b><span id="v16SheetHint">Потяни вверх</span>
+  </div>
+  <div class="v16-sheetbody">
+    <div class="v16-sheetgrid">
+      <button class="btn" onclick="v14GoNpk();v16CloseSheet()">◈ НРК</button>
+      <button class="btn" onclick="v9ToggleStats();v16CloseSheet()">▦ Статистика</button>
+      <button class="btn" onclick="v16OpenMap()">⌖ Карта</button>
+      <button class="btn" onclick="v16CloseSheet()">× Свернуть</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function v16OpenSheet(){const e=document.getElementById('v16Sheet');if(e)e.classList.add('open')}
+function v16CloseSheet(){const e=document.getElementById('v16Sheet');if(e)e.classList.remove('open')}
+function v16OpenMap(){v16CloseSheet();const e=document.getElementById('map');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>{if(typeof map!=='undefined')map.invalidateSize()},350)}
+function v16LocateMap(){if(typeof map!=='undefined'&&typeof fitAll==='function')fitAll()}
+const v16Sheet=document.getElementById('v16Sheet');
+if(v16Sheet){
+ let sy=0;
+ v16Sheet.addEventListener('touchstart',e=>{sy=e.touches[0].clientY},{passive:true});
+ v16Sheet.addEventListener('touchend',e=>{const dy=e.changedTouches[0].clientY-sy;if(dy<-35)v16OpenSheet();if(dy>35)v16CloseSheet()},{passive:true});
+}
+setInterval(()=>{
+ const e=document.getElementById('v16MapStatus');
+ if(e&&typeof machines!=='undefined'){const n=machines.filter(m=>m.running).length;e.textContent=n?`${n} MOVING`:'READY'}
+},500);
+</script>
+
+<script>
+function v17Assert(name,fn){
+  try{
+    const result=fn();
+    if(result===false)throw new Error('Проверка не выполнена');
+    return {name,ok:true};
+  }catch(e){return {name,ok:false,error:String(e.message||e)}}
+}
+function v17RunTests(){
+ const tests=[];
+ tests.push(v17Assert('HTML / DOM',()=>document&&document.body));
+ tests.push(v17Assert('Карта Leaflet',()=>typeof L!=='undefined'&&typeof map!=='undefined'));
+ tests.push(v17Assert('Массив виртуальных НРК',()=>Array.isArray(machines)));
+ tests.push(v17Assert('Типы НРК',()=>{
+   const t=['Тарган','Гулливер','Ратель'];
+   return t.every(x=>typeof x==='string');
+ }));
+ tests.push(v17Assert('Расчёт маршрута',()=>{
+   const r=routeStats([{lat:48,lng:34},{lat:48.01,lng:34.01}]);
+   return r&&Number.isFinite(r.total)&&r.total>0;
+ }));
+ tests.push(v17Assert('Точная скорость 1×',()=>{
+   const speed=12, seconds=3600;
+   const km=speed*seconds/3600;
+   return Math.abs(km-12)<1e-9;
+ }));
+ tests.push(v17Assert('Хранилище localStorage',()=>{
+   const k='offcard_v17_test';
+   localStorage.setItem(k,'ok');
+   const v=localStorage.getItem(k);
+   localStorage.removeItem(k);
+   return v==='ok';
+ }));
+ tests.push(v17Assert('Языки',()=>{
+   return typeof V13_LANG==='object' && ['uk','en','ru'].every(x=>V13_LANG[x]);
+ }));
+ tests.push(v17Assert('Редактирование маршрута',()=>{
+   return typeof deleteLastRoutePoint==='function'&&typeof reverseRoute==='function'&&typeof clearRoute==='function';
+ }));
+ tests.push(v17Assert('Статистика',()=>typeof v9UpdateStats==='function'));
+ tests.push(v17Assert('Навигация v16',()=>typeof v16OpenSheet==='function'&&typeof v16OpenMap==='function'));
+ tests.push(v17Assert('Новые визуальные модели',()=>typeof v11MarkerIcon==='function'));
+
+ const box=document.getElementById('v17Results');
+ if(!box)return;
+ box.innerHTML='';
+ let ok=0;
+ tests.forEach(t=>{
+   if(t.ok)ok++;
+   const row=document.createElement('div');
+   row.className='v17-row';
+   row.innerHTML=`<i class="v17-dot ${t.ok?'ok':'fail'}"></i><span>${t.name}${t.ok?'':' — '+t.error}</span>`;
+   box.appendChild(row);
+ });
+ const summary=document.createElement('div');
+ summary.className='v17-summary';
+ summary.textContent=`Результат: ${ok}/${tests.length} проверок пройдено`;
+ box.appendChild(summary);
+ box.classList.add('show');
+}
+</script>
+
+<div id="v21SavedPanel" style="position:fixed;right:18px;bottom:18px;z-index:1400;width:360px;max-width:calc(100vw - 36px);
+background:rgba(7,16,24,.96);border:1px solid #2b4050;border-radius:18px;padding:14px;box-shadow:0 18px 50px #000b;">
+  <div class="v21-points-title"><b>СОХРАНЁННЫЕ ТОЧКИ</b><span class="small" id="v21PointCount">0</span></div>
+  <button class="v21-add" id="v21SavePointBtn">＋ Сохранить текущую точку</button>
+  <div class="v21-list" id="v21SavedList"></div>
+  <div class="v22-saved-tools">
+    <button class="green" id="v22UseStart">◎ Как старт</button>
+    <button id="v22UseEnd">◉ Как финиш</button>
+  </div>
+  
+  <div class="v23-block">
+    <div class="v23-block-title">ГРУЗ</div>
+    <div class="v23-weight">
+      <input id="v23Weight" type="number" min="0" max="10000" step="0.1" placeholder="Вес посылки">
+      <span>кг</span>
+    </div>
+    <div class="v23-weight-note">Вес используется только в симуляции и влияет на отображение загрузки.</div>
+    <div class="v23-cargo">
+      <div class="v23-cargo-icon">📦</div>
+      <div class="v23-cargo-info"><b id="v23CargoTitle">Без посылки</b><span id="v23CargoSub">НРК пустой</span></div>
+      <button class="v23-toggle" id="v23CargoToggle" aria-label="Положить посылку"></button>
+    </div>
+    <div id="v23CargoBadge" class="v23-cargo-badge empty">○ ПУСТОЙ</div>
+  </div>
+
+  <div class="v23-block">
+    <div class="v23-block-title">МАРШРУТЫ</div>
+    <button class="v23-route-save" id="v23SaveRoute">＋ Сохранить текущий маршрут</button>
+    <div class="v23-route-list" id="v23Routes"></div>
+  </div>
+
+<div class="v22-route-tools">
+    <button id="v22RoutePointsBtn">▣ Точки маршрута</button>
+    <button class="primary" id="v22SaveRoutePointsBtn">＋ Сохранить точки</button>
+  </div>
+
+</div>
+<div class="v21-dialog" id="v21Dialog">
+  <div class="v21-box">
+    <h3>Сохранить точку</h3>
+    <p id="v21Coords">Выбери точку на карте или используй текущую.</p>
+    <input id="v21PointName" maxlength="40" placeholder="Название точки, например: Дом">
+    <div class="v21-actions">
+      <button class="v21-cancel" id="v21Cancel">Отмена</button>
+      <button class="v21-save" id="v21Confirm">Сохранить</button>
+    </div>
+  </div>
+</div>
+<div class="v21-toast" id="v21Toast"></div>
+
+
+<script id="perun-v21-point-engine">
+(function(){
+  const KEY='perun42_saved_points_v21';
+  let saved=[];
+  let pending=null;
+
+  const $=id=>document.getElementById(id);
+  function load(){try{saved=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){saved=[]}}
+  function persist(){localStorage.setItem(KEY,JSON.stringify(saved))}
+  function toast(t){
+    const x=$('v21Toast'); if(!x)return;
+    x.textContent=t;x.classList.add('show');clearTimeout(window.__v21toast);
+    window.__v21toast=setTimeout(()=>x.classList.remove('show'),1800);
+  }
+  function fmt(p){return `${Number(p.lat).toFixed(5)}, ${Number(p.lng).toFixed(5)}`}
+  function render(){
+    const count=$('v21PointCount'), list=$('v21SavedList');
+    if(!list)return;
+    count.textContent=saved.length;
+    list.innerHTML='';
+    saved.forEach((p,i)=>{
+      const row=document.createElement('div');row.className='v21-point';
+      row.innerHTML=`<div class="num">${i+1}</div><div class="info"><b>${escapeHtml(p.name)}</b><span>${fmt(p)}</span></div><button title="Удалить">×</button>`;
+      row.querySelector('button').onclick=()=>{
+        saved.splice(i,1);persist();render();toast('Точка удалена');
+      };
+      row.querySelector('.info').onclick=()=>focusPoint(p);
+      list.appendChild(row);
+    });
+  }
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function getMap(){
+    // Leaflet exposes the map in the page script; find the first map container's Leaflet instance.
+    const el=document.getElementById('map');
+    return el && el._leaflet_map ? el._leaflet_map : window.map || window.__map || null;
+  }
+  function focusPoint(p){
+    const m=getMap();
+    if(m && m.setView){m.setView([p.lat,p.lng],Math.max(m.getZoom(),15));}
+    toast(p.name);
+  }
+  function openDialog(point){
+    pending=point||pending;
+    if(!pending){toast('Сначала поставь точку на карте');return}
+    $('v21Coords').textContent=fmt(pending);
+    $('v21PointName').value=pending.name||'';
+    $('v21Dialog').classList.add('show');
+    setTimeout(()=>$('v21PointName').focus(),50);
+  }
+  function confirm(){
+    const name=$('v21PointName').value.trim()||`Точка ${saved.length+1}`;
+    if(!pending)return;
+    saved.push({name,lat:Number(pending.lat),lng:Number(pending.lng),created:Date.now()});
+    persist();render();$('v21Dialog').classList.remove('show');toast(`Сохранено: ${name}`);
+    pending=null;
+  }
+
+  $('v21SavePointBtn').onclick=()=>openDialog(null);
+  $('v21Cancel').onclick=()=>{$('v21Dialog').classList.remove('show');pending=null};
+  $('v21Confirm').onclick=confirm;
+  $('v21PointName').addEventListener('keydown',e=>{if(e.key==='Enter')confirm();if(e.key==='Escape')$('v21Cancel').click()});
+  $('v21Dialog').addEventListener('click',e=>{if(e.target.id==='v21Dialog')$('v21Cancel').click()});
+
+  // Add a "save point" action to route point markers/route point list when possible.
+  // Also expose a public helper for the existing route code.
+  window.perun42SavePoint=function(lat,lng,name){openDialog({lat,lng,name:name||''})};
+
+  // Capture map clicks without disrupting route drawing. A normal click saves a pending point;
+  // route drawing can still process the same click through the original Leaflet handler.
+  function hook(){
+    const m=getMap();
+    if(!m || !m.on){return setTimeout(hook,500)}
+    if(m.__v21hook)return;
+    m.__v21hook=true;
+    m._leaflet_map=m;
+    m.on('click',e=>{
+      pending={lat:e.latlng.lat,lng:e.latlng.lng};
+      // Don't force the dialog on every click; the user can name/save it.
+      const btn=$('v21SavePointBtn');
+      if(btn)btn.textContent='＋ Сохранить выбранную точку';
+      $('v21Coords').textContent=fmt(pending);
+    });
+  }
+
+  // Periodically detect the map object if the original script doesn't expose it.
+  function discover(){
+    const el=document.getElementById('map');
+    if(el && el._leaflet_map){hook();return}
+    // Leaflet stores _leaflet_id; recover map from global Leaflet registry is not public,
+    // so the original script is patched below when it calls L.map().
+    hook();
+  }
+
+  // Patch L.map so the app's existing map instance becomes available to this feature.
+  const wait=()=>{
+    if(window.L && !window.L.__v21patched){
+      const orig=window.L.map;
+      window.L.map=function(){
+        const m=orig.apply(this,arguments);
+        window.map=m;
+        const el=document.getElementById('map');
+        if(el)el._leaflet_map=m;
+        setTimeout(hook,0);
+        return m;
+      };
+      window.L.__v21patched=true;
+      discover();
+    } else if(!window.L){setTimeout(wait,300)}
+    else discover();
+  };
+  load();render();wait();
+
+  // Make saved points available for future route insertion.
+  window.perun42SavedPoints=()=>saved.slice();
+})();
+</script>
+
+
+<div class="v21-dialog" id="v22RouteModal">
+  <div class="v21-box">
+    <h3>Точки текущего маршрута</h3>
+    <p>Можно сохранить любую точку или добавить сохранённую точку в маршрут.</p>
+    <div class="v22-point-list" id="v22RoutePointList"></div>
+    <div class="v22-actions" style="display:flex;gap:8px;margin-top:10px">
+      <button class="v21-cancel" id="v22RouteClose" style="flex:1;padding:10px;border-radius:10px">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+
+<script id="perun-v22-route-point-engine">
+(function(){
+  const KEY='perun42_saved_points_v21';
+  const $=id=>document.getElementById(id);
+  function readSaved(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return[]}}
+  function writeSaved(a){localStorage.setItem(KEY,JSON.stringify(a))}
+  function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function currentMachine(){
+    return (typeof machines!=='undefined' && typeof selected!=='undefined' && selected)
+      ? machines.find(m=>m.id===selected) : null;
+  }
+  function ensureMachine(){
+    let m=currentMachine();
+    if(m)return m;
+    if(typeof createMachine==='function') m=createMachine('Тарган');
+    return m;
+  }
+  function savePointObj(p, defaultName){
+    const a=readSaved();
+    a.push({name:defaultName||('Точка '+(a.length+1)),lat:Number(p.lat),lng:Number(p.lng),created:Date.now()});
+    writeSaved(a);
+    if(typeof render==='function'){} // v21 panel has its own renderer
+    if(typeof toast==='function')toast('📍 Точка сохранена');
+    if(typeof window.perun42SavePoint==='function'){
+      // no-op: avoid opening another dialog
+    }
+    location.reload ? null : null;
+  }
+  function saveRoutePoint(i){
+    const m=currentMachine();
+    if(!m || !m.route || !m.route[i]){toast&&toast('Нет выбранного маршрута');return}
+    const p=m.route[i];
+    const a=readSaved();
+    const suggested=`${m.name} · Точка ${i+1}`;
+    a.push({name:suggested,lat:Number(p.lat),lng:Number(p.lng),created:Date.now(),routePoint:true});
+    writeSaved(a);
+    if(typeof toast==='function')toast('Сохранено: '+suggested);
+    renderRoutePoints();
+  }
+  function addSavedToRoute(p,where){
+    const m=ensureMachine(); if(!m)return;
+    m.running=false; m.travelled=0;
+    const pt={lat:Number(p.lat),lng:Number(p.lng)};
+    if(where==='start')m.route.unshift(pt); else m.route.push(pt);
+    if(typeof persistState==='function')persistState();
+    if(typeof drawMachine==='function')drawMachine(m);
+    if(typeof map!=='undefined' && map && m.route.length) map.fitBounds(L.latLngBounds(m.route),{padding:[30,30]});
+    if(typeof toast==='function')toast((where==='start'?'◎ Старт':'◉ Финиш')+' установлен: '+p.name);
+  }
+  function chooseSaved(where){
+    const a=readSaved();
+    if(!a.length){toast&&toast('Сначала сохрани хотя бы одну точку');return}
+    // Open the existing panel as a simple chooser; clicking a saved row is handled here.
+    const list=$('v21SavedList'); if(!list)return;
+    [...list.querySelectorAll('.v21-point')].forEach((row,i)=>{
+      row.style.cursor='pointer';
+      row.onclick=(e)=>{
+        if(e.target.tagName==='BUTTON')return;
+        addSavedToRoute(a[i],where);
+      };
+    });
+    if(typeof toast==='function')toast(where==='start'?'Выбери сохранённую точку как старт':'Выбери сохранённую точку как финиш');
+  }
+  function renderRoutePoints(){
+    const box=$('v22RoutePointList'); if(!box)return;
+    const m=currentMachine();
+    if(!m || !m.route || !m.route.length){
+      box.innerHTML='<div class="empty">У текущего НРК пока нет точек маршрута.</div>';return;
+    }
+    box.innerHTML=m.route.map((p,i)=>`
+      <div class="v22-rp">
+        <div class="n">${i+1}</div>
+        <div class="txt"><b>Точка ${i+1}</b><span>${Number(p.lat).toFixed(5)}, ${Number(p.lng).toFixed(5)}</span></div>
+        <button data-save="${i}">Сохранить</button>
+      </div>`).join('');
+    box.querySelectorAll('[data-save]').forEach(b=>b.onclick=()=>saveRoutePoint(Number(b.dataset.save)));
+  }
+  $('v22UseStart').onclick=()=>chooseSaved('start');
+  $('v22UseEnd').onclick=()=>chooseSaved('end');
+  $('v22RoutePointsBtn').onclick=()=>{
+    renderRoutePoints();
+    $('v22RouteModal').classList.add('show');
+  };
+  $('v22SaveRoutePointsBtn').onclick=()=>{
+    renderRoutePoints();
+    $('v22RouteModal').classList.add('show');
+    if(typeof toast==='function')toast('Выбери точки, которые хочешь сохранить');
+  };
+  $('v22RouteClose').onclick=()=>$('v22RouteModal').classList.remove('show');
+  $('v22RouteModal').addEventListener('click',e=>{if(e.target.id==='v22RouteModal')$('v22RouteModal').classList.remove('show')});
+})();
+</script>
+
+<div id="v23CargoOverlay" class="v23-cargo-overlay"></div>
+
+<script id="perun-v23-cargo-route-engine">
+(function(){
+  const CARGO_KEY='perun42_cargo_v23';
+  const ROUTE_KEY='perun42_routes_v23';
+  const $=id=>document.getElementById(id);
+
+  let cargo={loaded:false,weight:0};
+  let routes=[];
+
+  function load(){
+    try{cargo=JSON.parse(localStorage.getItem(CARGO_KEY)||'{"loaded":false,"weight":0}')}catch(e){}
+    try{routes=JSON.parse(localStorage.getItem(ROUTE_KEY)||'[]')}catch(e){routes=[]}
+  }
+  function persistCargo(){localStorage.setItem(CARGO_KEY,JSON.stringify(cargo))}
+  function persistRoutes(){localStorage.setItem(ROUTE_KEY,JSON.stringify(routes))}
+  function currentMachine(){
+    if(typeof machines!=='undefined' && typeof selected!=='undefined')
+      return machines.find(m=>m.id===selected)||null;
+    return null;
+  }
+  function toast(t){
+    const el=$('v23CargoOverlay');if(!el)return;
+    el.textContent=t;el.classList.add('show');clearTimeout(window.__v23toast);
+    window.__v23toast=setTimeout(()=>el.classList.remove('show'),1800);
+  }
+  function setCargoVisual(){
+    const w=Number(cargo.weight)||0;
+    $('v23Weight').value=w||'';
+    $('v23CargoToggle').classList.toggle('on',!!cargo.loaded);
+    $('v23CargoTitle').textContent=cargo.loaded?'Посылка загружена':'Без посылки';
+    $('v23CargoSub').textContent=cargo.loaded?`Груз ${w.toFixed(1)} кг`:'НРК пустой';
+    const b=$('v23CargoBadge');
+    b.textContent=cargo.loaded?`● ЗАГРУЖЕН · ${w.toFixed(1)} кг`:'○ ПУСТОЙ';
+    b.classList.toggle('empty',!cargo.loaded);
+  }
+  function getRoute(){
+    const m=currentMachine();
+    return m && Array.isArray(m.route) ? m.route.map(p=>({lat:Number(p.lat),lng:Number(p.lng)})) : [];
+  }
+  function saveCurrentRoute(){
+    const route=getRoute();
+    if(route.length<2){toast('Нужно минимум 2 точки маршрута');return}
+    const m=currentMachine();
+    const name=prompt('Название маршрута:',`Маршрут ${routes.length+1}`);
+    if(name===null)return;
+    routes.push({name:name.trim()||`Маршрут ${routes.length+1}`,route,vehicle:m?m.name:'Тарган',created:Date.now()});
+    persistRoutes();renderRoutes();toast('Маршрут сохранён');
+  }
+  function renderRoutes(){
+    const box=$('v23Routes');if(!box)return;
+    if(!routes.length){box.innerHTML='<div class="small" style="padding:7px 2px">Сохранённых маршрутов пока нет</div>';return}
+    box.innerHTML=routes.map((r,i)=>`
+      <div class="v23-route-row">
+        <div class="ri">${i+1}</div>
+        <div class="rt"><b>${escapeHtml(r.name)}</b><span>${r.route.length} точек · ${escapeHtml(r.vehicle||'НРК')}</span></div>
+        <button data-load="${i}">Загрузить</button>
+        <button data-del="${i}">×</button>
+      </div>`).join('');
+    box.querySelectorAll('[data-load]').forEach(b=>b.onclick=()=>loadRoute(Number(b.dataset.load)));
+    box.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{routes.splice(Number(b.dataset.del),1);persistRoutes();renderRoutes();toast('Маршрут удалён')});
+  }
+  function loadRoute(i){
+    const r=routes[i]; if(!r)return;
+    const m=currentMachine();
+    if(!m){toast('Сначала выбери НРК');return}
+    m.route=r.route.map(p=>({lat:p.lat,lng:p.lng}));
+    m.running=false;m.travelled=0;
+    if(typeof persistState==='function')persistState();
+    if(typeof drawMachine==='function')drawMachine(m);
+    if(typeof map!=='undefined' && map && m.route.length && typeof L!=='undefined')
+      map.fitBounds(L.latLngBounds(m.route),{padding:[30,30]});
+    toast('Маршрут загружен: '+r.name);
+  }
+
+  function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+  // Toggle load/unload.
+  $('v23CargoToggle').onclick=()=>{
+    const w=Number($('v23Weight').value)||0;
+    if(!cargo.loaded && w<=0){toast('Укажи вес посылки');return}
+    cargo.loaded=!cargo.loaded;
+    cargo.weight=w;
+    persistCargo();setCargoVisual();
+    if(cargo.loaded){
+      animateCargo(true);
+      toast(`📦 Посылка загружена · ${w.toFixed(1)} кг`);
+    }else{
+      animateCargo(false);
+      toast('Посылка выгружена · НРК пустой');
+    }
+  };
+  $('v23Weight').addEventListener('change',()=>{
+    const w=Math.max(0,Number($('v23Weight').value)||0);
+    cargo.weight=w;
+    if(cargo.loaded && w<=0)cargo.loaded=false;
+    persistCargo();setCargoVisual();
+  });
+  $('v23SaveRoute').onclick=saveCurrentRoute;
+
+  function animateCargo(loaded){
+    const m=currentMachine();
+    // Find the simulator marker for the selected virtual vehicle and add a small package indicator.
+    if(m && m.marker && m.marker.getElement){
+      const el=m.marker.getElement();
+      if(el){
+        let badge=el.querySelector('.v23-package');
+        if(loaded){
+          if(!badge){
+            badge=document.createElement('div');badge.className='v23-package';
+            badge.textContent='📦';badge.style.cssText='position:absolute;right:-9px;bottom:-8px;font-size:17px;filter:drop-shadow(0 3px 4px #000);animation:v23pack .55s ease-out';
+            el.style.position='relative';el.appendChild(badge);
+          }else badge.style.animation='v23pack .55s ease-out';
+          el.style.transformOrigin='center bottom';
+          el.animate([{transform:'scale(1)'},{transform:'scale(1.08) translateY(-2px)'},{transform:'scale(1)'}],{duration:550,easing:'ease-out'});
+        }else if(badge){
+          badge.animate([{transform:'scale(1)',opacity:1},{transform:'scale(.6)',opacity:0}],{duration:280}).onfinish=()=>badge.remove();
+        }
+      }
+    }
+  }
+
+  // CSS animation for the package indicator.
+  const st=document.createElement('style');
+  st.textContent='@keyframes v23pack{0%{transform:scale(.2) translateY(-12px);opacity:0}70%{transform:scale(1.2) translateY(0);opacity:1}100%{transform:scale(1);opacity:1}}';
+  document.head.appendChild(st);
+
+  load();setCargoVisual();renderRoutes();
+  setInterval(()=>{if(cargo.loaded){const m=currentMachine();if(m&&m.marker)animateCargo(true)}},1200);
+})();
+</script>
+
+
+<div class="v24-rail" id="v24Rail">
+  <div class="v24-rail-title">КЕРУВАННЯ</div>
+  <div class="v24-actions">
+    <button id="v24Manual">Ручне</button>
+    <button id="v24Auto" class="active">Автономний маршрут</button>
+  </div>
+  <div class="v24-speed"><input id="v24Speed" type="number" min="0" max="100" step="1" value="12"><span>км/год</span></div>
+  <div class="v24-actions" style="margin-top:7px">
+    <button id="v24Start">▶ Старт</button>
+    <button id="v24Stop">■ Стоп</button>
+  </div>
+</div>
+<div class="v24-map-tools">
+  <div class="v24-search" id="v24Search">⌕&nbsp; Пошук на Google Maps…</div>
+  <div class="v24-layers" id="v24Layers"><button class="active" data-layer="sat">Супутник</button><button data-layer="map">Карта</button><button data-layer="hyb">Гібрид</button></div>
+</div>
+<div class="v24-status" id="v24Status">● Готовий до руху</div>
+<div class="v24-bottominfo">
+  <div class="v24-stat"><b id="v24Dist">0.0 км</b><span>Відстань</span></div>
+  <div class="v24-stat"><b id="v24Time">00:00</b><span>Час у дорозі</span></div>
+  <div class="v24-stat"><b id="v24Type">Пересічена</b><span>Тип місцевості</span></div>
+  <div class="v24-stat"><b id="v24Pts">0</b><span>Точки</span></div>
+  <button class="v24-clear" id="v24Clear">⌫ Очистити</button>
+</div>
+<script id="perun-v26-ui">
+(function(){
+  const $=id=>document.getElementById(id);
+  function getMachine(){
+    try{return (typeof machines!=='undefined'&&typeof selected!=='undefined')?machines.find(m=>m.id===selected):null}catch(e){return null}
+  }
+  function dist(route){
+    if(!route||route.length<2)return 0;
+    let d=0,R=6371;
+    for(let i=1;i<route.length;i++){
+      const a=route[i-1],b=route[i],p=Math.PI/180;
+      const x=(b.lat-a.lat)*p,y=(b.lng-a.lng)*p;
+      const q=Math.sin(x/2)**2+Math.cos(a.lat*p)*Math.cos(b.lat*p)*Math.sin(y/2)**2;
+      d+=2*R*Math.asin(Math.sqrt(q));
+    }
+    return d;
+  }
+  function update(){
+    const m=getMachine(),r=m&&Array.isArray(m.route)?m.route:[];
+    $('v24Pts').textContent=r.length;
+    $('v24Dist').textContent=dist(r).toFixed(1)+' км';
+    if(m){
+      $('v24Type').textContent=m.running?'Маршрут активен':'Пересічена';
+      $('v24Status').textContent=m.running?'● НРК рухається':'● Готовий до руху';
+      $('v24Speed').value=Number(m.speed)||0;
+    }else $('v24Status').textContent='● Выберите НРК';
+  }
+  function mode(manual){
+    $('v24Manual').classList.toggle('active',manual);
+    $('v24Auto').classList.toggle('active',!manual);
+    const m=getMachine();
+    if(m)m.mode=manual?'manual':'auto';
+    try{if(typeof persistState==='function')persistState()}catch(e){}
+  }
+  $('v24Clear').onclick=()=>{
+    try{if(typeof clearRoute==='function')clearRoute()}catch(e){}
+    setTimeout(update,100);
+  };
+  document.querySelectorAll('#v24Layers button').forEach(b=>{
+    b.onclick=()=>{try{if(typeof setBaseLayer==='function')setBaseLayer(b.dataset.layer)}catch(e){}};
+  });
+  $('v24Start').onclick=()=>{
+    const m=getMachine();
+    if(!m){if(typeof openMachines==='function')openMachines();return}
+    if(typeof toggleRun==='function')toggleRun(m.id);
+    setTimeout(update,100);
+  };
+  $('v24Stop').onclick=()=>{
+    const m=getMachine();
+    if(m){
+      m.running=false;
+      try{if(typeof persistState==='function')persistState();if(typeof refresh==='function')refresh()}catch(e){}
+    }
+    update();
+  };
+  $('v24Manual').onclick=()=>mode(true);
+  $('v24Auto').onclick=()=>mode(false);
+  $('v24Speed').onchange=e=>{
+    const m=getMachine();
+    if(m){
+      m.speed=Math.max(0,Number(e.target.value)||0);
+      try{if(typeof persistState==='function')persistState()}catch(err){}
+      update();
+    }
+  };
+  const search=$('v24Search');
+  if(search)search.onclick=()=>{try{if(typeof openRoutes==='function')openRoutes()}catch(e){}};
+  setInterval(update,500);
+  update();
+})();
+</script>
+
+<script id="perun-v26-selftest">
+(function(){
+  const requiredIds=['map','v23Weight','v23CargoToggle','v23SaveRoute','v24Manual','v24Auto','v24Start','v24Stop','v24Speed','v24Clear','v24Layers','v24Dist','v24Pts'];
+  const inlineFns=['fitAll','v14GoNpk','v10ScrollToPicker','v17RunTests','v9Create','v13SetLang','v16LocateMap','finishDrawing','deleteLastRoutePoint','reverseRoute','clearRoute','createNpk','toggleRun','openMachine','closeSheet','resetMachine','startDrawing','saveRoute','deleteMachine','saveMachineSettings','undoPoint','clearRouteById','createAndDraw','loadRoute','deleteRoute','saveScenario','loadScenario','deleteScenario','openMachines','openRoutes','openScenarios','openStats','v9ToggleStats','v14GoMap','v16OpenMap'];
+  const source=document.documentElement.outerHTML;
+  const checks=[
+    ...requiredIds.map(id=>({name:'Элемент '+id,ok:!!document.getElementById(id)})),
+    ...inlineFns.map(fn=>({name:'Функция '+fn,ok:typeof window[fn]==='function'})),
+    {name:'Google satellite',ok:source.includes('mt1.google.com/vt/lyrs=s')},
+    {name:'localStorage',ok:source.includes('localStorage')},
+    {name:'Скорость dt/3600',ok:source.includes('dt/3600')}
+  ];
+  window.PERUN42_SELFTEST=checks;
+  window.PERUN42_SELFTEST_SCORE=checks.filter(x=>x.ok).length+'/'+checks.length;
+  console.info('ПЕРУН 42 v26 self-test:',window.PERUN42_SELFTEST_SCORE,checks);
+})();
+</script>
+<style id="perun-v27-style">
+/* v27 clean desktop/mobile website UI, matched to the reference layout */
+.v24-rail,.v24-map-tools,.v24-bottominfo,.v24-status,.fleet-picker,#v21SavedPanel,.v15-shell,.v15-maphead,.v15-quick,.v11-map-legend,.v9-picker,.v14-bottom,.v17-test,.v10-start,.v10-startflash,.v12-startflash,.v12-complete,.v10-brand,.v13-lang{display:none!important}
+.perun-v27{position:fixed;inset:0;z-index:3200;pointer-events:none;color:#eaf1f5;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif}
+.perun-v27 *{box-sizing:border-box}.perun-v27 button{pointer-events:auto;font:inherit}.perun-v27 .topbar{height:68px;position:absolute;left:0;right:0;top:0;background:rgba(5,12,18,.96);border-bottom:1px solid #20303a;display:flex;align-items:center;padding:0 18px;gap:18px;box-shadow:0 6px 24px #0008}
+.p27-brand{display:flex;align-items:center;gap:10px;min-width:190px}.p27-logo{width:42px;height:42px;object-fit:contain}.p27-brand b{display:block;font-size:16px;letter-spacing:.8px}.p27-brand small{display:block;color:#7d8b95;font-size:9px;margin-top:3px}
+.p27-nav{display:flex;gap:4px;height:100%;align-items:center}.p27-nav button{height:40px;padding:0 16px;border-radius:8px;background:transparent;color:#71808b;border:1px solid transparent;font-size:12px}.p27-nav button.active,.p27-nav button:hover{background:#10202b;color:#edf4f8;border-color:#223b49}.p27-right{margin-left:auto;display:flex;align-items:center;gap:8px}.p27-right button{height:38px;padding:0 11px;border-radius:8px;background:#0c1821;border:1px solid #263b49;color:#cbd7dd;font-size:11px}
+.p27-sidebar{position:absolute;left:0;top:68px;bottom:0;width:244px;background:rgba(6,14,20,.97);border-right:1px solid #1f3039;padding:14px;overflow:auto;pointer-events:auto}.p27-kicker{font-size:9px;color:#72818b;letter-spacing:1.3px;font-weight:900;margin:2px 0 9px}.p27-npk{display:grid;gap:8px}.p27-npk button{display:grid;grid-template-columns:56px 1fr 14px;align-items:center;gap:10px;width:100%;padding:9px;border:1px solid #1d303b;border-radius:10px;background:#0b171f;text-align:left;color:#e7eef2}.p27-npk button:hover,.p27-npk button.active{border-color:#2d7a59;background:#0d241d}.p27-npk .pic{width:56px;height:42px;border-radius:7px;background:#111d25;display:flex;align-items:center;justify-content:center;font-size:28px}.p27-npk b{font-size:12px}.p27-npk small{display:block;color:#71818b;font-size:8px;margin-top:3px}.p27-arrow{color:#6d7d87;font-size:19px}.p27-section{margin-top:16px;padding-top:13px;border-top:1px solid #1d2b34}.p27-row{display:grid;grid-template-columns:1fr 1fr;gap:7px}.p27-btn{padding:10px 8px;border:1px solid #263b49;border-radius:8px;background:#0b1821;color:#dce5ea;font-size:10px;font-weight:800}.p27-btn:hover{border-color:#3e5d6d;background:#11222d}.p27-btn.green{background:#103325;border-color:#2b6948;color:#9be7b7}.p27-speed{display:flex;align-items:center;gap:6px;margin-top:8px}.p27-speed input{width:78px;padding:9px;border-radius:8px;border:1px solid #29404f;background:#08141c;color:#fff;font-size:11px}.p27-speed span{font-size:9px;color:#7c8b95}.p27-saved{margin-top:12px}.p27-saved button{width:100%;text-align:left;margin-top:6px;padding:8px;border-radius:7px;border:1px solid #20333f;background:#0b171f;color:#cbd6dc;font-size:9px}
+.p27-mapbar{position:absolute;left:260px;right:18px;top:82px;display:flex;align-items:center;gap:8px}.p27-search{pointer-events:auto;flex:1;max-width:360px;padding:10px 13px;border-radius:9px;background:rgba(6,14,20,.93);border:1px solid #263b49;color:#8999a3;font-size:10px}.p27-layers{margin-left:auto;display:flex;pointer-events:auto;border:1px solid #263b49;border-radius:9px;overflow:hidden;background:rgba(6,14,20,.93)}.p27-layers button{padding:9px 13px;background:transparent;border:0;border-right:1px solid #263b49;color:#74838d;font-size:9px}.p27-layers button:last-child{border-right:0}.p27-layers button.active{background:#103225;color:#9de6b6}
+.p27-bottom{position:absolute;left:260px;right:18px;bottom:14px;height:76px;background:rgba(6,14,20,.95);border:1px solid #263b45;border-radius:11px;display:grid;grid-template-columns:repeat(4,1fr) 120px;pointer-events:auto;box-shadow:0 12px 32px #0009;backdrop-filter:blur(10px)}.p27-stat{display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid #1d2c35}.p27-stat b{font-size:15px}.p27-stat span{margin-top:4px;color:#71818b;font-size:8px}.p27-bottom .p27-btn{margin:18px 10px}
+.p27-status{position:absolute;left:260px;bottom:101px;padding:7px 10px;border-radius:8px;background:rgba(5,16,11,.94);border:1px solid #28563e;color:#86dfa6;font-size:9px;font-weight:800}
+.p27-toast{position:absolute;left:50%;top:78px;transform:translateX(-50%);padding:9px 14px;border-radius:8px;background:#111f28;border:1px solid #304754;color:#e8f0f4;font-size:10px;opacity:0;transition:.2s}.p27-toast.show{opacity:1}
+@media(max-width:850px){.perun-v27 .topbar{height:58px;padding:0 9px;gap:8px}.p27-brand{min-width:auto}.p27-logo{width:34px;height:34px}.p27-brand b{font-size:12px}.p27-brand small{font-size:7px}.p27-nav{gap:2px;overflow:auto}.p27-nav button{padding:0 9px;font-size:9px;white-space:nowrap}.p27-right{display:none}.p27-sidebar{top:58px;width:184px;padding:9px}.p27-npk button{grid-template-columns:42px 1fr 10px;padding:6px;gap:6px}.p27-npk .pic{width:42px;height:34px;font-size:21px}.p27-npk b{font-size:10px}.p27-npk small{font-size:7px}.p27-mapbar{left:193px;right:7px;top:66px}.p27-search{max-width:none;padding:8px 9px;font-size:8px}.p27-layers button{padding:7px 8px;font-size:7px}.p27-bottom{left:193px;right:7px;bottom:62px;height:61px;grid-template-columns:repeat(4,1fr)}.p27-bottom .p27-btn{display:none}.p27-stat b{font-size:11px}.p27-stat span{font-size:6px}.p27-status{left:193px;bottom:128px;font-size:7px}.p27-section{margin-top:11px;padding-top:10px}.p27-btn{font-size:8px;padding:8px}.p27-speed input{width:62px;padding:7px}.p27-speed span{font-size:7px}}
+
+.p27-route-mode{margin-top:7px;padding:7px 8px;border:1px dashed #2a414d;border-radius:7px;background:#09141b;color:#71818b;font-size:8px;line-height:1.35}
+.p27-route-mode.active{border-color:#2d7a59;background:#0d241d;color:#9be7b7}
+.p27-npk button:focus,.p27-btn:focus,.p27-nav button:focus,.p27-layers button:focus,.p27-right button:focus{outline:2px solid #4d8e70;outline-offset:1px}
+</style><div class="perun-v27" id="perunV27">
+  <header class="topbar">
+    <div class="p27-brand"><img class="p27-logo" src="data:image/png;base64,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[... truncated due to tool input limit ...]</div>
+    <nav class="p27-nav">
+      <button class="active" data-p27="map">Карта</button><button data-p27="routes">Маршрути</button><button data-p27="log">Журнал</button><button data-p27="settings">Налаштування</button>
+    </nav>
+    <div class="p27-right"><button onclick="v13SetLang('uk')">UA</button><button onclick="openSettings()">⚙</button></div>
+  </header>
+  <aside class="p27-sidebar">
+    <div class="p27-kicker">ВИБІР НРК</div>
+    <div class="p27-npk">
+      <button data-npk="Тарган"><span class="pic">🪲</span><span><b>Тарган</b><small>Легкий · швидкий<br>Розвідка / доставка</small></span><span class="p27-arrow">›</span></button>
+      <button data-npk="Гулливер"><span class="pic">🛻</span><span><b>Гулливер</b><small>Універсальний<br>Підтримка / логістика</small></span><span class="p27-arrow">›</span></button>
+      <button data-npk="Ратель"><span class="pic">🐗</span><span><b>Ратель</b><small>Важкий · захищений<br>Евакуація / доставка</small></span><span class="p27-arrow">›</span></button>
+    </div>
+    <div class="p27-section"><div class="p27-kicker">КЕРУВАННЯ</div><div class="p27-row"><button class="p27-btn" id="p27Manual">Ручне</button><button class="p27-btn green" id="p27Auto">Автономний</button></div><div class="p27-speed"><input id="p27Speed" type="number" min="0" max="1000" value="12"><span>км/год</span></div><button class="p27-btn green" style="width:100%;margin-top:8px" id="p27Start">▶ Почати маршрут</button><button class="p27-btn" style="width:100%;margin-top:6px" id="p27Stop">■ Стоп</button></div>
+    <div class="p27-section"><div class="p27-kicker">МАРШРУТ</div><button class="p27-btn green" id="p27CreateRoute" style="width:100%;font-size:11px;padding:11px">＋ СТВОРИТИ МАРШРУТ</button><div class="p27-route-mode" id="p27RouteMode">Натисни «Створити маршрут», потім клацни по карті — перша точка стане стартом.</div><div class="p27-row" style="margin-top:7px"><button class="p27-btn" id="p27AddPoint">＋ Додати точку</button><button class="p27-btn" id="p27Undo">↩ Видалити</button></div><div class="p27-row" style="margin-top:7px"><button class="p27-btn" id="p27Reverse">↔ Розвернути</button><button class="p27-btn" id="p27Clear">⌫ Очистити</button></div><button class="p27-btn" id="p27Save" style="width:100%;margin-top:7px">💾 Зберегти маршрут</button><button class="p27-btn" id="p27Finish" style="width:100%;margin-top:6px;display:none">✓ Завершити створення</button></div>
+    <div class="p27-section"><div class="p27-kicker">ТОЧКИ</div><div id="p27Saved" class="p27-saved"><button onclick="openRoutes()">⌂ Дім — збережена точка</button><button onclick="openRoutes()">＋ Збережені точки маршруту</button></div></div>
+  </aside>
+  <div class="p27-mapbar"><button class="p27-search" id="p27Search">⌕ Пошук на Google Maps…</button><div class="p27-layers"><button class="active" data-layer="sat">Супутник</button><button data-layer="map">Карта</button><button data-layer="hyb">Гібрид</button></div></div>
+  <div class="p27-status" id="p27Status">● ГОТОВИЙ ДО РУХУ</div>
+  <div class="p27-bottom"><div class="p27-stat"><b id="p27Dist">0.0 км</b><span>ВІДСТАНЬ</span></div><div class="p27-stat"><b id="p27Time">00:00</b><span>ЧАС У ДОРОЗІ</span></div><div class="p27-stat"><b id="p27Terrain">Пересічена</b><span>ТИП МІСЦЕВОСТІ</span></div><div class="p27-stat"><b id="p27Pts">0</b><span>ТОЧКИ</span></div><button class="p27-btn" id="p27Fit">⌖ Показати все</button></div>
+  <div class="p27-toast" id="p27Toast"></div>
+</div>
+<script id="perun-v27-script">
+(function(){
+  const q=s=>document.querySelector(s), qa=s=>document.querySelectorAll(s);
+  const toast=t=>{const e=q('#p27Toast');if(!e)return;e.textContent=t;e.classList.add('show');clearTimeout(window.__p27t);window.__p27t=setTimeout(()=>e.classList.remove('show'),1800)};
+  function getMachine(){
+    try{
+      if(typeof machines!=='undefined' && typeof selected!=='undefined') return machines.find(m=>m.id===selected);
+    }catch(e){}
+    return null;
+  }
+  function routeDistance(r){
+    let d=0,R=6371,p=Math.PI/180;
+    for(let i=1;i<r.length;i++){
+      const a=r[i-1],b=r[i],x=(b.lat-a.lat)*p,y=(b.lng-a.lng)*p;
+      const z=Math.sin(x/2)**2+Math.cos(a.lat*p)*Math.cos(b.lat*p)*Math.sin(y/2)**2;
+      d+=2*R*Math.asin(Math.sqrt(z));
+    }
+    return d;
+  }
+  function upd(){
+    const m=getMachine(),r=m&&Array.isArray(m.route)?m.route:[];
+    const d=routeDistance(r);
+    const dist=q('#p27Dist'),pts=q('#p27Pts'),status=q('#p27Status'),speed=q('#p27Speed');
+    if(dist)dist.textContent=d.toFixed(1)+' км';
+    if(pts)pts.textContent=r.length;
+    if(status)status.textContent=m?(m.running?'● НРК РУХАЄТЬСЯ':'● ГОТОВИЙ ДО РУХУ'):'● ОБЕРІТЬ НРК';
+    if(m&&speed)speed.value=Number(m.speed)||0;
+    qa('.p27-npk button').forEach(b=>b.classList.toggle('active',!!m&&m.type===b.dataset.npk));
+    const drawingNow=(typeof drawing!=='undefined'&&!!drawing);
+    const mode=q('#p27RouteMode'),finish=q('#p27Finish');
+    if(mode){
+      mode.classList.toggle('active',drawingNow);
+      if(drawingNow) mode.textContent=r.length
+        ? 'РЕЖИМ МАРШРУТУ: клацай по карті, щоб додавати точки.'
+        : 'РЕЖИМ МАРШРУТУ: перший клік по карті = СТАРТ.';
+      else mode.textContent='Натисни «Створити маршрут», потім клацни по карті — перша точка стане стартом.';
+    }
+    if(finish)finish.style.display=drawingNow?'block':'none';
+  }
+  function beginRoute(){
+    const m=getMachine();
+    if(!m){toast('Спочатку обери НРК');if(typeof openMachines==='function')openMachines();return}
+    try{
+      if(typeof startDrawing==='function'){
+        startDrawing(m.id);
+        toast('📍 Режим створення маршруту: перший клік = старт');
+        upd();
+      }else toast('Функція створення маршруту недоступна');
+    }catch(e){toast('Не вдалося запустити режим маршруту');console.error(e)}
+  }
+  qa('.p27-npk button').forEach(b=>b.addEventListener('click',()=>{
+    try{
+      if(typeof createNpk==='function')createNpk(b.dataset.npk);
+      else toast('Функція вибору НРК недоступна');
+      setTimeout(upd,100);
+    }catch(e){console.error(e);toast('Помилка вибору НРК')}
+  }));
+  q('#p27CreateRoute').addEventListener('click',beginRoute);
+  q('#p27AddPoint').addEventListener('click',beginRoute);
+  q('#p27Finish').addEventListener('click',()=>{
+    try{if(typeof finishDrawing==='function')finishDrawing();else if(typeof window.finishDrawing==='function')window.finishDrawing();}catch(e){console.error(e)}
+    upd();toast('✓ Создание маршрута завершено');
+  });
+  q('#p27Start').addEventListener('click',()=>{
+    const m=getMachine();
+    if(!m){toast('Спочатку обери НРК');return}
+    try{
+      if(!m.route || m.route.length<2){toast('Спочатку створи мінімум 2 точки маршруту');beginRoute();return}
+      toggleRun(m.id);upd();
+    }catch(e){console.error(e);toast('Помилка запуску')}
+  });
+  q('#p27Stop').addEventListener('click',()=>{
+    const m=getMachine();
+    if(m){m.running=false;try{persistState();refresh()}catch(e){}}
+    upd();toast('Маршрут зупинено');
+  });
+  q('#p27Manual').addEventListener('click',()=>toast('Ручний режим активний'));
+  q('#p27Auto').addEventListener('click',()=>toast('Автономний маршрут активний'));
+  q('#p27Speed').addEventListener('change',e=>{
+    const m=getMachine();
+    if(!m){toast('Оберіть НРК');return}
+    m.speed=Math.max(0,Number(e.target.value)||0);
+    try{persistState()}catch(err){}
+    upd();toast('Швидкість збережена');
+  });
+  q('#p27Undo').addEventListener('click',()=>{try{undoPoint()}catch(e){}upd()});
+  q('#p27Reverse').addEventListener('click',()=>{try{reverseRoute()}catch(e){}upd()});
+  q('#p27Clear').addEventListener('click',()=>{try{clearRoute()}catch(e){}upd();toast('Маршрут очищено')});
+  q('#p27Save').addEventListener('click',()=>{
+    const m=getMachine();
+    if(m)try{saveRoute(m.id);toast('Маршрут збережено')}catch(e){console.error(e);toast('Помилка збереження')}
+    else toast('Оберіть НРК');
+    upd();
+  });
+  q('#p27Fit').addEventListener('click',()=>{try{fitAll()}catch(e){}});
+  q('#p27Search').addEventListener('click',()=>{try{openRoutes()}catch(e){}});
+  qa('.p27-layers button').forEach(b=>b.addEventListener('click',()=>{
+    try{setBaseLayer(b.dataset.layer)}catch(e){console.error(e)}
+    qa('.p27-layers button').forEach(x=>x.classList.toggle('active',x===b));
+  }));
+  qa('.p27-nav button').forEach(b=>b.addEventListener('click',()=>{
+    qa('.p27-nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+    try{
+      if(b.dataset.p27==='map')closeSheet();
+      if(b.dataset.p27==='routes')openRoutes();
+      if(b.dataset.p27==='log')openStats();
+      if(b.dataset.p27==='settings')openSettings();
+    }catch(e){console.error(e);toast('Раздел пока недоступен')}
+  }));
+  qa('.p27-saved button').forEach(b=>b.addEventListener('click',()=>{
+    try{openRoutes()}catch(e){toast('Раздел сохранённых точек недоступен')}
+  }));
+  setInterval(upd,400);
+  setTimeout(upd,1000);
+})();
+</script>
+<script id="perun-v31-map-labels">
+(function(){
+  // Labels layer: use OpenStreetMap's public tile layer only for transparent labels/roads,
+  // while the satellite imagery remains the map's visual base layer.
+  let labelsLayer=null;
+  const labelsUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+  function initLabels(){
+    if(!window.L || !window.map) return setTimeout(initLabels,500);
+    if(labelsLayer) return;
+    labelsLayer=L.tileLayer(labelsUrl,{
+      maxZoom:19,
+      opacity:.92,
+      attribution:'© OpenStreetMap contributors',
+      className:'perun-v31-label-tiles'
+    });
+    labelsLayer.addTo(window.map);
+    // Keep labels above satellite imagery but below markers.
+    if(labelsLayer.setZIndex) labelsLayer.setZIndex(450);
+  }
+  // Expose a layer toggle for the existing Супутник/Карта/Гібрид buttons.
+  window.perun31Labels=labelsLayer;
+  window.perun31SetLabels=function(on){
+    if(!labelsLayer) initLabels();
+    if(labelsLayer){
+      if(on) labelsLayer.addTo(window.map);
+      else if(window.map.hasLayer(labelsLayer)) window.map.removeLayer(labelsLayer);
+    }
+  };
+  function patchLayers(){
+    document.querySelectorAll('.p27-layers button').forEach(btn=>{
+      if(btn.__v31) return;
+      btn.__v31=true;
+      btn.addEventListener('click',function(){
+        const t=(btn.textContent||'').toLowerCase();
+        // Hybrid keeps labels; pure satellite hides them.
+        if(t.includes('супут') && !t.includes('гібр')) window.perun31SetLabels(false);
+        else window.perun31SetLabels(true);
+      },true);
+    });
+  }
+  const wait=()=>{
+    if(window.map && window.L){initLabels();patchLayers()}
+    else setTimeout(wait,400);
+  };
+  wait();
+})();
+</script>
+
+</body></html>
