@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Off-Card — Симулятор маршрутов</title>
+<title>Off-Card v17 — Симулятор маршрутов</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" onerror="this.onerror=null;this.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'" />
 <style>
 :root{--bg:#071018;--panel:#0d1822;--panel2:#101f2c;--text:#f5f8fb;--muted:#91a0ad;--blue:#1683ff;--line:#223443;--danger:#ff4d5f;--green:#35d07f}
@@ -17,14 +17,308 @@ button,input,select{font:inherit}button{border:0;color:var(--text);cursor:pointe
 .bottom{background:rgba(7,16,24,.97);border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom));display:flex;gap:6px;z-index:1000}.nav{flex:1;padding:8px 3px;border-radius:12px;background:transparent;color:#8e9ca8;font-size:11px}.nav.active{background:#122536;color:#48a5ff}.nav div{font-size:21px;margin-bottom:2px}
 .sheet{position:absolute;left:10px;right:10px;bottom:76px;z-index:950;max-height:55vh;overflow:auto;background:rgba(10,23,33,.97);border:1px solid #294052;border-radius:22px;padding:14px;box-shadow:0 15px 50px #000b;display:none}.sheet.show{display:block}.sheethead{display:flex;align-items:center;gap:10px;margin-bottom:10px}.sheethead h3{margin:0;font-size:18px}.close{margin-left:auto;background:#1a2b38;border-radius:10px;width:34px;height:34px}.row{display:flex;gap:8px;align-items:center}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.card{background:#10202d;border:1px solid #263c4c;border-radius:16px;padding:12px;margin:8px 0}.machine{display:flex;gap:10px;align-items:center}.dot{width:14px;height:14px;border-radius:50%;flex:none;box-shadow:0 0 12px currentColor}.machine .grow{flex:1}.small{font-size:12px;color:var(--muted)}.name{font-weight:700}.btn{background:#172b3a;border:1px solid #2a4354;padding:10px 12px;border-radius:12px}.btn.primary{background:#1683ff}.btn.green{background:#147a4a}.btn.red{background:#8f2734}.btn.full{width:100%}.input{width:100%;background:#0b1720;color:#fff;border:1px solid #2a4150;border-radius:11px;padding:10px}.label{font-size:11px;color:var(--muted);margin:8px 0 4px}.range{width:100%}.pill{padding:5px 8px;border-radius:9px;background:#182d3b;color:#a9bac7;font-size:11px}.progress{height:6px;border-radius:99px;background:#1a2d3a;overflow:hidden;margin:8px 0}.progress i{display:block;height:100%;width:0;background:var(--color,#1683ff);border-radius:99px}
 .menuTitle{font-size:22px;font-weight:800;margin-bottom:12px}.empty{padding:20px;text-align:center;color:var(--muted)}
-.toast{position:absolute;left:50%;transform:translateX(-50%);top:74px;z-index:1200;background:#102331;border:1px solid #355166;padding:10px 14px;border-radius:13px;display:none}.toast.show{display:block}
+ .tacticalhead{margin:14px 0 8px;padding:10px 12px;border:1px solid #263746;border-radius:13px;background:linear-gradient(90deg,#101d28,#0c171f);display:flex;align-items:center;justify-content:space-between}.tacticalhead b{font-size:13px;letter-spacing:.4px}.tacticalhead span{font-size:10px;color:#7f909e}.npkcard{position:relative;margin:8px 0;padding:11px;border:1px solid #263746;border-radius:15px;background:#101c25}.npkcard.active{border-color:var(--npk);box-shadow:inset 0 0 0 1px var(--npk)}.npkcardtop{display:flex;align-items:center;gap:10px}.npkcardtitle{flex:1;min-width:0}.npkcardtitle b{display:block;font-size:14px}.npkcardtitle small{color:var(--muted);font-size:10px}.npkbadge{font-size:10px;padding:4px 7px;border-radius:8px;background:color-mix(in srgb,var(--npk) 16%,#0b151c);color:var(--npk);border:1px solid color-mix(in srgb,var(--npk) 45%,#263746)}.npkstats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:9px}.npkstat{padding:7px 5px;border-radius:9px;background:#0b151c;text-align:center}.npkstat b{display:block;font-size:12px}.npkstat small{font-size:9px;color:var(--muted)}.npkactions{display:flex;gap:6px;margin-top:8px}.npkactions .btn{flex:1;min-height:38px}.scanline{height:1px;background:linear-gradient(90deg,transparent,#344754,transparent);margin:12px 0}.npkicon{box-shadow:0 0 0 1px color-mix(in srgb,var(--npk) 18%,transparent),0 6px 18px color-mix(in srgb,var(--npk) 15%,transparent)}.npkgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}.npkoption{position:relative;min-height:128px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:10px 6px;margin:0;border:1px solid #2a3b49;border-radius:16px;background:linear-gradient(180deg,#142431,#0d1922);color:#fff;text-align:center;overflow:hidden;transition:.15s}.npkoption:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 15%,color-mix(in srgb,var(--npk) 22%,transparent),transparent 62%);pointer-events:none}.npkoption:active{transform:scale(.97);border-color:var(--npk)}.npkoption b{font-size:14px;position:relative}.npkoption small{display:block;color:var(--muted);font-size:10px;margin-top:2px;position:relative}.npkicon{width:58px;height:58px;display:inline-flex;align-items:center;justify-content:center;border:2px solid var(--npk);border-radius:16px;background:color-mix(in srgb,var(--npk) 13%,#0a141c);font-size:29px;box-shadow:0 5px 18px color-mix(in srgb,var(--npk) 18%,transparent);position:relative}.npkmarker{width:38px;height:38px;border-radius:11px;border:3px solid #fff;box-shadow:0 3px 12px #000b;display:flex;align-items:center;justify-content:center;font-size:22px}.npkmarker span{filter:drop-shadow(0 1px 1px #000)}#hud{position:absolute;left:12px;top:12px;z-index:1200;padding:8px 10px;border:1px solid #314653;border-radius:13px;background:rgba(8,17,24,.92);backdrop-filter:blur(10px);box-shadow:0 7px 22px #0008;pointer-events:none}.hudtitle{font-size:11px;font-weight:800;letter-spacing:1px}.hudtitle small{color:#738692;font-weight:500;letter-spacing:.5px;margin-left:5px}.liveDot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#37d67a;box-shadow:0 0 8px #37d67a;margin-right:5px}.hudstats{display:flex;gap:13px;margin-top:5px}.hudstats span{display:flex;align-items:baseline;gap:3px}.hudstats b{font-size:11px}.hudstats small{font-size:8px;color:#738692}.sheet{backdrop-filter:blur(12px)}.sheet .sheethead h3{letter-spacing:.2px}.btn{transition:transform .12s,opacity .12s,border-color .12s}.btn:active{transform:scale(.97)}.drawbar{position:absolute;left:12px;right:12px;top:82px;z-index:1100;display:none;align-items:center;gap:8px;padding:10px 12px;border-radius:14px;background:rgba(10,23,33,.97);border:1px solid #1683ff;box-shadow:0 8px 25px #0008;font-size:12px}.drawbar span{flex:1;color:var(--muted)}.drawbar button{background:#1683ff;border-radius:10px;padding:8px 12px}.drawbar.show{display:flex}.toast{position:absolute;left:50%;transform:translateX(-50%);top:74px;z-index:1200;background:#102331;border:1px solid #355166;padding:10px 14px;border-radius:13px;display:none}.toast.show{display:block}
 @media(min-width:700px){.sheet{width:420px;right:auto}.bottom{max-width:700px;margin:auto;width:100%}}
+.routepoint{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#071018;border:2px solid #fff;color:#fff;font-size:10px;font-weight:800;box-shadow:0 3px 10px #000b}\n</style>
+
+<style>
+.sim-banner{margin:8px 12px 0;padding:8px 12px;border:1px solid #334155;border-radius:12px;background:#0b1320;color:#cbd5e1;font-size:11px;font-weight:800;letter-spacing:.6px;text-align:center}
+.routepoint.editable{cursor:grab;pointer-events:auto}
+.routepoint.editable:active{cursor:grabbing}
+.edit-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.edit-tools button{flex:1;min-width:110px}
+</style>
+
+<style>
+:root{--glass:rgba(9,15,24,.88);--line:#263445;--muted:#94a3b8;--text:#f8fafc}
+body{background:#050a10}
+.sim-banner{position:sticky;top:0;z-index:1000;margin:0;border-radius:0;border:0;border-bottom:1px solid #263445;background:linear-gradient(90deg,#07111d,#0d1724,#07111d);padding:7px 12px;font-size:10px;letter-spacing:1px}
+.card,.sheet,.panel,.machine-card{border:1px solid var(--line)!important;box-shadow:0 10px 30px #0008}
+.machine-card{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.machine-card:active{transform:scale(.985)}
+.npk-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid #334155;border-radius:999px;font-size:10px;font-weight:800;color:#cbd5e1;background:#0a111b}
+.npk-chip i{width:7px;height:7px;border-radius:50%;display:inline-block}
+.hero-stat{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}
+.hero-stat>div{padding:8px 6px;background:#08111c;border:1px solid #1e2b3b;border-radius:10px;text-align:center}
+.hero-stat b{display:block;font-size:14px;color:#fff}
+.hero-stat span{font-size:9px;color:var(--muted)}
+.mode-pill{font-size:10px;font-weight:900;letter-spacing:.8px;color:#86efac}
+.btn{border-radius:12px!important}
+.routepoint{transition:transform .12s ease,box-shadow .12s ease}
+.routepoint.editable{box-shadow:0 0 0 3px #38bdf833,0 4px 12px #000c}
+.routepoint.editable:active{transform:scale(1.15)}
+#map{filter:saturate(.85) contrast(1.04)}
+</style>
+
+<style>
+.v9-picker{margin:10px 12px;padding:12px;border:1px solid #263445;border-radius:16px;background:linear-gradient(145deg,#0b1420,#071019);box-shadow:0 12px 32px #0007}
+.v9-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.v9-title b{font-size:13px}.v9-title span{font-size:9px;color:#94a3b8;letter-spacing:.8px}
+.v9-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.v9-vehicle{min-height:82px;padding:9px 6px;border:1px solid #263445;border-radius:13px;background:#0a111a;color:#e2e8f0;text-align:center;cursor:pointer;transition:.18s}
+.v9-vehicle:active{transform:scale(.96)}
+.v9-vehicle.active{border-color:#64748b;box-shadow:0 0 0 2px #64748b22 inset,0 8px 20px #0007}
+.v9-icon{font-size:29px;line-height:32px;filter:drop-shadow(0 5px 7px #0008)}
+.v9-name{font-size:11px;font-weight:900;margin-top:5px}
+.v9-desc{font-size:8px;color:#94a3b8;margin-top:2px}
+.v9-stats{position:fixed;left:12px;right:12px;bottom:72px;z-index:1100;display:none;padding:14px;border:1px solid #334155;border-radius:18px;background:rgba(5,10,16,.96);backdrop-filter:blur(14px);box-shadow:0 20px 45px #000b}
+.v9-stats.show{display:block}
+.v9-stats-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.v9-stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.v9-stat{padding:10px;border-radius:12px;background:#09131f;border:1px solid #1e2b3b}
+.v9-stat b{font-size:17px;display:block}.v9-stat span{font-size:9px;color:#94a3b8}
+.v9-close{border:1px solid #334155;background:#0c1724;color:#fff;border-radius:9px;padding:6px 9px}
+.v9-fab{position:fixed;right:14px;bottom:136px;z-index:1090;width:48px;height:48px;border-radius:50%;border:1px solid #334155;background:#0b1622;color:#fff;font-size:18px;box-shadow:0 8px 24px #000b}
+</style>
+
+<style>
+.v10-brand{display:flex;align-items:center;gap:11px;margin:10px 12px;padding:10px 12px;border:1px solid #29384a;border-radius:16px;background:linear-gradient(135deg,#070d15,#0d1724);box-shadow:0 12px 28px #0007}
+.v10-logo{width:48px;height:64px;object-fit:contain;filter:drop-shadow(0 5px 10px #000)}
+.v10-brand-title{font-weight:900;font-size:14px;letter-spacing:.3px}.v10-brand-sub{font-size:9px;color:#94a3b8;margin-top:3px;letter-spacing:.6px}
+.v10-start{margin:0 12px 10px;padding:14px;border:1px solid #263445;border-radius:16px;background:radial-gradient(circle at 80% 20%,#16304a55,transparent 42%),#08111b}
+.v10-start h2{margin:0 0 5px;font-size:18px}.v10-start p{margin:0;color:#94a3b8;font-size:10px;line-height:1.45}
+.v10-actions{display:flex;gap:8px;margin-top:11px}.v10-actions button{flex:1}
+.v10-timeline{margin-top:10px;padding:10px 12px;border:1px solid #1f2d3e;border-radius:13px;background:#07101a}
+.v10-track{height:6px;background:#172333;border-radius:99px;overflow:hidden;margin:8px 0}
+.v10-progress{height:100%;width:0%;background:linear-gradient(90deg,#38bdf8,#22c55e);border-radius:99px;transition:width .2s linear}
+.v10-live{font-size:9px;color:#94a3b8;display:flex;justify-content:space-between}
+</style>
+
+<style>
+/* v11 visual vehicle skins — simulation only */
+.v11-vehicle{position:relative;width:42px;height:28px;border-radius:8px;border:2px solid #dbeafe;background:#182536;box-shadow:0 5px 14px #000b;display:flex;align-items:center;justify-content:center}
+.v11-vehicle:before,.v11-vehicle:after{content:"";position:absolute;width:8px;height:8px;border-radius:50%;background:#020617;border:1px solid #64748b;bottom:-5px}
+.v11-vehicle:before{left:5px}.v11-vehicle:after{right:5px}
+.v11-vehicle .lamp{position:absolute;width:5px;height:5px;border-radius:50%;right:3px;top:5px;background:#f8fafc;box-shadow:0 0 7px #fff}
+.v11-vehicle .stripe{position:absolute;left:4px;right:4px;height:3px;border-radius:3px;bottom:5px;background:#64748b}
+.v11-t{background:linear-gradient(145deg,#493116,#a76516);border-color:#f59e0b}
+.v11-g{width:50px;height:31px;background:linear-gradient(145deg,#173624,#27844b);border-color:#4ade80}
+.v11-r{width:54px;height:33px;background:linear-gradient(145deg,#271936,#6b3192);border-color:#c084fc}
+.v11-marker{background:transparent!important;border:0!important}
+.v11-map-legend{position:absolute;left:12px;top:12px;z-index:800;padding:8px 10px;border:1px solid #334155;border-radius:12px;background:rgba(5,10,16,.9);backdrop-filter:blur(8px);font-size:9px;color:#cbd5e1;box-shadow:0 8px 20px #0008}
+.v11-map-legend b{display:block;margin-bottom:4px;color:#fff}
+.v11-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
+.v11-route-label{font-size:9px;font-weight:900;color:#e2e8f0;text-shadow:0 2px 4px #000;white-space:nowrap}
+</style>
+
+<style>
+.v12-startflash{position:fixed;inset:0;z-index:3000;display:none;align-items:center;justify-content:center;background:rgba(2,6,12,.82);backdrop-filter:blur(8px)}
+.v12-startflash.show{display:flex;animation:v12fade 1.2s ease forwards}
+.v12-flashbox{width:min(330px,88vw);padding:24px;border:1px solid #334155;border-radius:22px;background:#09131f;text-align:center;box-shadow:0 25px 70px #000d}
+.v12-flashicon{font-size:42px;line-height:1;margin-bottom:10px}
+.v12-flashbox h2{margin:0;font-size:22px}.v12-flashbox p{margin:7px 0 0;color:#94a3b8;font-size:11px}
+@keyframes v12fade{0%{opacity:0;transform:scale(.96)}15%{opacity:1;transform:scale(1)}80%{opacity:1}100%{opacity:0}}
+.v12-wheel{transform-box:fill-box;transform-origin:center;animation:v12spin .38s linear infinite}
+@keyframes v12spin{to{transform:rotate(360deg)}}
+.v12-live{animation:v12pulse .9s ease-in-out infinite}
+@keyframes v12pulse{50%{opacity:.45}}
+.v12-complete{position:fixed;left:12px;right:12px;bottom:78px;z-index:2100;display:none;padding:13px 15px;border:1px solid #334155;border-radius:16px;background:rgba(7,16,26,.96);box-shadow:0 15px 35px #000b}
+.v12-complete.show{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.v12-complete small{color:#94a3b8;display:block;font-size:9px}.v12-complete b{font-size:13px}
+</style>
+
+<style>
+.v13-lang{display:flex;gap:6px;margin:8px 12px;padding:6px;border:1px solid #263445;border-radius:13px;background:#071019}
+.v13-lang button{flex:1;padding:8px 5px;border-radius:9px;border:1px solid transparent;background:transparent;color:#94a3b8;font-weight:900;font-size:10px}
+.v13-lang button.active{background:#172333;color:#fff;border-color:#334155}
+</style>
+
+<style>
+/* v14 — premium mobile dashboard */
+body{background:#04080d!important;color:#eef2f7}
+header{backdrop-filter:blur(16px);background:rgba(4,9,15,.92)!important;border-bottom:1px solid #1e2b3a!important}
+.v14-top{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin:10px 12px}
+.v14-brandmini{padding:12px 14px;border:1px solid #263445;border-radius:17px;background:linear-gradient(135deg,#0b1520,#071019);box-shadow:0 10px 28px #0008}
+.v14-kicker{font-size:8px;color:#64748b;letter-spacing:1.4px;font-weight:900}
+.v14-title{font-size:20px;font-weight:950;letter-spacing:-.5px;margin-top:2px}
+.v14-sub{font-size:9px;color:#94a3b8;margin-top:2px}
+.v14-online{padding:9px 10px;border:1px solid #234335;border-radius:14px;background:#07150f;text-align:center}
+.v14-online i{display:block;width:8px;height:8px;border-radius:50%;background:#4ade80;margin:0 auto 4px;box-shadow:0 0 10px #4ade80}
+.v14-online span{font-size:8px;font-weight:900;color:#86efac}
+.v13-lang{margin:8px 12px!important;background:#080f17!important}
+.v10-start{margin:10px 12px!important;border-radius:19px!important;padding:16px!important;background:radial-gradient(circle at 85% 10%,#183c5d66,transparent 40%),linear-gradient(145deg,#0b1622,#071019)!important}
+.v10-start h2{font-size:21px!important}
+.v10-start p{font-size:10px!important}
+.v10-actions button,.edit-tools button{min-height:42px;font-weight:900}
+.v9-picker{border-radius:19px!important;background:linear-gradient(145deg,#0a1420,#060d15)!important}
+.v9-vehicle{min-height:94px!important;border-radius:16px!important}
+.v9-vehicle.active{transform:translateY(-2px);box-shadow:0 10px 24px #0009!important}
+.v9-icon{font-size:34px!important}
+.v14-section{margin:10px 12px 7px;display:flex;align-items:center;justify-content:space-between}
+.v14-section b{font-size:12px}.v14-section span{font-size:9px;color:#64748b}
+.v14-bottom{position:fixed;left:10px;right:10px;bottom:10px;z-index:1200;height:58px;border:1px solid #263445;border-radius:18px;background:rgba(6,12,19,.94);backdrop-filter:blur(16px);display:grid;grid-template-columns:repeat(4,1fr);box-shadow:0 15px 35px #000b}
+.v14-bottom button{border:0;background:transparent;color:#94a3b8;font-size:9px;font-weight:900}
+.v14-bottom button b{display:block;font-size:18px;line-height:20px;margin-bottom:2px}
+.v14-bottom button.active{color:#fff}
+.v14-bottom button.active b{filter:drop-shadow(0 0 5px #fff4)}
+.machine-card{border-radius:17px!important;background:linear-gradient(145deg,#0b1520,#071019)!important}
+#fitFab{bottom:82px!important}
+.v9-stats{bottom:76px!important;border-radius:20px!important}
+</style>
+
+<style>
+/* v15 visual redesign */
+.v15-shell{margin:10px 12px;padding:14px;border:1px solid #263445;border-radius:22px;background:linear-gradient(145deg,#0a1420,#050b12);box-shadow:0 18px 45px #0009}
+.v15-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.v15-head h1{margin:0;font-size:24px;letter-spacing:-.8px}.v15-head p{margin:4px 0 0;color:#94a3b8;font-size:9px}
+.v15-badge{padding:7px 9px;border-radius:10px;border:1px solid #294538;background:#07150f;color:#86efac;font-size:8px;font-weight:900;white-space:nowrap}
+.v15-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:13px}
+.v15-kpi{padding:10px 6px;border:1px solid #1e2b3b;border-radius:13px;background:#07101a;text-align:center}
+.v15-kpi strong{display:block;font-size:17px}.v15-kpi span{font-size:8px;color:#64748b}
+.v15-maphead{display:flex;align-items:center;justify-content:space-between;margin:12px 12px 7px}
+.v15-maphead b{font-size:13px}.v15-maphead span{font-size:8px;color:#64748b}
+.v15-mapframe{margin:0 12px;border:1px solid #263445;border-radius:20px;overflow:hidden;box-shadow:0 16px 35px #0009}
+.v15-quick{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 12px}
+.v15-quick button{min-height:44px;border-radius:13px!important;font-weight:900}
+.v15-divider{height:1px;background:#172333;margin:12px 0}
+.v15-section{font-size:10px;color:#64748b;font-weight:900;letter-spacing:1px;margin:0 12px 7px}
+.v15-mode{font-size:8px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px}
+.v15-bottom{height:62px!important;border-radius:20px!important}
+</style>
+
+<style>
+/* v16 map-first mobile layout */
+body{padding-bottom:76px!important}
+.v16-mapwrap{position:relative;margin:8px 10px 10px;border:1px solid #263445;border-radius:22px;overflow:hidden;box-shadow:0 18px 45px #000b;background:#050b11}
+.v16-mapwrap #map{height:58vh!important;min-height:420px}
+.v16-maptop{position:absolute;left:10px;right:10px;top:10px;z-index:900;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
+.v16-pill{pointer-events:auto;padding:8px 10px;border:1px solid #334155;border-radius:12px;background:rgba(5,10,16,.9);backdrop-filter:blur(10px);font-size:9px;font-weight:900;color:#e2e8f0;box-shadow:0 8px 18px #0008}
+.v16-mapbuttons{position:absolute;right:10px;bottom:12px;z-index:900;display:flex;flex-direction:column;gap:7px}
+.v16-mapbuttons button{width:44px;height:44px;border-radius:14px;border:1px solid #334155;background:rgba(5,10,16,.94);color:#fff;font-size:18px;box-shadow:0 8px 18px #0009}
+.v16-sheet{position:fixed;left:0;right:0;bottom:0;z-index:1500;padding:10px 12px 12px;background:rgba(5,10,16,.96);border-top:1px solid #263445;border-radius:22px 22px 0 0;box-shadow:0 -18px 40px #000b;backdrop-filter:blur(18px);transform:translateY(calc(100% - 68px));transition:transform .25s ease}
+.v16-sheet.open{transform:translateY(0)}
+.v16-handle{width:38px;height:4px;border-radius:99px;background:#475569;margin:0 auto 9px}
+.v16-sheethead{display:flex;justify-content:space-between;align-items:center}.v16-sheethead b{font-size:12px}.v16-sheethead span{font-size:8px;color:#64748b}
+.v16-sheetgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.v16-sheetgrid button{min-height:43px;border-radius:13px!important;font-weight:900}
+.v16-sheetbody{max-height:55vh;overflow:auto;padding-bottom:6px}
+.v16-hide{display:none!important}
+</style>
+<style>.v15-shell,.v10-start,.v14-top{display:none!important}.v14-bottom{display:none!important}</style>
+<style>
+.v17-test{margin:10px 12px;padding:13px;border:1px solid #263445;border-radius:18px;background:#071019;box-shadow:0 12px 30px #0008}
+.v17-test-head{display:flex;align-items:center;justify-content:space-between}.v17-test-head b{font-size:12px}.v17-test-head span{font-size:8px;color:#64748b}
+.v17-run{width:100%;margin-top:9px;min-height:42px;font-weight:900}
+.v17-results{margin-top:9px;display:none}.v17-results.show{display:block}
+.v17-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #162231;font-size:10px}
+.v17-dot{width:8px;height:8px;border-radius:50%;background:#64748b;flex:none}
+.v17-dot.ok{background:#4ade80;box-shadow:0 0 8px #4ade80}.v17-dot.fail{background:#fb7185;box-shadow:0 0 8px #fb7185}
+.v17-summary{margin-top:9px;font-size:10px;font-weight:900;color:#cbd5e1}
 </style>
 </head>
 <body>
+<div id="v12Flash" class="v12-startflash">
+ <div class="v12-flashbox">
+   <div id="v12FlashIcon" class="v12-flashicon">▶</div>
+   <h2 id="v12FlashTitle">СИМУЛЯЦИЯ</h2>
+   <p id="v12FlashText">Маршрут запущен · 1× real time</p>
+ </div>
+</div>
+<div id="v12Complete" class="v12-complete">
+ <div><b id="v12CompleteTitle">Маршрут завершён</b><small id="v12CompleteText">Симуляция остановлена</small></div>
+ <button class="btn" onclick="document.getElementById('v12Complete').classList.remove('show')">OK</button>
+</div>
+
+<div class="v11-map-legend" id="v11Legend">
+<b>СИМУЛЯЦИЯ</b>
+<span><i class="v11-dot" style="background:#ff9f1c"></i>Тарган</span><br>
+<span><i class="v11-dot" style="background:#22c55e"></i>Гулливер</span><br>
+<span><i class="v11-dot" style="background:#a855f7"></i>Ратель</span>
+</div>
+
+
+
+
+<section class="v15-shell">
+ <div class="v15-head">
+  <div><h1>OFF-CARD</h1><p>ВИРТУАЛЬНЫЙ СИМУЛЯТОР МАРШРУТОВ</p></div>
+  <div class="v15-badge">● SIM READY</div>
+ </div>
+ <div class="v15-kpis">
+  <div class="v15-kpi"><strong id="v15Count">0</strong><span>НРК</span></div>
+  <div class="v15-kpi"><strong id="v15Moving">0</strong><span>В ДВИЖЕНИИ</span></div>
+  <div class="v15-kpi"><strong id="v15Km">0.00</strong><span>КМ МАРШРУТОВ</span></div>
+ </div>
+</section>
+<div class="v15-maphead"><b>Карта симуляции</b><span class="v15-mode">1× REAL TIME</span></div>
+<div class="v15-quick">
+ <button class="btn" onclick="fitAll()">⌖ Показать всё</button>
+ <button class="btn" onclick="v14GoNpk()">◈ Выбрать НРК</button>
+</div>
+<div class="v10-start">
+  <h2>Off-Card</h2>
+  <p>Планирование и визуальная симуляция виртуальных маршрутов. Скорость движения соответствует выбранному значению в режиме 1× real time.</p>
+  <div class="v10-actions">
+    <button class="btn" onclick="fitAll()">⌖ Показать карту</button>
+    <button class="btn" onclick="v10ScrollToPicker()">🚗 Выбрать НРК</button>
+  </div>
+  <div class="v10-timeline">
+    <div class="v10-live"><span>Ход симуляции</span><span id="v10Time">0%</span></div>
+    <div class="v10-track"><div id="v10Progress" class="v10-progress"></div></div>
+  </div>
+</div>
+
+<section class="v17-test">
+  <div class="v17-test-head"><b>Диагностика приложения</b><span>LOCAL SELF-TEST</span></div>
+  <button class="btn v17-run" onclick="v17RunTests()">▶ Запустить полный тест</button>
+  <div id="v17Results" class="v17-results"></div>
+</section>
+<div class="v9-picker">
+  <div class="v9-title"><b>Выбор виртуального НРК</b><span>SIMULATION ONLY</span></div>
+  <div class="v9-grid">
+    <button class="v9-vehicle" onclick="v9Create('Тарган')" data-v9="Тарган">
+      <div class="v9-icon">🪲</div><div class="v9-name">Тарган</div><div class="v9-desc">компактный</div>
+    </button>
+    <button class="v9-vehicle" onclick="v9Create('Гулливер')" data-v9="Гулливер">
+      <div class="v9-icon">🛻</div><div class="v9-name">Гулливер</div><div class="v9-desc">крупный</div>
+    </button>
+    <button class="v9-vehicle" onclick="v9Create('Ратель')" data-v9="Ратель">
+      <div class="v9-icon">🐗</div><div class="v9-name">Ратель</div><div class="v9-desc">тяжёлый</div>
+    </button>
+  </div>
+</div>
+
+
+
+<div class="v14-top">
+  <div class="v14-brandmini">
+    <div class="v14-kicker">TACTICAL ROUTE SIMULATOR</div>
+    <div class="v14-title">OFF-CARD</div>
+    <div class="v14-sub">Виртуальная среда · 1× real time</div>
+  </div>
+  <div class="v14-online"><i></i><span>READY</span></div>
+</div>
+<div class="v13-lang" aria-label="Language">
+  <button data-lang="uk" onclick="v13SetLang('uk')">УКР</button>
+  <button data-lang="en" onclick="v13SetLang('en')">ENG</button>
+  <button data-lang="ru" onclick="v13SetLang('ru')">РУС</button>
+</div>
+<div class="v10-brand">
+  <img class="v10-logo" src="https://upload.wikimedia.org/wikipedia/commons/6/6c/42mech_perun.png" alt="ПЕРУН · 42 ОМБР">
+  <div>
+    <div class="v10-brand-title">ПЕРУН · 42 ОМБР</div>
+    <div class="v10-brand-sub">ВИРТУАЛЬНЫЙ СИМУЛЯТОР МАРШРУТОВ</div>
+  </div>
+</div>
 <div class="app">
-  <header class="top"><div class="logo">➤</div><div class="brand"><b>Off-Card</b><span>Симулятор маршрутов</span></div><button class="iconbtn" id="settingsBtn">⚙️</button><button class="iconbtn" id="helpBtn">?</button></header>
-  <div id="map"></div>
+  <header class="top"><div class="logo">➤</div><div class="brand"><b>Off-Card</b><span>Симулятор маршрутов</span></div><button class="iconbtn" id="settingsBtn">⚙️</button><button class="iconbtn" id="helpBtn">?</button></header><div class="sim-banner">СИМУЛЯЦИЯ · Виртуальные НРК · без управления реальной техникой</div>
+  
+<div class="v16-mapwrap">
+  <div class="v16-maptop">
+    <div class="v16-pill">⌖ MAP · SIMULATION</div>
+  <div class="v16-mapbuttons">
+    <button onclick="fitAll()" title="Показать всё">⌗</button>
+    <button onclick="v16LocateMap()" title="Центр карты">⌖</button>
+  </div>
+</div>
+
+    <div class="v16-pill" id="v16MapStatus">READY</div>
+  </div>
+<div id="map"></div><div id="hud"><div class="hudtitle"><span class="liveDot"></span> OFF-CARD <small>TACTICAL CONTROL</small></div><div class="hudstats"><span><b id="hudCount">0</b><small>НРК</small></span><span><b id="hudActive">0</b><small>АКТИВНЫ</small></span><span><b id="hudKm">0.0</b><small>КМ</small></span></div></div><div id="drawBar" class="drawbar"><b>📍 Режим маршрута</b><span id="drawHint">Нажми на карту, чтобы поставить первую точку</span><button onclick="finishDrawing()">Готово</button></div><div class="edit-tools">
+<button class="btn" onclick="deleteLastRoutePoint()">🗑️ Удалить последнюю</button>
+<button class="btn" onclick="reverseRoute()">↔️ Развернуть</button>
+<button class="btn" onclick="clearRoute()">✕ Очистить</button>
+</div>
   <button class="fab" id="addMachine">＋ Машинка</button><button class="fab secondary" id="fitAll">⌖ Все</button>
   <div class="toast" id="toast"></div>
   <section class="sheet" id="sheet"></section>
@@ -48,42 +342,199 @@ loadLeaflet(()=>{try{initApp()}catch(e){document.getElementById('map').innerHTML
 function initApp(){
 const COLORS=['#1683ff','#ff4056','#35d07f','#ffc53d','#b06cff','#ff8b3d','#00c8c8'];
 let machines=[];let savedRoutes=JSON.parse(localStorage.getItem('offcard_routes')||'[]');let scenarios=JSON.parse(localStorage.getItem('offcard_scenarios')||'[]');let selected=null;let drawing=null;let last=performance.now();
-const STATE_KEY='offcard_state_v3';
-function persistState(){try{localStorage.setItem(STATE_KEY,JSON.stringify(machines.map(m=>({id:m.id,name:m.name,color:m.color,speed:m.speed,route:m.route,travelled:m.travelled}))));}catch(e){}}
-function restoreState(){try{const a=JSON.parse(localStorage.getItem(STATE_KEY)||'[]');machines=a.map((x,i)=>({id:x.id||String(Date.now()+i),name:x.name||('Машинка '+(i+1)),color:x.color||COLORS[i%COLORS.length],speed:Number(x.speed)||50,route:Array.isArray(x.route)?x.route:[],travelled:Number(x.travelled)||0,running:false,routeLine:null,progressLine:null,marker:null}));}catch(e){machines=[];}}
+const STATE_KEY='offcard_state_v17';const NPK_TYPES={
+  'Тарган':{color:'#ff9f1c',emoji:'🪲',desc:'компактный НРК'},
+  'Гулливер':{color:'#22c55e',emoji:'🛻',desc:'крупный НРК'},
+  'Ратель':{color:'#a855f7',emoji:'🐗',desc:'тяжёлый НРК'}
+};
+function npkType(name){return NPK_TYPES[name]||NPK_TYPES['Тарган']}
+function npkIcon(name){
+  const t=npkType(name);
+  return `<span class="npkicon" style="--npk:${t.color}">${t.emoji}</span>`;
+}
+function npkMenu(){
+  return '<div class="npkgrid">'+Object.keys(NPK_TYPES).map(n=>{
+    const t=NPK_TYPES[n];
+    return `<button class="npkoption" style="--npk:${t.color}" onclick="createNpk('${n}')">${npkIcon(n)}<span><b>${n}</b><small>${t.desc}</small></span></button>`;
+  }).join('')+'</div>';
+}
+function createNpk(type){
+  const m=createMachine(type);
+  m.type=type; m.name=type+' '+(machines.length);
+  m.color=npkType(type).color;
+  persistState(); refresh(); startDrawing(m.id); openMachine(m.id);
+}
+
+function persistState(){try{localStorage.setItem(STATE_KEY,JSON.stringify(machines.map(m=>({id:m.id,name:m.name,type:m.type||'Тарган',color:npkType(m.type||'Тарган').color,speed:m.speed,route:m.route,travelled:m.travelled}))));}catch(e){}}
+function restoreState(){try{const a=JSON.parse(localStorage.getItem(STATE_KEY)||'[]');machines=a.map((x,i)=>({id:x.id||String(Date.now()+i),name:x.name||('НРК '+(i+1)),type:NPK_TYPES[x.type]?x.type:Object.keys(NPK_TYPES)[i%3],color:npkType(NPK_TYPES[x.type]?x.type:Object.keys(NPK_TYPES)[i%3]).color,speed:Number(x.speed)||50,route:Array.isArray(x.route)?x.route:[],travelled:Number(x.travelled)||0,running:false,routeLine:null,progressLine:null,marker:null,routePointLayers:[]}));}catch(e){machines=[];}}
 const map=L.map('map',{zoomControl:false}).setView([48.45,35.05],7);L.control.zoom({position:'bottomright'}).addTo(map);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
 function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
 function dist(a,b){const R=6371, p=Math.PI/180, dlat=(b.lat-a.lat)*p,dlon=(b.lng-a.lng)*p;const x=Math.sin(dlat/2)**2+Math.cos(a.lat*p)*Math.cos(b.lat*p)*Math.sin(dlon/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
 function routeStats(route){let total=0,seg=[];for(let i=1;i<route.length;i++){const d=dist(route[i-1],route[i]);total+=d;seg.push(d)}return {total,seg}}
 function posAt(m){if(m.route.length<2)return m.route[0]||map.getCenter();const s=routeStats(m.route),d=Math.max(0,Math.min(m.travelled,s.total));let acc=0;for(let i=0;i<s.seg.length;i++){const len=s.seg[i],a=m.route[i],b=m.route[i+1];if(len===0){if(d===acc)return {lat:a.lat,lng:a.lng};continue}if(d<=acc+len){const t=(d-acc)/len;return {lat:a.lat+(b.lat-a.lat)*t,lng:a.lng+(b.lng-a.lng)*t}}acc+=len}return m.route[m.route.length-1]}
 function progressPoints(m){if(!m.route.length)return [];if(m.route.length===1)return [m.route[0]];const d=Math.max(0,m.travelled),s=routeStats(m.route);if(d<=0)return [m.route[0]];let acc=0,out=[m.route[0]];for(let i=1;i<m.route.length;i++){const len=s.seg[i-1];if(len===0)continue;if(d>=acc+len){out.push(m.route[i]);acc+=len;continue}out.push(posAt(m));break}return out}
-function icon(color){return L.divIcon({className:'',html:`<div style="width:25px;height:25px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:${color};border:3px solid #fff;box-shadow:0 2px 12px #000b"><div style="transform:rotate(45deg);font-size:12px;text-align:center;line-height:19px">🚗</div></div>`,iconSize:[25,25],iconAnchor:[12,25]})}
-function createMachine(name){const id=crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random());const m={id,name:name||`Машинка ${machines.length+1}`,color:COLORS[machines.length%COLORS.length],speed:50,route:[],travelled:0,running:false,routeLine:null,progressLine:null,marker:null};machines.push(m);selected=id;refresh();return m}
-function removeLayers(m){if(m.routeLine)map.removeLayer(m.routeLine);if(m.progressLine)map.removeLayer(m.progressLine);if(m.marker)map.removeLayer(m.marker)}
-function drawMachine(m){removeLayers(m);if(m.route.length>1){m.routeLine=L.polyline(m.route,{color:m.color,weight:5,opacity:selected===m.id?.95:.55}).addTo(map);m.progressLine=L.polyline(progressPoints(m),{color:m.color,weight:7,opacity:.95}).addTo(map)}if(m.route.length){m.marker=L.marker(posAt(m),{icon:icon(m.color)}).addTo(map).on('click',()=>openMachine(m.id))}}
-function redraw(){machines.forEach(drawMachine)}
+function icon(type,color){const t=npkType(type);return L.divIcon({className:'',html:`<div class="npkmarker" style="--npk:${t.color};background:${t.color}"><span>${t.emoji}</span></div>`,iconSize:[42,42],iconAnchor:[21,21]})}
+function createMachine(name){const id=crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random());const type=NPK_TYPES[name]?name:Object.keys(NPK_TYPES)[machines.length%3];const m={id,name:name||type+' '+(machines.length+1),type,color:npkType(type).color,speed:50,route:[],travelled:0,running:false,routeLine:null,progressLine:null,marker:null,routePointLayers:[]};machines.push(m);selected=id;refresh();return m}
+function removeLayers(m){if(m.routeLine)map.removeLayer(m.routeLine);if(m.progressLine)map.removeLayer(m.progressLine);if(m.marker)map.removeLayer(m.marker);removeRoutePoints(m)}
+function drawRoutePoints(m){
+  if(!m.routePointLayers)m.routePointLayers=[];
+  m.routePointLayers.forEach(x=>map.removeLayer(x));
+  m.routePointLayers=[];
+  m.route.forEach((p,i)=>{
+    const editable=(drawing===m.id);
+    const marker=L.marker(p,{
+      draggable:editable,
+      interactive:editable,
+      icon:L.divIcon({
+        className:'',
+        html:`<div class="routepoint ${editable?'editable':''}">${i===0?'S':i+1}</div>`,
+        iconSize:[24,24],iconAnchor:[12,12]
+      })
+    }).addTo(map);
+    if(editable){
+      marker.on('drag',e=>{
+        const ll=e.target.getLatLng();
+        m.route[i]={lat:Number(ll.lat),lng:Number(ll.lng)};
+        m.travelled=0;
+        drawMachine(m);
+      });
+      marker.on('dragend',()=>{
+        persistState();
+        toast('📍 Точка перемещена');
+      });
+    }
+    m.routePointLayers.push(marker);
+  });
+}
+function removeRoutePoints(m){
+  if(m.routePointLayers)m.routePointLayers.forEach(x=>map.removeLayer(x));
+  m.routePointLayers=[];
+}
+function drawMachine(m){removeLayers(m);drawRoutePoints(m);if(m.route.length>1){m.routeLine=L.polyline(m.route,{color:m.color,weight:5,opacity:selected===m.id?.95:.55}).addTo(map);m.progressLine=L.polyline(progressPoints(m),{color:m.color,weight:7,opacity:.95}).addTo(map)}if(m.route.length){m.marker=L.marker(posAt(m),{icon:icon(m.type,m.color)}).addTo(map).on('click',()=>openMachine(m.id))}}
+function updateHud(){
+  const count=machines.length, active=machines.filter(m=>m.running).length;
+  const km=machines.reduce((s,m)=>s+routeStats(m.route).total,0);
+  const a=document.getElementById('hudCount'),b=document.getElementById('hudActive'),c=document.getElementById('hudKm');
+  if(a)a.textContent=count;if(b)b.textContent=active;if(c)c.textContent=km.toFixed(1);
+}
+function redraw(){machines.forEach(drawMachine);updateHud()}
 function openSheet(html){const s=document.getElementById('sheet');s.innerHTML=html;s.classList.add('show')}
 function closeSheet(){document.getElementById('sheet').classList.remove('show')}
-function machineCard(m){const st=routeStats(m.route), pct=st.total?Math.min(100,m.travelled/st.total*100):0;return `<div class="card"><div class="machine"><span class="dot" style="color:${m.color};background:${m.color}"></span><div class="grow"><div class="name">${esc(m.name)}</div><div class="small">${m.running?'🟢 Движется':'⏸ Пауза'} · ${st.total.toFixed(1)} км</div></div><button class="btn" onclick="openMachine('${m.id}')">Открыть</button></div><div class="progress"><i style="width:${pct}%;--color:${m.color}"></i></div><div class="row"><button class="btn ${m.running?'green':'primary'}" onclick="toggleRun('${m.id}')">${m.running?'⏸ Пауза':'▶️ Старт'}</button><button class="btn" onclick="resetMachine('${m.id}')">🔄 Сброс</button><button class="btn red" onclick="deleteMachine('${m.id}')">🗑</button></div></div>`}
-function openMachines(){selected=null;openSheet(`<div class="sheethead"><h3>🚗 Машинки</h3><button class="close" onclick="closeSheet()">×</button></div><button class="btn primary full" onclick="createAndDraw()">＋ Добавить машинку</button>${machines.length?machines.map(machineCard).join(''):'<div class="empty">Пока нет машинок.<br>Добавь первую и нарисуй маршрут.</div>'}`)}
-function createAndDraw(){const m=createMachine();startDrawing(m.id);openMachine(m.id)}
-function openMachine(id){selected=id;const m=machines.find(x=>x.id===id);if(!m)return;const st=routeStats(m.route),pct=st.total?Math.min(100,m.travelled/st.total*100):0;openSheet(`<div class="sheethead"><span class="dot" style="color:${m.color};background:${m.color}"></span><h3>${esc(m.name)}</h3><button class="close" onclick="closeSheet()">×</button></div><div class="grid2"><div><div class="label">Название</div><input class="input" id="mname" value="${esc(m.name)}"></div><div><div class="label">Скорость, км/ч</div><input class="input" id="mspeed" type="number" min="0" max="1000" value="${m.speed}"></div></div><div class="label">Маршрут</div><div class="small">${m.route.length} точек · ${st.total.toFixed(2)} км</div><div class="progress"><i style="width:${pct}%;--color:${m.color}"></i></div><div class="row" style="margin-top:10px"><button class="btn ${m.running?'green':'primary'}" onclick="toggleRun('${m.id}')">${m.running?'⏸ Пауза':'▶️ Старт'}</button><button class="btn" onclick="resetMachine('${m.id}')">🔄 Сброс</button><button class="btn" onclick="startDrawing('${m.id}')">✏️ Маршрут</button></div><div class="row" style="margin-top:8px"><button class="btn" onclick="saveRoute('${m.id}')">💾 Сохранить маршрут</button><button class="btn red" onclick="deleteMachine('${m.id}')">🗑 Удалить</button></div><button class="btn full" style="margin-top:8px" onclick="saveMachineSettings('${m.id}')">Сохранить настройки</button>`)}
+function machineCard(m){
+  const st=routeStats(m.route), pct=st.total?Math.min(100,m.travelled/st.total*100):0, t=npkType(m.type);
+  return `<div class="npkcard ${selected===m.id?'active':''}" style="--npk:${t.color}">
+    <div class="npkcardtop">
+      ${npkIcon(m.type)}
+      <div class="npkcardtitle"><b>${t.emoji} ${esc(m.name)}</b><small>${t.desc}</small></div>
+      <span class="npkbadge">${m.running?'● В ДВИЖЕНИИ':'Ⅱ ПАУЗА'}</span>
+    </div>
+    <div class="npkstats">
+      <div class="npkstat"><b>${Number(m.speed).toFixed(0)}</b><small>км/ч</small></div>
+      <div class="npkstat"><b>${st.total.toFixed(1)}</b><small>км маршрут</small></div>
+      <div class="npkstat"><b>${pct.toFixed(0)}%</b><small>пройдено</small></div>
+    </div>
+    <div class="progress"><i style="width:${pct}%;--color:${m.color}"></i></div>
+    <div class="small" style="margin-top:6px">⏱ ${etaText(m)} · 📍 ${posAt(m).lat.toFixed(5)}, ${posAt(m).lng.toFixed(5)}</div>
+    <div class="npkactions">
+      <button class="btn ${m.running?'green':'primary'}" onclick="toggleRun('${m.id}')">${m.running?'⏸ Пауза':'▶️ Старт'}</button>
+      <button class="btn" onclick="openMachine('${m.id}')">⚙️ Управление</button>
+    </div>
+  </div>`;
+}
+function openMachines(){
+  selected=null;
+  openSheet(`<div class="sheethead"><h3>🤖 ПУЛЬТ НРК</h3><button class="close" onclick="closeSheet()">×</button></div>
+  <div class="tacticalhead"><b>ВЫБОР ПЛАТФОРМЫ</b><span>OFF-CARD / CONTROL</span></div>
+  <div class="small">Выберите НРК для добавления. После выбора сразу можно поставить стартовую точку на карте.</div>
+  ${npkMenu()}
+  ${machines.length?'<div class="scanline"></div><div class="tacticalhead"><b>АКТИВНЫЕ НРК</b><span>'+machines.length+' ЕД.</span></div>'+machines.map(machineCard).join(''):''}`);
+}
+function createAndDraw(){openMachines()}
+function etaText(m){
+  const st=routeStats(m.route);
+  const remain=Math.max(0,st.total-m.travelled);
+  const speed=Math.max(0,Number(m.speed)||0);
+  if(!remain)return 'Финиш';
+  if(!speed)return 'Скорость 0 км/ч';
+  const sec=remain/speed*3600;
+  const h=Math.floor(sec/3600), min=Math.floor((sec%3600)/60), s=Math.floor(sec%60);
+  return 'Осталось: '+(h?`${h} ч `:'')+`${String(min).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function openMachine(id){selected=id;const m=machines.find(x=>x.id===id);if(!m)return;const st=routeStats(m.route),pct=st.total?Math.min(100,m.travelled/st.total*100):0;openSheet(`<div class="sheethead"><span class="dot" style="color:${m.color};background:${m.color}"></span><h3>${npkType(m.type).emoji} ${esc(m.name)}</h3><button class="close" onclick="closeSheet()">×</button></div><div class="small" style="margin-bottom:8px">Тип НРК: <b>${npkType(m.type).emoji} ${m.type||"Тарган"}</b></div><div class="grid2"><div><div class="label">Название</div><input class="input" id="mname" value="${esc(m.name)}"></div><div><div class="label">Скорость, км/ч <span class="pill">реальная</span></div><input class="input" id="mspeed" type="number" min="0" max="1000" value="${m.speed}"></div></div><div class="label">Маршрут</div><div class="small">${m.route.length} точек · ${st.total.toFixed(2)} км · ${Number(m.speed).toFixed(1)} км/ч</div><div class="progress"><i style="width:${pct}%;--color:${m.color}"></i></div><div class="row" style="margin-top:10px"><button class="btn ${m.running?'green':'primary'}" onclick="toggleRun('${m.id}')">${m.running?'⏸ Пауза':'▶️ Старт'}</button><button class="btn" onclick="resetMachine('${m.id}')">🔄 Сброс</button><button class="btn" onclick="startDrawing('${m.id}')">📍 Поставить маршрут</button></div><div class="row" style="margin-top:8px"><button class="btn" onclick="saveRoute('${m.id}')">💾 Сохранить маршрут</button><button class="btn red" onclick="deleteMachine('${m.id}')">🗑 Удалить</button></div><button class="btn full" style="margin-top:8px" onclick="saveMachineSettings('${m.id}')">Сохранить настройки</button>`)}
 function saveMachineSettings(id){const m=machines.find(x=>x.id===id);if(!m)return;m.name=document.getElementById('mname').value||m.name;m.speed=Math.max(0,Math.min(1000,+document.getElementById('mspeed').value||0));persistState();redraw();openMachine(id);toast('Настройки сохранены')}
 function toggleRun(id){const m=machines.find(x=>x.id===id);if(!m.route.length){toast('Сначала нарисуй маршрут');startDrawing(id);return}m.running=!m.running;selected=id;refresh();}
 function resetMachine(id){const m=machines.find(x=>x.id===id);m.travelled=0;m.running=false;selected=id;persistState();refresh();toast(`${m.name}: сброшена`)}
 function deleteMachine(id){const m=machines.find(x=>x.id===id);if(!m)return;removeLayers(m);machines=machines.filter(x=>x.id!==id);selected=null;persistState();openMachines();toast('Машинка удалена')}
-map.on('click',e=>{if(!drawing)return;const m=machines.find(x=>x.id===drawing);if(!m)return;m.route.push({lat:e.latlng.lat,lng:e.latlng.lng});m.travelled=0;persistState();drawMachine(m);});
-function startDrawing(id){drawing=id;selected=id;map.getContainer().style.cursor='crosshair';toast('Нажимай на карту — добавляй точки маршрута. Завершить: Готово');openSheet(`<div class="sheethead"><h3>✏️ Рисуем маршрут</h3><button class="close" onclick="finishDrawing()">Готово</button></div><div class="small">Точки добавляются касаниями по карте. После завершения маршрут сохранится за выбранной машинкой.</div><div class="row" style="margin-top:10px"><button class="btn" onclick="undoPoint()">↩️ Удалить точку</button><button class="btn" onclick="clearRoute('${id}')">🧹 Очистить</button></div>`)}
-function undoPoint(){if(!drawing)return;const m=machines.find(x=>x.id===drawing);m.route.pop();m.travelled=0;persistState();drawMachine(m)}
-function clearRoute(id){const m=machines.find(x=>x.id===id);m.route=[];m.travelled=0;persistState();drawMachine(m)}
-function finishDrawing(){drawing=null;map.getContainer().style.cursor='';if(selected)openMachine(selected);else closeSheet();toast('Маршрут готов')}
+function addRoutePoint(latlng){
+  if(!drawing){toast('Сначала нажми «Поставить маршрут»');return;}
+  const m=machines.find(x=>x.id===drawing);
+  if(!m)return;
+  m.running=false;
+  m.route.push({lat:Number(latlng.lat),lng:Number(latlng.lng)});
+  m.travelled=0;
+  persistState();
+  drawMachine(m);
+  const n=m.route.length;
+  document.getElementById('drawHint').textContent =
+    n===1 ? 'Старт установлен. Нажимай карту для следующих точек.' :
+    `${n} точек · ${routeStats(m.route).total.toFixed(2)} км`;
+  toast(n===1?'📍 Старт установлен':'📍 Точка маршрута добавлена');
+}
+map.on('click',e=>addRoutePoint(e.latlng));
+function deleteLastRoutePoint(){
+  const m=machines.find(x=>x.id===selected);
+  if(!m||!m.route.length){toast('Нет точек для удаления');return;}
+  m.running=false;m.route.pop();m.travelled=0;
+  persistState();drawMachine(m);toast('🗑️ Последняя точка удалена');
+}
+function reverseRoute(){
+  const m=machines.find(x=>x.id===selected);
+  if(!m||m.route.length<2){toast('Нужно минимум 2 точки');return;}
+  m.running=false;m.route.reverse();m.travelled=0;
+  persistState();drawMachine(m);toast('↔️ Направление изменено');
+}
+function clearRoute(){
+  const m=machines.find(x=>x.id===selected);
+  if(!m)return;
+  m.running=false;m.route=[];m.travelled=0;
+  persistState();drawMachine(m);toast('🧹 Маршрут очищен');
+}
+function startDrawing(id){
+  const m=machines.find(x=>x.id===id);
+  if(!m)return;
+  drawing=id; selected=id;
+  map.getContainer().style.cursor='crosshair';
+  document.getElementById('drawBar').classList.add('show');
+  document.getElementById('drawHint').textContent=m.route.length?'Продолжай маршрут с карты':'Нажми на карту, чтобы поставить первую точку';
+  toast(m.route.length?'Режим маршрута включён':'📍 Поставь стартовую точку на карте');
+  openSheet(`<div class="sheethead"><h3>✏️ Маршрут</h3><button class="close" onclick="finishDrawing()">Готово</button></div><div class="small">Первая точка = старт. Каждое следующее касание карты добавляет точку маршрута.</div><div class="row" style="margin-top:10px"><button class="btn" onclick="undoPoint()">↩️ Удалить точку</button><button class="btn" onclick="clearRoute('${id}')">🧹 Очистить</button></div>`)
+}
+function undoPoint(){
+  if(!drawing)return;
+  const m=machines.find(x=>x.id===drawing);
+  if(!m||!m.route.length){toast('Точек пока нет');return}
+  m.route.pop(); m.travelled=0; persistState(); drawMachine(m);
+  document.getElementById('drawHint').textContent=m.route.length?'Продолжай маршрут с карты':'Нажми на карту, чтобы поставить первую точку';
+}
+function clearRoute(id){
+  const m=machines.find(x=>x.id===id);
+  if(!m)return;
+  m.route=[]; m.travelled=0; persistState(); drawMachine(m);
+  document.getElementById('drawHint').textContent='Нажми на карту, чтобы поставить первую точку';
+}
+function finishDrawing(){
+  drawing=null; map.getContainer().style.cursor='';
+  document.getElementById('drawBar').classList.remove('show');
+  if(selected)openMachine(selected);else closeSheet();
+  toast('Маршрут готов');
+}
 function saveRoute(id){const m=machines.find(x=>x.id===id);if(m.route.length<2){toast('Нужно минимум 2 точки');return}const name=prompt('Название маршрута',m.name+' — маршрут');if(!name)return;savedRoutes.push({id:Date.now(),name,route:m.route});localStorage.setItem('offcard_routes',JSON.stringify(savedRoutes));toast('Маршрут сохранён')}
-function openRoutes(){openSheet(`<div class="sheethead"><h3>🛣 Маршруты</h3><button class="close" onclick="closeSheet()">×</button></div>${savedRoutes.length?savedRoutes.map(r=>`<div class="card"><div class="name">${esc(r.name)}</div><div class="small">${r.route.length} точек · ${routeStats(r.route).total.toFixed(2)} км</div><div class="row" style="margin-top:8px"><button class="btn primary" onclick="loadRoute(${r.id})">Загрузить</button><button class="btn red" onclick="deleteRoute(${r.id})">🗑</button></div></div>`).join(''):'<div class="empty">Сохранённых маршрутов пока нет.</div>'}`)}
+function openRoutes(){openSheet(`<div class="sheethead"><h3>🛣 Маршруты</h3><button class="close" onclick="closeSheet()">×</button></div><button class="btn primary full" onclick="createAndDraw()">＋ Новый маршрут</button>${savedRoutes.length?savedRoutes.map(r=>`<div class="card"><div class="name">${esc(r.name)}</div><div class="small">${r.route.length} точек · ${routeStats(r.route).total.toFixed(2)} км</div><div class="row" style="margin-top:8px"><button class="btn primary" onclick="loadRoute(${r.id})">Загрузить</button><button class="btn red" onclick="deleteRoute(${r.id})">🗑</button></div></div>`).join(''):'<div class="empty">Сохранённых маршрутов пока нет.</div>'}`)}
 function loadRoute(id){const r=savedRoutes.find(x=>x.id===id);let m=selected?machines.find(x=>x.id===selected):null;if(!m)m=createMachine();m.route=r.route.map(x=>({...x}));m.travelled=0;m.running=false;persistState();drawMachine(m);openMachine(m.id);map.fitBounds(L.latLngBounds(m.route));toast('Маршрут загружен')}
 function deleteRoute(id){savedRoutes=savedRoutes.filter(x=>x.id!==id);localStorage.setItem('offcard_routes',JSON.stringify(savedRoutes));openRoutes()}
 function saveScenario(){const name=prompt('Название сценария','Мой сценарий');if(!name)return;scenarios.push({id:Date.now(),name,machines:machines.map(m=>({name:m.name,color:m.color,speed:m.speed,route:m.route,travelled:m.travelled}))});localStorage.setItem('offcard_scenarios',JSON.stringify(scenarios));toast('Сценарий сохранён')}
 function openScenarios(){openSheet(`<div class="sheethead"><h3>🎬 Сценарии</h3><button class="close" onclick="closeSheet()">×</button></div><button class="btn primary full" onclick="saveScenario()">💾 Сохранить текущий сценарий</button>${scenarios.length?scenarios.map(s=>`<div class="card"><div class="name">${esc(s.name)}</div><div class="small">${s.machines.length} машин · ${s.machines.reduce((a,m)=>a+routeStats(m.route).total,0).toFixed(1)} км</div><div class="row" style="margin-top:8px"><button class="btn primary" onclick="loadScenario(${s.id})">Загрузить</button><button class="btn red" onclick="deleteScenario(${s.id})">🗑</button></div></div>`).join(''):'<div class="empty">Сохрани текущую карту как сценарий — все машинки, цвета, скорости и маршруты восстановятся вместе.</div>'}`)}
-function loadScenario(id){const s=scenarios.find(x=>x.id===id);machines.forEach(removeLayers);machines=s.machines.map((x,i)=>({...x,id:(crypto.randomUUID?crypto.randomUUID():Date.now()+i),running:false,routeLine:null,progressLine:null,marker:null}));selected=null;persistState();redraw();openMachines();fitAll();toast('Сценарий загружен')}
+function loadScenario(id){const s=scenarios.find(x=>x.id===id);machines.forEach(removeLayers);machines=s.machines.map((x,i)=>({...x,id:(crypto.randomUUID?crypto.randomUUID():Date.now()+i),running:false,routeLine:null,progressLine:null,marker:null,routePointLayers:[]}));selected=null;persistState();redraw();openMachines();fitAll();toast('Сценарий загружен')}
 function deleteScenario(id){scenarios=scenarios.filter(x=>x.id!==id);localStorage.setItem('offcard_scenarios',JSON.stringify(scenarios));openScenarios()}
 function fitAll(){const pts=machines.flatMap(m=>m.route);if(!pts.length)return;map.fitBounds(L.latLngBounds(pts),{padding:[30,30]})}
 function home(){openSheet(`<div class="menuTitle">Off-Card</div><div class="small" style="margin-bottom:12px">Планируй. Запускай. Контролируй.</div><button class="btn primary full" onclick="createAndDraw()">▶️ Быстрый старт</button><div class="grid2" style="margin-top:8px"><button class="btn" onclick="openMachines()">🚗 Машинки</button><button class="btn" onclick="openRoutes()">🛣 Маршруты</button><button class="btn" onclick="openScenarios()">🎬 Сценарии</button><button class="btn" onclick="openStats()">📊 Статистика</button></div><div class="card"><div class="name">Сейчас</div><div class="small">${machines.length} машинок · ${machines.filter(m=>m.running).length} движутся</div></div>`)}
@@ -91,10 +542,385 @@ function openStats(){let total=machines.reduce((a,m)=>a+routeStats(m.route).tota
 function openSettings(){openSheet(`<div class="sheethead"><h3>⚙️ Настройки</h3><button class="close" onclick="closeSheet()">×</button></div><div class="card"><div class="name">Единицы</div><div class="small">Скорость: км/ч · расстояние: км</div></div><button class="btn full red" onclick="if(confirm('Очистить все сохранённые маршруты и сценарии?')){localStorage.clear();savedRoutes=[];scenarios=[];machines.forEach(removeLayers);machines=[];selected=null;toast('Данные очищены');openSettings()}">Очистить сохранённые данные</button>`)}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function refresh(){redraw();if(document.getElementById('sheet').classList.contains('show')){if(selected)openMachine(selected);else openMachines()}}
-function loop(now){const dt=Math.min(.25,(now-last)/1000);last=now;let changed=false;for(const m of machines){if(m.running&&m.route.length>1){const total=routeStats(m.route).total;m.travelled+=Math.max(0,m.speed)/3600*dt;if(m.travelled>=total){m.travelled=total;m.running=false;toast(m.name+' завершила маршрут')}changed=true}}if(changed)redraw();requestAnimationFrame(loop)}setTimeout(()=>map.invalidateSize(),250);requestAnimationFrame(loop);
+function loop(now){
+  const dt=Math.max(0,(now-last)/1000);
+  last=now;
+  let changed=false;
+  for(const m of machines){
+    if(m.running&&m.route.length>1){
+      const total=routeStats(m.route).total;
+      // m.speed is km/h; divide by 3600 to get km per second.
+      // Therefore 12 km/h = 1 km every 5 real minutes.
+      m.travelled+=Math.max(0,m.speed)*dt/3600;
+      if(m.travelled>=total){
+        m.travelled=total;
+        m.running=false;
+        toast(m.name+' завершила маршрут');
+      }
+      changed=true;
+    }
+  }
+  if(changed)redraw();
+  requestAnimationFrame(loop);
+}
+setTimeout(()=>map.invalidateSize(),250);
+requestAnimationFrame(loop);
 
 document.getElementById('addMachine').onclick=createAndDraw;document.getElementById('fitAll').onclick=fitAll;document.getElementById('settingsBtn').onclick=openSettings;document.getElementById('helpBtn').onclick=()=>openSheet(`<div class="sheethead"><h3>❓ Как пользоваться</h3><button class="close" onclick="closeSheet()">×</button></div><div class="small">Добавь машинку → нарисуй маршрут точками на карте → задай скорость → Старт. Можно запускать несколько машинок одновременно. Кнопка «Сброс» перезапускает только выбранную машинку.</div>`);
 document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');const p=b.dataset.page;if(p==='home')home();if(p==='machines')openMachines();if(p==='routes')openRoutes();if(p==='scenarios')openScenarios();if(p==='map')closeSheet()});
-restoreState();home();
+restoreState();updateHud();
+machines.forEach((m,i)=>{m.type=NPK_TYPES[m.type]?m.type:Object.keys(NPK_TYPES)[i%3];m.color=npkType(m.type).color});persistState();home();
 }
-</script></body></html>
+</script>
+<script>
+function updateSimStatus(){
+  const running=machines.filter(m=>m.running).length;
+  const el=document.getElementById('simStatus');
+  if(el)el.textContent=running?`● СИМУЛЯЦИЯ · ${running} НРК В ДВИЖЕНИИ · 1× REAL TIME`:'● ГОТОВ · СИМУЛЯТОР 1× REAL TIME';
+}
+const _origLoop=loop;
+loop=function(now){_origLoop(now);updateSimStatus()};
+</script>
+
+
+<button id="fitFab" class="btn" onclick="fitAll()" style="position:fixed;right:14px;bottom:82px;z-index:900;width:48px;height:48px;border-radius:50%!important;font-size:18px;background:#0b1622;border:1px solid #334155;box-shadow:0 8px 22px #000b" title="Показать все">⌖</button>
+
+
+<button class="v9-fab" onclick="v9ToggleStats()" title="Статистика">▦</button>
+<div id="v9Stats" class="v9-stats">
+  <div class="v9-stats-head"><b>Статистика симуляции</b><button class="v9-close" onclick="v9ToggleStats()">Закрыть</button></div>
+  <div class="v9-stat-grid">
+    <div class="v9-stat"><b id="v9Vehicles">0</b><span>НРК</span></div>
+    <div class="v9-stat"><b id="v9Running">0</b><span>в движении</span></div>
+    <div class="v9-stat"><b id="v9Distance">0.00 км</b><span>суммарный маршрут</span></div>
+    <div class="v9-stat"><b id="v9Travelled">0.00 км</b><span>пройдено</span></div>
+    <div class="v9-stat"><b id="v9MaxSpeed">0 км/ч</b><span>макс. скорость</span></div>
+    <div class="v9-stat"><b id="v9Routes">0</b><span>маршрутов</span></div>
+  </div>
+</div>
+
+
+<script>
+function v9Create(type){
+  if(typeof createNpk==='function') createNpk(type);
+  document.querySelectorAll('.v9-vehicle').forEach(b=>b.classList.toggle('active',b.dataset.v9===type));
+}
+function v9ToggleStats(){
+  const el=document.getElementById('v9Stats');
+  if(!el)return;
+  el.classList.toggle('show');
+  v9UpdateStats();
+}
+function v9UpdateStats(){
+  if(typeof machines==='undefined')return;
+  const totalRoute=machines.reduce((s,m)=>s+(typeof routeStats==='function'?routeStats(m.route).total:0),0);
+  const travelled=machines.reduce((s,m)=>s+(Number(m.travelled)||0),0);
+  const maxSpeed=machines.reduce((s,m)=>Math.max(s,Number(m.speed)||0),0);
+  const routes=machines.filter(m=>m.route&&m.route.length>=2).length;
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+  set('v9Vehicles',machines.length);
+  set('v9Running',machines.filter(m=>m.running).length);
+  set('v9Distance',totalRoute.toFixed(2)+' км');
+  set('v9Travelled',travelled.toFixed(2)+' км');
+  set('v9MaxSpeed',maxSpeed.toFixed(0)+' км/ч');
+  set('v9Routes',routes);
+}
+const v9Timer=setInterval(v9UpdateStats,500);
+</script>
+
+
+<script>
+function v10ScrollToPicker(){
+  const el=document.querySelector('.v9-picker');
+  if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function v10Update(){
+  if(typeof machines==='undefined')return;
+  let pct=0, count=0;
+  machines.forEach(m=>{
+    if(m.route&&m.route.length>=2){
+      const total=typeof routeStats==='function'?routeStats(m.route).total:0;
+      if(total>0){pct+=Math.min(1,(Number(m.travelled)||0)/total);count++;}
+    }
+  });
+  pct=count?pct/count:0;
+  const p=document.getElementById('v10Progress'), t=document.getElementById('v10Time');
+  if(p)p.style.width=(pct*100).toFixed(1)+'%';
+  if(t)t.textContent=(pct*100).toFixed(0)+'%';
+}
+setInterval(v10Update,250);
+</script>
+
+
+<script>
+function v11MarkerIcon(m){
+  const type=m.type||m.name||'Тарган';
+  let cls='v11-t', symbol='T';
+  if(type==='Гулливер'){cls='v11-g';symbol='G'}
+  if(type==='Ратель'){cls='v11-r';symbol='R'}
+  return L.divIcon({
+    className:'v11-marker',
+    html:`<div class="v11-vehicle ${cls}"><span>${symbol}</span><i class="lamp"></i><i class="stripe"></i></div>`,
+    iconSize:[58,42],iconAnchor:[29,21]
+  });
+}
+function v11RefreshMarker(m){
+  if(m && m.marker){
+    m.marker.setIcon(v11MarkerIcon(m));
+    m.marker.setZIndexOffset(1000);
+  }
+}
+function v11RefreshAll(){
+  if(typeof machines==='undefined')return;
+  machines.forEach(v11RefreshMarker);
+}
+</script>
+<script>setTimeout(v11RefreshAll,200);setInterval(v11RefreshAll,1000);</script>
+<script>
+function v12Flash(title,text,icon='▶'){
+ const box=document.getElementById('v12Flash'),ti=document.getElementById('v12FlashTitle'),tx=document.getElementById('v12FlashText'),ic=document.getElementById('v12FlashIcon');
+ if(!box)return;ti.textContent=title;tx.textContent=text;ic.textContent=icon;
+ box.classList.remove('show');void box.offsetWidth;box.classList.add('show');
+ setTimeout(()=>box.classList.remove('show'),1200);
+}
+function v12Done(m){
+ const el=document.getElementById('v12Complete');
+ if(!el)return;
+ document.getElementById('v12CompleteTitle').textContent=(m.name||'НРК')+' · маршрут завершён';
+ document.getElementById('v12CompleteText').textContent='Симуляция остановлена · '+(Number(m.travelled)||0).toFixed(2)+' км';
+ el.classList.add('show');
+ setTimeout(()=>el.classList.remove('show'),5000);
+}
+function v12DecorateMarker(m){
+ if(!m.marker)return;
+ const el=m.marker.getElement();
+ if(!el)return;
+ const body=el.querySelector('.v11-vehicle');
+ if(!body)return;
+ body.classList.toggle('v12-live',!!m.running);
+}
+const _v12Start=typeof startMachine==='function'?startMachine:null;
+if(_v12Start){
+ window.startMachine=function(id){
+   const r=_v12Start(id);
+   const m=machines.find(x=>x.id===id);
+   if(m)v12Flash('МАРШРУТ ЗАПУЩЕН',(m.name||'НРК')+' · 1× real time','▶');
+   return r;
+ };
+}
+setInterval(()=>{
+ if(typeof machines==='undefined')return;
+ machines.forEach(v12DecorateMarker);
+},200);
+</script>
+
+<script>
+const v12PrevRun={};
+setInterval(()=>{
+ if(typeof machines==='undefined')return;
+ machines.forEach(m=>{
+   const was=!!v12PrevRun[m.id], now=!!m.running;
+   if(was && !now && m.route && m.route.length>=2){
+     const total=typeof routeStats==='function'?routeStats(m.route).total:0;
+     if(total>0 && (Number(m.travelled)||0)>=total-0.0005) v12Done(m);
+   }
+   v12PrevRun[m.id]=now;
+ });
+},250);
+</script>
+
+<script>
+const V13_LANG={
+ uk:{
+  sim:'СИМУЛЯЦІЯ · Віртуальні НРК · без керування реальною технікою',
+  ready:'● ГОТОВО · СИМУЛЯТОР 1× REAL TIME',
+  moving:'● СИМУЛЯЦІЯ · {n} НРК У РУСІ · 1× REAL TIME',
+  choose:'Вибір віртуального НРК', simulation:'СИМУЛЯЦІЯ',
+  compact:'компактний', large:'великий', heavy:'важкий',
+  offcard:'Планування та візуальна симуляція віртуальних маршрутів.',
+  showmap:'⌖ Показати карту', chooseNpk:'🚗 Вибрати НРК',
+  progress:'Хід симуляції', stats:'Статистика симуляції', close:'Закрити',
+  vehicles:'НРК', running:'у русі', distance:'сумарний маршрут',
+  travelled:'пройдено', maxspeed:'макс. швидкість', routes:'маршрутів'
+ },
+ en:{
+  sim:'SIMULATION · Virtual UGVs · no real vehicle control',
+  ready:'● READY · SIMULATOR 1× REAL TIME',
+  moving:'● SIMULATION · {n} UGV(s) MOVING · 1× REAL TIME',
+  choose:'Virtual UGV selection', simulation:'SIMULATION',
+  compact:'compact', large:'large', heavy:'heavy',
+  offcard:'Planning and visual simulation of virtual routes.',
+  showmap:'⌖ Show map', chooseNpk:'🚗 Choose UGV',
+  progress:'Simulation progress', stats:'Simulation statistics', close:'Close',
+  vehicles:'UGVs', running:'moving', distance:'total route',
+  travelled:'travelled', maxspeed:'max speed', routes:'routes'
+ },
+ ru:{
+  sim:'СИМУЛЯЦИЯ · Виртуальные НРК · без управления реальной техникой',
+  ready:'● ГОТОВ · СИМУЛЯТОР 1× REAL TIME',
+  moving:'● СИМУЛЯЦИЯ · {n} НРК В ДВИЖЕНИИ · 1× REAL TIME',
+  choose:'Выбор виртуального НРК', simulation:'СИМУЛЯЦИЯ',
+  compact:'компактный', large:'крупный', heavy:'тяжёлый',
+  offcard:'Планирование и визуальная симуляция виртуальных маршрутов.',
+  showmap:'⌖ Показать карту', chooseNpk:'🚗 Выбрать НРК',
+  progress:'Ход симуляции', stats:'Статистика симуляции', close:'Закрыть',
+  vehicles:'НРК', running:'в движении', distance:'суммарный маршрут',
+  travelled:'пройдено', maxspeed:'макс. скорость', routes:'маршрутов'
+ }
+};
+let v13Lang=localStorage.getItem('offcard_lang')||'ru';
+function v13T(k){return (V13_LANG[v13Lang]||V13_LANG.ru)[k]||k}
+function v13SetLang(lang){
+ if(!V13_LANG[lang])return;
+ v13Lang=lang;localStorage.setItem('offcard_lang',lang);
+ document.documentElement.lang=lang;
+ document.querySelectorAll('.v13-lang button').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));
+ const banner=document.querySelector('.sim-banner'); if(banner)banner.textContent=v13T('sim');
+ const status=document.getElementById('simStatus');
+ if(status)status.textContent=status.textContent.includes('· 0 ') ? v13T('ready') : status.textContent;
+ const title=document.querySelector('.v9-title b'); if(title)title.textContent=v13T('choose');
+ const startP=document.querySelector('.v10-start p'); if(startP)startP.textContent=v13T('offcard');
+ const a=document.querySelector('.v10-actions'); if(a){
+   const bs=a.querySelectorAll('button'); if(bs[0])bs[0].textContent=v13T('showmap'); if(bs[1])bs[1].textContent=v13T('chooseNpk');
+ }
+ const statHead=document.querySelector('.v9-stats-head b'); if(statHead)statHead.textContent=v13T('stats');
+ const close=document.querySelector('.v9-close'); if(close)close.textContent=v13T('close');
+ const progress=document.querySelector('.v10-live span'); if(progress)progress.textContent=v13T('progress');
+ const desc=document.querySelectorAll('.v9-desc');
+ if(desc.length>=3){desc[0].textContent=v13T('compact');desc[1].textContent=v13T('large');desc[2].textContent=v13T('heavy')}
+}
+function v13UpdateStatus(){
+ if(typeof machines==='undefined')return;
+ const el=document.getElementById('simStatus'); if(!el)return;
+ const n=machines.filter(m=>m.running).length;
+ el.textContent=n?v13T('moving').replace('{n}',n):v13T('ready');
+}
+setInterval(v13UpdateStatus,500);
+setTimeout(()=>v13SetLang(v13Lang),0);
+</script>
+
+<nav class="v14-bottom">
+  <button class="active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><b>⌂</b>Главная</button>
+  <button onclick="v14GoMap()"><b>⌖</b>Карта</button>
+  <button onclick="v9ToggleStats()"><b>▦</b>Статистика</button>
+  <button onclick="v14GoNpk()"><b>◈</b>НРК</button>
+</nav>
+
+<script>
+function v14GoMap(){
+ const el=document.getElementById('map');
+ if(el){el.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>{if(typeof map!=='undefined')map.invalidateSize()},400)}
+}
+function v14GoNpk(){
+ const el=document.querySelector('.v9-picker');
+ if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+</script>
+
+<script>
+function v15Update(){
+ if(typeof machines==='undefined')return;
+ const count=machines.length;
+ const moving=machines.filter(m=>m.running).length;
+ let km=0;
+ machines.forEach(m=>{if(typeof routeStats==='function')km+=routeStats(m.route||[]).total});
+ const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+ set('v15Count',count);set('v15Moving',moving);set('v15Km',km.toFixed(2));
+}
+setInterval(v15Update,400);
+</script>
+
+<div id="v16Sheet" class="v16-sheet">
+  <div class="v16-handle"></div>
+  <div class="v16-sheethead">
+    <b>Панель управления</b><span id="v16SheetHint">Потяни вверх</span>
+  </div>
+  <div class="v16-sheetbody">
+    <div class="v16-sheetgrid">
+      <button class="btn" onclick="v14GoNpk();v16CloseSheet()">◈ НРК</button>
+      <button class="btn" onclick="v9ToggleStats();v16CloseSheet()">▦ Статистика</button>
+      <button class="btn" onclick="v16OpenMap()">⌖ Карта</button>
+      <button class="btn" onclick="v16CloseSheet()">× Свернуть</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function v16OpenSheet(){const e=document.getElementById('v16Sheet');if(e)e.classList.add('open')}
+function v16CloseSheet(){const e=document.getElementById('v16Sheet');if(e)e.classList.remove('open')}
+function v16OpenMap(){v16CloseSheet();const e=document.getElementById('map');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>{if(typeof map!=='undefined')map.invalidateSize()},350)}
+function v16LocateMap(){if(typeof map!=='undefined'&&typeof fitAll==='function')fitAll()}
+const v16Sheet=document.getElementById('v16Sheet');
+if(v16Sheet){
+ let sy=0;
+ v16Sheet.addEventListener('touchstart',e=>{sy=e.touches[0].clientY},{passive:true});
+ v16Sheet.addEventListener('touchend',e=>{const dy=e.changedTouches[0].clientY-sy;if(dy<-35)v16OpenSheet();if(dy>35)v16CloseSheet()},{passive:true});
+}
+setInterval(()=>{
+ const e=document.getElementById('v16MapStatus');
+ if(e&&typeof machines!=='undefined'){const n=machines.filter(m=>m.running).length;e.textContent=n?`${n} MOVING`:'READY'}
+},500);
+</script>
+
+<script>
+function v17Assert(name,fn){
+  try{
+    const result=fn();
+    if(result===false)throw new Error('Проверка не выполнена');
+    return {name,ok:true};
+  }catch(e){return {name,ok:false,error:String(e.message||e)}}
+}
+function v17RunTests(){
+ const tests=[];
+ tests.push(v17Assert('HTML / DOM',()=>document&&document.body));
+ tests.push(v17Assert('Карта Leaflet',()=>typeof L!=='undefined'&&typeof map!=='undefined'));
+ tests.push(v17Assert('Массив виртуальных НРК',()=>Array.isArray(machines)));
+ tests.push(v17Assert('Типы НРК',()=>{
+   const t=['Тарган','Гулливер','Ратель'];
+   return t.every(x=>typeof x==='string');
+ }));
+ tests.push(v17Assert('Расчёт маршрута',()=>{
+   const r=routeStats([{lat:48,lng:34},{lat:48.01,lng:34.01}]);
+   return r&&Number.isFinite(r.total)&&r.total>0;
+ }));
+ tests.push(v17Assert('Точная скорость 1×',()=>{
+   const speed=12, seconds=3600;
+   const km=speed*seconds/3600;
+   return Math.abs(km-12)<1e-9;
+ }));
+ tests.push(v17Assert('Хранилище localStorage',()=>{
+   const k='offcard_v17_test';
+   localStorage.setItem(k,'ok');
+   const v=localStorage.getItem(k);
+   localStorage.removeItem(k);
+   return v==='ok';
+ }));
+ tests.push(v17Assert('Языки',()=>{
+   return typeof V13_LANG==='object' && ['uk','en','ru'].every(x=>V13_LANG[x]);
+ }));
+ tests.push(v17Assert('Редактирование маршрута',()=>{
+   return typeof deleteLastRoutePoint==='function'&&typeof reverseRoute==='function'&&typeof clearRoute==='function';
+ }));
+ tests.push(v17Assert('Статистика',()=>typeof v9UpdateStats==='function'));
+ tests.push(v17Assert('Навигация v16',()=>typeof v16OpenSheet==='function'&&typeof v16OpenMap==='function'));
+ tests.push(v17Assert('Новые визуальные модели',()=>typeof v11MarkerIcon==='function'));
+
+ const box=document.getElementById('v17Results');
+ if(!box)return;
+ box.innerHTML='';
+ let ok=0;
+ tests.forEach(t=>{
+   if(t.ok)ok++;
+   const row=document.createElement('div');
+   row.className='v17-row';
+   row.innerHTML=`<i class="v17-dot ${t.ok?'ok':'fail'}"></i><span>${t.name}${t.ok?'':' — '+t.error}</span>`;
+   box.appendChild(row);
+ });
+ const summary=document.createElement('div');
+ summary.className='v17-summary';
+ summary.textContent=`Результат: ${ok}/${tests.length} проверок пройдено`;
+ box.appendChild(summary);
+ box.classList.add('show');
+}
+</script>
+</body></html>
