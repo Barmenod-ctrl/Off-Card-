@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>Route Simulator v5</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0b1020;color:#fff;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+main{max-width:1000px;margin:auto;padding:12px}.card{background:#151d31;border:1px solid #2c3953;border-radius:17px;padding:12px;margin-bottom:10px}
+h1{font-size:21px;margin:0 0 4px}.muted{font-size:12px;color:#aebbd0}
+#map{height:58vh;min-height:390px;border-radius:13px;overflow:hidden}
+.controls{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+button,input{font:inherit;padding:10px;border-radius:11px;border:1px solid #3a4a68;background:#222e47;color:#fff}
+button{font-weight:600}.active,.start{background:#2563eb;border-color:#2563eb}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.v{font-weight:700;font-size:16px}
+#status{margin-top:8px;color:#93c5fd}
+@media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr)}#map{height:55vh}}
+</style>
+</head>
+<body><main>
+<div class="card"><h1>Route Simulator v5</h1><div class="muted">Нарисуй маршрут на реальной карте и запусти движение объекта с заданной скоростью.</div></div>
+<div class="card">
+<div id="map"></div>
+<div class="controls">
+<button id="draw" class="active">✏️ Рисовать</button>
+<button id="clear">🗑 Очистить</button>
+<button id="start" class="start">▶ Старт</button>
+<button id="pause">Ⅱ Пауза</button>
+<button id="reset">↺ Сначала</button>
+<button id="locate">📍 Моё место</button>
+</div>
+<div id="status">Проводи пальцем по карте, чтобы создать маршрут.</div>
+</div>
+<div class="card"><div class="stats">
+<div><div class="muted">Скорость</div><input id="speed" type="number" value="30" min=".1" step=".1"> км/ч</div>
+<div><div class="muted">Длина маршрута</div><div class="v" id="distance">0.00 км</div></div>
+<div><div class="muted">Время</div><div class="v" id="time">00:00:00</div></div>
+<div><div class="muted">Позиция</div><div class="v" id="percent">0%</div></div>
+</div></div>
+<div class="card"><div class="muted"><b>Публикация:</b> этот проект рассчитан на GitHub Pages/HTTPS. Карта загружается с OpenStreetMap. Для настоящего полного офлайна карту нужно хранить локально или использовать специализированный офлайн-картографический пакет.</div></div>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const map=L.map('map').setView([46.4825,30.7233],12);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(map);
+
+let pts=[],line=null,marker=null,drawing=true,running=false,progress=0,total=0,last=0,sim=0;
+const $=id=>document.getElementById(id);
+function hav(a,b){const R=6371,p=Math.PI/180,d1=(b.lat-a.lat)*p,d2=(b.lng-a.lng)*p,x=Math.sin(d1/2)**2+Math.cos(a.lat*p)*Math.cos(b.lat*p)*Math.sin(d2/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
+function length(){let s=0;for(let i=1;i<pts.length;i++)s+=hav(pts[i-1],pts[i]);return s}
+function at(t){if(!pts.length)return null;let target=t*total,s=0;for(let i=1;i<pts.length;i++){let d=hav(pts[i-1],pts[i]);if(s+d>=target){let q=(target-s)/d;return L.latLng(pts[i-1].lat+(pts[i].lat-pts[i-1].lat)*q,pts[i-1].lng+(pts[i].lng-pts[i-1].lng)*q)}s+=d}return pts[pts.length-1]}
+function fmt(s){let h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=Math.floor(s%60);return[h,m,x].map(v=>String(v).padStart(2,'0')).join(':')}
+function update(){total=length();$('distance').textContent=total.toFixed(2)+' км';$('time').textContent=fmt(sim);$('percent').textContent=Math.round(progress*100)+'%';if(marker){const p=at(progress);if(p)marker.setLatLng(p)}$('status').textContent=pts.length<2?'Проведи маршрут минимум из двух точек.':running?'🔴 Объект движется…':'Маршрут готов.'}
+function addPoint(e){if(!drawing||running)return;pts.push(e.latlng);if(!line)line=L.polyline(pts,{color:'#2563eb',weight:5}).addTo(map);else line.setLatLngs(pts);update()}
+map.on('click',addPoint);
+let touchDrawing=false;
+map.on('mousedown',e=>{if(!drawing||running)return;touchDrawing=true;map.dragging.disable();addPoint(e)});
+map.on('mousemove',e=>{if(touchDrawing&&!running){pts.push(e.latlng);line.setLatLngs(pts);update()}});
+map.on('mouseup',()=>{touchDrawing=false;map.dragging.enable()});
+map.on('touchstart',()=>{if(drawing&&!running)map.dragging.disable()});
+map.on('touchend',()=>map.dragging.enable());
+$('draw').onclick=()=>{drawing=!drawing;$('draw').classList.toggle('active',drawing);$('draw').textContent=drawing?'✓ Рисовать':'✏️ Рисовать'};
+$('clear').onclick=()=>{running=false;drawing=true;pts=[];progress=0;sim=0;if(line)line.remove();if(marker)marker.remove();line=marker=null;update()};
+$('reset').onclick=()=>{running=false;progress=0;sim=0;update()};
+$('pause').onclick=()=>{running=false;last=0;update()};
+$('start').onclick=()=>{if(pts.length<2){$('status').textContent='Сначала нарисуй маршрут.';return}drawing=false;running=true;last=performance.now();if(!marker)marker=L.circleMarker(pts[0],{radius:9,color:'#fff',weight:3,fillColor:'#ef4444',fillOpacity:1}).addTo(map);requestAnimationFrame(loop)};
+$('locate').onclick=()=>map.locate({setView:true,maxZoom:16});
+map.on('locationfound',e=>L.circleMarker(e.latlng,{radius:7,color:'#2563eb',fillColor:'#2563eb',fillOpacity:.7}).addTo(map).bindPopup('Ваша позиция').openPopup());
+function loop(now){if(!running)return;let dt=(now-last)/1000;last=now;let v=+$('speed').value;progress=Math.min(1,progress+(v/3600)*dt/Math.max(total,.000001));sim+=dt;update();if(progress<1)requestAnimationFrame(loop);else{running=false;update()}}
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+update();
+</script></body></html>
