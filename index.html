@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>ПЕРУН 42 — Веб-симулятор маршрутов</title>
+<title>ПЕРУН 42 v26 — Веб-симулятор маршрутов</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" onerror="this.onerror=null;this.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'" />
 <style>
 :root{--bg:#071018;--panel:#0d1822;--panel2:#101f2c;--text:#f5f8fb;--muted:#91a0ad;--blue:#1683ff;--line:#223443;--danger:#ff4d5f;--green:#35d07f}
@@ -737,6 +737,142 @@ box-shadow:0 12px 35px #000a;font-size:10px;font-weight:800;display:none}
 .v23-cargo-overlay.show{display:block}
 </style>
 
+
+<style id="perun-v24-reference-layout">
+/* v24 — desktop web layout inspired by the supplied reference */
+html,body{background:#03070b!important;overflow:hidden!important}
+.app{
+  display:grid!important;
+  grid-template-columns:190px minmax(0,1fr)!important;
+  grid-template-rows:64px minmax(0,1fr)!important;
+  grid-template-areas:"head head" "rail map"!important;
+  height:100vh!important;
+}
+.app .top{
+  grid-area:head!important;height:64px!important;padding:7px 14px!important;
+  background:#071019!important;border-bottom:1px solid #1e2b36!important;
+  z-index:2000!important;display:flex!important;align-items:center!important
+}
+.app .top .logo{width:44px!important;height:50px!important;background:transparent!important}
+.app .top .logo img{width:40px!important;height:48px!important;object-fit:contain!important}
+.app .top .brand b{font-size:17px!important;letter-spacing:.2px!important}
+.app .top .brand span{font-size:8px!important;color:#71818e!important}
+.app .top .sim-banner{
+  position:absolute!important;left:50%!important;top:13px!important;transform:translateX(-50%)!important;
+  background:transparent!important;border:0!important;font-size:9px!important;color:#6f808d!important
+}
+.app .top .iconbtn{display:none!important}
+.app .top:after{
+  content:"БАЧИМО  КЕРУЄМО  ПЕРЕМАГАЄМО";
+  position:absolute;right:15px;top:17px;font-size:8px;font-weight:800;
+  letter-spacing:.8px;color:#71818d;white-space:pre
+}
+
+/* Existing bottom nav becomes compact top navigation */
+.app>.bottom{
+  position:fixed!important;left:205px!important;right:205px!important;top:11px!important;bottom:auto!important;
+  width:auto!important;height:42px!important;z-index:2500!important;
+  display:flex!important;flex-direction:row!important;justify-content:center!important;gap:4px!important;
+  padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important
+}
+.app>.bottom .nav{
+  width:auto!important;min-width:72px!important;height:38px!important;min-height:38px!important;
+  padding:7px 10px!important;border-radius:8px!important;background:transparent!important;
+  color:#748592!important;font-size:9px!important;text-align:center!important
+}
+.app>.bottom .nav div{display:none!important}
+.app>.bottom .nav.active{background:#102433!important;color:#e8f0f5!important;border:1px solid #244052!important}
+
+/* Map is the whole right content area */
+.app>#map{grid-area:map!important;width:100%!important;height:100%!important;min-height:0!important}
+.leaflet-control-zoom{margin-right:10px!important;margin-bottom:95px!important}
+.leaflet-control-attribution{font-size:7px!important}
+
+/* Fleet selector becomes a left rail */
+.fleet-picker{
+  position:fixed!important;left:8px!important;right:auto!important;top:75px!important;
+  width:174px!important;max-height:calc(100vh - 300px)!important;overflow:auto!important;
+  z-index:1800!important;padding:10px!important;border-radius:12px!important;
+  background:#071019!important;border:1px solid #1e303c!important;box-shadow:0 10px 30px #0009!important
+}
+.fleet-head{margin-bottom:8px!important}.fleet-head b{font-size:11px!important}
+.fleet-kicker{font-size:7px!important}.fleet-status{display:none!important}
+.fleet-list{gap:5px!important}
+.fleet-item{
+  grid-template-columns:42px 1fr 12px!important;gap:7px!important;min-height:60px!important;
+  padding:6px!important;border-radius:9px!important
+}
+.fleet-visual{width:40px!important;height:40px!important;border-radius:8px!important}
+.fleet-copy b{font-size:10px!important}.fleet-copy span{font-size:7px!important}
+.fleet-foot{display:none!important}
+
+/* Put simulator controls in a compact rail under fleet */
+.v24-rail{
+  position:fixed;left:8px;bottom:72px;width:174px;z-index:1800;
+  padding:9px;background:#071019;border:1px solid #1e303c;border-radius:12px;box-shadow:0 10px 30px #0009
+}
+.v24-rail-title{font-size:7px;color:#738491;letter-spacing:1px;font-weight:900;margin-bottom:7px}
+.v24-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.v24-actions button{padding:8px 4px;border-radius:8px;border:1px solid #263b49;background:#0c1923;color:#dce6ec;font-size:8px;font-weight:800}
+.v24-actions button.active{background:#103225;border-color:#28613f;color:#8de6aa}
+.v24-speed{margin-top:7px;display:flex;align-items:center;gap:5px}
+.v24-speed input{width:65px;padding:7px;border:1px solid #29404f;border-radius:7px;background:#0a151e;color:#fff;font-size:9px}
+.v24-speed span{font-size:8px;color:#748491}
+
+/* Saved points/routes stay available but are compact */
+#v21SavedPanel{
+  left:8px!important;right:auto!important;bottom:8px!important;width:174px!important;
+  max-height:55vh!important;overflow:auto!important;padding:10px!important;
+  background:#071019!important;border:1px solid #1e303c!important;border-radius:12px!important
+}
+#v21SavedPanel .v21-point{padding:6px!important}.v21-add{padding:7px!important;font-size:8px!important}
+#v21SavedPanel .v22-route-tools,#v21SavedPanel .v23-block{margin-top:8px!important;padding-top:8px!important}
+#v21SavedPanel .v23-block{display:block!important}
+#v21SavedPanel .v23-route-list{max-height:90px!important}
+
+/* Hide mobile-only and diagnostic overlays in normal web view */
+.v17-test,.v10-start,.v12-startflash,.v12-complete,.v14-top,.v13-lang,.v10-brand{display:none!important}
+.v11-map-legend{left:204px!important;right:auto!important;bottom:88px!important;top:auto!important}
+
+/* Search/layer controls */
+.v24-map-tools{
+  position:fixed;left:207px;right:205px;top:75px;z-index:1700;
+  display:flex;justify-content:space-between;pointer-events:none
+}
+.v24-search{pointer-events:auto;width:245px;padding:9px 12px;border:1px solid #263b49;border-radius:9px;
+background:rgba(6,13,19,.91);color:#cdd8df;font-size:9px;box-shadow:0 8px 22px #0007}
+.v24-layers{display:flex;pointer-events:auto;border:1px solid #263b49;border-radius:9px;overflow:hidden;background:rgba(6,13,19,.91)}
+.v24-layers button{padding:8px 11px;border:0;border-right:1px solid #263b49;background:transparent;color:#71818e;font-size:8px}
+.v24-layers button.active{background:#153128;color:#9ce9b8}
+
+/* Bottom route information */
+.v24-bottominfo{
+  position:fixed;left:207px;right:205px;bottom:8px;z-index:1750;
+  height:64px;background:rgba(6,13,19,.95);border:1px solid #243642;border-radius:12px;
+  display:grid;grid-template-columns:repeat(4,1fr) 125px;align-items:center;
+  box-shadow:0 12px 35px #000a;backdrop-filter:blur(10px)
+}
+.v24-stat{text-align:center;border-right:1px solid #1e2c36}.v24-stat b{display:block;font-size:13px}.v24-stat span{font-size:7px;color:#6f808c}
+.v24-clear{margin:0 10px;padding:8px;border-radius:8px;border:1px solid #2b3e4b;background:#0c1720;color:#c9d3da;font-size:8px;font-weight:800}
+.v24-status{position:fixed;left:207px;bottom:82px;z-index:1760;padding:6px 9px;border-radius:8px;background:rgba(5,14,10,.9);border:1px solid #24533a;color:#7ee0a1;font-size:8px;font-weight:800}
+
+/* Desktop-first; phone remains a responsive website */
+@media(max-width:850px){
+  .app{display:flex!important;flex-direction:column!important}
+  .app .top{height:58px!important;flex:0 0 58px!important}
+  .app>.bottom{position:fixed!important;left:0!important;right:0!important;top:auto!important;bottom:0!important;height:54px!important;z-index:2500!important;background:#071019!important;border-top:1px solid #1e2b36!important}
+  .app>.bottom .nav{min-width:62px!important}
+  .fleet-picker{left:7px!important;top:67px!important;width:170px!important}
+  .v24-rail{left:7px!important;width:170px!important}
+  #v21SavedPanel{left:7px!important;width:170px!important}
+  .v24-map-tools{left:184px!important;right:7px!important;top:66px!important}
+  .v24-search{width:150px!important}
+  .v24-bottominfo{left:184px!important;right:7px!important;bottom:61px!important}
+  .v24-status{left:184px!important;bottom:132px!important}
+  .app>#map{flex:1!important}
+}
+</style>
+
 </head>
 <body>
 <div id="v12Flash" class="v12-startflash">
@@ -912,7 +1048,13 @@ function createNpk(type){
 
 function persistState(){try{localStorage.setItem(STATE_KEY,JSON.stringify(machines.map(m=>({id:m.id,name:m.name,type:m.type||'Тарган',color:npkType(m.type||'Тарган').color,speed:m.speed,route:m.route,travelled:m.travelled}))));}catch(e){}}
 function restoreState(){try{const a=JSON.parse(localStorage.getItem(STATE_KEY)||'[]');machines=a.map((x,i)=>({id:x.id||String(Date.now()+i),name:x.name||('НРК '+(i+1)),type:NPK_TYPES[x.type]?x.type:Object.keys(NPK_TYPES)[i%3],color:npkType(NPK_TYPES[x.type]?x.type:Object.keys(NPK_TYPES)[i%3]).color,speed:Number(x.speed)||50,route:Array.isArray(x.route)?x.route:[],travelled:Number(x.travelled)||0,running:false,routeLine:null,progressLine:null,marker:null,routePointLayers:[]}));}catch(e){machines=[];}}
-const map=L.map('map',{zoomControl:false}).setView([48.45,35.05],7);L.control.zoom({position:'bottomright'}).addTo(map);L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{maxZoom:20,attribution:'© Google'}).addTo(map);
+const map=L.map('map',{zoomControl:false}).setView([48.45,35.05],7);L.control.zoom({position:'bottomright'}).addTo(map);
+const baseSatellite=L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{maxZoom:20,attribution:'© Google'});
+const baseMap=L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{maxZoom:20,attribution:'© Google'});
+const baseHybrid=L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',{maxZoom:20,attribution:'© Google'});
+baseSatellite.addTo(map);
+function setBaseLayer(k){[baseSatellite,baseMap,baseHybrid].forEach(x=>{if(map.hasLayer(x))map.removeLayer(x)});const x=k==='map'?baseMap:k==='hyb'?baseHybrid:baseSatellite;x.addTo(map);document.querySelectorAll('#v24Layers button').forEach(b=>b.classList.toggle('active',b.dataset.layer===k));}
+
 function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
 function dist(a,b){const R=6371, p=Math.PI/180, dlat=(b.lat-a.lat)*p,dlon=(b.lng-a.lng)*p;const x=Math.sin(dlat/2)**2+Math.cos(a.lat*p)*Math.cos(b.lat*p)*Math.sin(dlon/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
 function routeStats(route){let total=0,seg=[];for(let i=1;i<route.length;i++){const d=dist(route[i-1],route[i]);total+=d;seg.push(d)}return {total,seg}}
@@ -1052,7 +1194,7 @@ function startDrawing(id){
   document.getElementById('drawBar').classList.add('show');
   document.getElementById('drawHint').textContent=m.route.length?'Продолжай маршрут с карты':'Нажми на карту, чтобы поставить первую точку';
   toast(m.route.length?'Режим маршрута включён':'📍 Поставь стартовую точку на карте');
-  openSheet(`<div class="sheethead"><h3>✏️ Маршрут</h3><button class="close" onclick="finishDrawing()">Готово</button></div><div class="small">Первая точка = старт. Каждое следующее касание карты добавляет точку маршрута.</div><div class="row" style="margin-top:10px"><button class="btn" onclick="undoPoint()">↩️ Удалить точку</button><button class="btn" onclick="clearRoute('${id}')">🧹 Очистить</button></div>`)
+  openSheet(`<div class="sheethead"><h3>✏️ Маршрут</h3><button class="close" onclick="finishDrawing()">Готово</button></div><div class="small">Первая точка = старт. Каждое следующее касание карты добавляет точку маршрута.</div><div class="row" style="margin-top:10px"><button class="btn" onclick="undoPoint()">↩️ Удалить точку</button><button class="btn" onclick="clearRouteById('${id}')">🧹 Очистить</button></div>`)
 }
 function undoPoint(){
   if(!drawing)return;
@@ -1061,7 +1203,7 @@ function undoPoint(){
   m.route.pop(); m.travelled=0; persistState(); drawMachine(m);
   document.getElementById('drawHint').textContent=m.route.length?'Продолжай маршрут с карты':'Нажми на карту, чтобы поставить первую точку';
 }
-function clearRoute(id){
+function clearRouteById(id){
   const m=machines.find(x=>x.id===id);
   if(!m)return;
   m.route=[]; m.travelled=0; persistState(); drawMachine(m);
@@ -1874,7 +2016,122 @@ background:rgba(7,16,24,.96);border:1px solid #2b4050;border-radius:18px;padding
   document.head.appendChild(st);
 
   load();setCargoVisual();renderRoutes();
+  setInterval(()=>{if(cargo.loaded){const m=currentMachine();if(m&&m.marker)animateCargo(true)}},1200);
 })();
 </script>
 
+
+<div class="v24-rail" id="v24Rail">
+  <div class="v24-rail-title">КЕРУВАННЯ</div>
+  <div class="v24-actions">
+    <button id="v24Manual">Ручне</button>
+    <button id="v24Auto" class="active">Автономний маршрут</button>
+  </div>
+  <div class="v24-speed"><input id="v24Speed" type="number" min="0" max="100" step="1" value="12"><span>км/год</span></div>
+  <div class="v24-actions" style="margin-top:7px">
+    <button id="v24Start">▶ Старт</button>
+    <button id="v24Stop">■ Стоп</button>
+  </div>
+</div>
+<div class="v24-map-tools">
+  <div class="v24-search" id="v24Search">⌕&nbsp; Пошук на Google Maps…</div>
+  <div class="v24-layers" id="v24Layers"><button class="active" data-layer="sat">Супутник</button><button data-layer="map">Карта</button><button data-layer="hyb">Гібрид</button></div>
+</div>
+<div class="v24-status" id="v24Status">● Готовий до руху</div>
+<div class="v24-bottominfo">
+  <div class="v24-stat"><b id="v24Dist">0.0 км</b><span>Відстань</span></div>
+  <div class="v24-stat"><b id="v24Time">00:00</b><span>Час у дорозі</span></div>
+  <div class="v24-stat"><b id="v24Type">Пересічена</b><span>Тип місцевості</span></div>
+  <div class="v24-stat"><b id="v24Pts">0</b><span>Точки</span></div>
+  <button class="v24-clear" id="v24Clear">⌫ Очистити</button>
+</div>
+<script id="perun-v26-ui">
+(function(){
+  const $=id=>document.getElementById(id);
+  function getMachine(){
+    try{return (typeof machines!=='undefined'&&typeof selected!=='undefined')?machines.find(m=>m.id===selected):null}catch(e){return null}
+  }
+  function dist(route){
+    if(!route||route.length<2)return 0;
+    let d=0,R=6371;
+    for(let i=1;i<route.length;i++){
+      const a=route[i-1],b=route[i],p=Math.PI/180;
+      const x=(b.lat-a.lat)*p,y=(b.lng-a.lng)*p;
+      const q=Math.sin(x/2)**2+Math.cos(a.lat*p)*Math.cos(b.lat*p)*Math.sin(y/2)**2;
+      d+=2*R*Math.asin(Math.sqrt(q));
+    }
+    return d;
+  }
+  function update(){
+    const m=getMachine(),r=m&&Array.isArray(m.route)?m.route:[];
+    $('v24Pts').textContent=r.length;
+    $('v24Dist').textContent=dist(r).toFixed(1)+' км';
+    if(m){
+      $('v24Type').textContent=m.running?'Маршрут активен':'Пересічена';
+      $('v24Status').textContent=m.running?'● НРК рухається':'● Готовий до руху';
+      $('v24Speed').value=Number(m.speed)||0;
+    }else $('v24Status').textContent='● Выберите НРК';
+  }
+  function mode(manual){
+    $('v24Manual').classList.toggle('active',manual);
+    $('v24Auto').classList.toggle('active',!manual);
+    const m=getMachine();
+    if(m)m.mode=manual?'manual':'auto';
+    try{if(typeof persistState==='function')persistState()}catch(e){}
+  }
+  $('v24Clear').onclick=()=>{
+    try{if(typeof clearRoute==='function')clearRoute()}catch(e){}
+    setTimeout(update,100);
+  };
+  document.querySelectorAll('#v24Layers button').forEach(b=>{
+    b.onclick=()=>{try{if(typeof setBaseLayer==='function')setBaseLayer(b.dataset.layer)}catch(e){}};
+  });
+  $('v24Start').onclick=()=>{
+    const m=getMachine();
+    if(!m){if(typeof openMachines==='function')openMachines();return}
+    if(typeof toggleRun==='function')toggleRun(m.id);
+    setTimeout(update,100);
+  };
+  $('v24Stop').onclick=()=>{
+    const m=getMachine();
+    if(m){
+      m.running=false;
+      try{if(typeof persistState==='function')persistState();if(typeof refresh==='function')refresh()}catch(e){}
+    }
+    update();
+  };
+  $('v24Manual').onclick=()=>mode(true);
+  $('v24Auto').onclick=()=>mode(false);
+  $('v24Speed').onchange=e=>{
+    const m=getMachine();
+    if(m){
+      m.speed=Math.max(0,Number(e.target.value)||0);
+      try{if(typeof persistState==='function')persistState()}catch(err){}
+      update();
+    }
+  };
+  const search=$('v24Search');
+  if(search)search.onclick=()=>{try{if(typeof openRoutes==='function')openRoutes()}catch(e){}};
+  setInterval(update,500);
+  update();
+})();
+</script>
+
+<script id="perun-v26-selftest">
+(function(){
+  const requiredIds=['map','v23Weight','v23CargoToggle','v23SaveRoute','v24Manual','v24Auto','v24Start','v24Stop','v24Speed','v24Clear','v24Layers','v24Dist','v24Pts'];
+  const inlineFns=['fitAll','v14GoNpk','v10ScrollToPicker','v17RunTests','v9Create','v13SetLang','v16LocateMap','finishDrawing','deleteLastRoutePoint','reverseRoute','clearRoute','createNpk','toggleRun','openMachine','closeSheet','resetMachine','startDrawing','saveRoute','deleteMachine','saveMachineSettings','undoPoint','clearRouteById','createAndDraw','loadRoute','deleteRoute','saveScenario','loadScenario','deleteScenario','openMachines','openRoutes','openScenarios','openStats','v9ToggleStats','v14GoMap','v16OpenMap'];
+  const source=document.documentElement.outerHTML;
+  const checks=[
+    ...requiredIds.map(id=>({name:'Элемент '+id,ok:!!document.getElementById(id)})),
+    ...inlineFns.map(fn=>({name:'Функция '+fn,ok:typeof window[fn]==='function'})),
+    {name:'Google satellite',ok:source.includes('mt1.google.com/vt/lyrs=s')},
+    {name:'localStorage',ok:source.includes('localStorage')},
+    {name:'Скорость dt/3600',ok:source.includes('dt/3600')}
+  ];
+  window.PERUN42_SELFTEST=checks;
+  window.PERUN42_SELFTEST_SCORE=checks.filter(x=>x.ok).length+'/'+checks.length;
+  console.info('ПЕРУН 42 v26 self-test:',window.PERUN42_SELFTEST_SCORE,checks);
+})();
+</script>
 </body></html>
