@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Off-Card v17 — Симулятор маршрутов</title>
+<title>ПЕРУН 42 — Веб-симулятор маршрутов</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" onerror="this.onerror=null;this.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'" />
 <style>
 :root{--bg:#071018;--panel:#0d1822;--panel2:#101f2c;--text:#f5f8fb;--muted:#91a0ad;--blue:#1683ff;--line:#223443;--danger:#ff4d5f;--green:#35d07f}
@@ -205,6 +205,538 @@ body{padding-bottom:76px!important}
 .v17-dot.ok{background:#4ade80;box-shadow:0 0 8px #4ade80}.v17-dot.fail{background:#fb7185;box-shadow:0 0 8px #fb7185}
 .v17-summary{margin-top:9px;font-size:10px;font-weight:900;color:#cbd5e1}
 </style>
+
+<style id="off-card-site-v18">
+/* OFF-CARD v18 — WEB SITE ADAPTATION
+   Same simulator logic, redesigned as a responsive website.
+*/
+:root{
+  --site-sidebar:238px;
+  --site-header:72px;
+  --site-panel:390px;
+}
+html,body{overflow:hidden}
+body{background:#050a10}
+
+/* Desktop website shell */
+.app{
+  height:100vh!important;
+  display:grid!important;
+  grid-template-columns:var(--site-sidebar) minmax(0,1fr)!important;
+  grid-template-rows:var(--site-header) minmax(0,1fr)!important;
+  grid-template-areas:"header header" "nav main"!important;
+}
+.app .top{
+  grid-area:header!important;
+  height:var(--site-header)!important;
+  padding:10px 22px!important;
+  border-bottom:1px solid #253545!important;
+  background:rgba(5,11,18,.97)!important;
+}
+.app .top .logo{width:42px;height:42px;border-radius:13px}
+.app .top .brand b{font-size:20px;letter-spacing:.2px}
+.app .top .brand span{font-size:12px}
+.app .sim-banner{
+  position:absolute!important;
+  top:21px!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+  margin:0!important;
+  padding:6px 12px!important;
+  border:1px solid #263747!important;
+  border-radius:999px!important;
+  background:#0b1621!important;
+  white-space:nowrap;
+}
+.app>.bottom{
+  grid-area:nav!important;
+  position:relative!important;
+  left:auto!important;right:auto!important;bottom:auto!important;
+  width:auto!important;max-width:none!important;
+  height:auto!important;
+  margin:0!important;
+  padding:18px 12px!important;
+  border:0!important;
+  border-right:1px solid #253545!important;
+  border-top:0!important;
+  border-radius:0!important;
+  background:#071019!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:flex-start!important;
+  gap:7px!important;
+  box-shadow:none!important;
+}
+.app>.bottom .nav{
+  flex:none!important;
+  width:100%!important;
+  min-height:54px!important;
+  padding:8px 14px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  border-radius:13px!important;
+  text-align:left!important;
+  font-size:13px!important;
+  font-weight:700!important;
+}
+.app>.bottom .nav div{
+  width:28px!important;
+  margin:0!important;
+  font-size:21px!important;
+  text-align:center!important;
+}
+.app>.bottom .nav.active{
+  background:#12283a!important;
+  color:#4aa7ff!important;
+  border:1px solid #24455f!important;
+}
+
+/* Main area */
+.app>#map{
+  grid-area:main!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+}
+#hud{
+  top:16px!important;
+  left:16px!important;
+}
+.fab{
+  right:24px!important;
+  top:88px!important;
+}
+.fab.secondary{
+  top:142px!important;
+}
+.drawbar{
+  left:50%!important;
+  right:auto!important;
+  top:84px!important;
+  transform:translateX(-50%)!important;
+  width:min(680px,calc(100% - 40px))!important;
+}
+.edit-tools{
+  position:fixed!important;
+  left:calc(var(--site-sidebar) + 16px)!important;
+  bottom:18px!important;
+  z-index:1150!important;
+  width:auto!important;
+  margin:0!important;
+  padding:7px!important;
+  border:1px solid #263747!important;
+  border-radius:14px!important;
+  background:rgba(5,11,18,.92)!important;
+  backdrop-filter:blur(12px)!important;
+  box-shadow:0 10px 30px #0009!important;
+}
+.edit-tools button{min-width:140px!important}
+
+/* Right-side web panel instead of mobile bottom sheet */
+.sheet{
+  position:fixed!important;
+  top:calc(var(--site-header) + 14px)!important;
+  right:18px!important;
+  left:auto!important;
+  bottom:18px!important;
+  width:var(--site-panel)!important;
+  max-height:none!important;
+  overflow:auto!important;
+  border-radius:20px!important;
+  padding:18px!important;
+  background:rgba(7,16,24,.96)!important;
+  border:1px solid #304555!important;
+  box-shadow:0 18px 60px #000c!important;
+}
+.sheet.show{display:block!important}
+
+/* Web dashboard elements */
+.v17-test{
+  position:fixed!important;
+  left:calc(var(--site-sidebar) + 18px)!important;
+  top:calc(var(--site-header) + 18px)!important;
+  width:330px!important;
+  z-index:800!important;
+  max-height:calc(100vh - var(--site-header) - 36px)!important;
+  overflow:auto!important;
+  background:rgba(7,16,24,.94)!important;
+  border:1px solid #263747!important;
+  border-radius:18px!important;
+  box-shadow:0 12px 38px #0009!important;
+}
+.v9-picker{
+  position:fixed!important;
+  right:18px!important;
+  top:calc(var(--site-header) + 14px)!important;
+  width:330px!important;
+  z-index:850!important;
+  margin:0!important;
+}
+.v9-picker + *{}
+.v15-shell,.v15-maphead,.v15-quick,.v10-start,.v14-top,.v10-brand{display:none!important}
+.v11-map-legend{top:auto!important;right:18px!important;bottom:18px!important;left:auto!important;z-index:850!important}
+
+/* When a sheet opens, keep it visually dominant */
+.v9-picker:has(+ .v14-top) {}
+
+/* Stats as a desktop modal/panel */
+.v9-stats{
+  left:50%!important;
+  right:auto!important;
+  bottom:auto!important;
+  top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  width:min(560px,calc(100vw - 40px))!important;
+  border-radius:20px!important;
+}
+
+/* Completion notice */
+.v12-complete{
+  left:50%!important;
+  right:auto!important;
+  bottom:28px!important;
+  transform:translateX(-50%)!important;
+  width:min(520px,calc(100vw - 40px))!important;
+}
+
+/* Language switch becomes a small site control */
+.v13-lang{
+  position:fixed!important;
+  top:20px!important;
+  right:88px!important;
+  z-index:1400!important;
+}
+
+/* Hide mobile-only decorative shell */
+.v12-startflash{z-index:3000!important}
+
+/* Tablet */
+@media (max-width:1100px){
+  :root{--site-sidebar:190px;--site-panel:340px}
+  .app .sim-banner{display:none!important}
+  .v17-test{width:280px!important}
+  .v9-picker{width:285px!important}
+  .edit-tools{left:calc(var(--site-sidebar) + 10px)!important}
+}
+
+/* Phone: still a website, but responsive rather than an app shell */
+@media (max-width:700px){
+  html,body{overflow:hidden}
+  .app{
+    display:flex!important;
+    flex-direction:column!important;
+    height:100vh!important;
+  }
+  .app .top{
+    flex:0 0 62px!important;
+    height:62px!important;
+    padding:8px 12px!important;
+  }
+  .app .top .brand b{font-size:17px}
+  .app>.bottom{
+    order:3!important;
+    flex:0 0 auto!important;
+    height:58px!important;
+    padding:6px!important;
+    flex-direction:row!important;
+    border-right:0!important;
+    border-top:1px solid #253545!important;
+    overflow-x:auto!important;
+  }
+  .app>.bottom .nav{
+    min-width:92px!important;
+    min-height:44px!important;
+    justify-content:center!important;
+    flex-direction:column!important;
+    gap:0!important;
+    padding:5px 4px!important;
+    text-align:center!important;
+    font-size:9px!important;
+  }
+  .app>.bottom .nav div{font-size:18px!important;height:20px}
+  .app>#map{order:2!important;flex:1 1 auto!important}
+  .sheet{
+    top:auto!important;
+    left:8px!important;
+    right:8px!important;
+    bottom:66px!important;
+    width:auto!important;
+    max-height:62vh!important;
+    border-radius:18px!important;
+  }
+  .v9-picker{
+    position:absolute!important;
+    left:8px!important;
+    right:8px!important;
+    top:74px!important;
+    width:auto!important;
+  }
+  .v17-test{display:none!important}
+  .edit-tools{
+    left:8px!important;
+    right:8px!important;
+    bottom:68px!important;
+    width:auto!important;
+    overflow-x:auto!important;
+  }
+  .edit-tools button{min-width:110px!important}
+  .v13-lang{top:72px!important;right:10px!important}
+  .v11-map-legend{display:none!important}
+}
+</style>
+
+
+<style id="fleet-menu-v2">
+/* Redesigned vehicle selection */
+.fleet-picker{
+  padding:16px!important;
+  background:linear-gradient(160deg,rgba(9,19,29,.98),rgba(5,12,19,.98))!important;
+  border:1px solid #304656!important;
+}
+.fleet-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}
+.fleet-kicker{display:block;font-size:9px;letter-spacing:1.4px;color:#718594;margin-bottom:3px}
+.fleet-head b{font-size:18px;letter-spacing:.1px}
+.fleet-status{font-size:9px;font-weight:900;letter-spacing:1px;color:#7ee2a5;padding:6px 8px;border:1px solid #214633;border-radius:999px;background:#0a1a13;white-space:nowrap}
+.fleet-status i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#36d47b;box-shadow:0 0 9px #36d47b;margin-right:5px}
+.fleet-list{display:flex;flex-direction:column;gap:8px}
+.fleet-item{
+  --accent:#ff9f1c;
+  position:relative;display:grid;grid-template-columns:58px minmax(0,1fr) 22px;
+  align-items:center;gap:11px;width:100%;min-height:72px;padding:7px 9px;
+  border:1px solid #263847;border-radius:15px;background:#0a131d;color:#fff;
+  text-align:left;cursor:pointer;overflow:hidden;transition:.18s ease;
+}
+.fleet-item:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 9%,transparent),transparent 65%);pointer-events:none}
+.fleet-item:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--accent) 55%,#263847);box-shadow:0 9px 24px #0008}
+.fleet-item:active{transform:scale(.985)}
+.fleet-item.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 10px 26px #0009}
+.fleet-tar{--accent:#ff9f1c}.fleet-gul{--accent:#22c55e}.fleet-rat{--accent:#a855f7}
+.fleet-visual{position:relative;width:54px;height:52px;display:grid;place-items:center}
+.fleet-visual:before,.fleet-visual:after{content:"";position:absolute;bottom:7px;width:12px;height:12px;border-radius:50%;background:#05090d;border:2px solid #5d6b76}
+.fleet-visual:before{left:4px}.fleet-visual:after{right:4px}
+.ugv-body{position:relative;width:42px;height:25px;border-radius:8px 11px 7px 7px;background:linear-gradient(145deg,color-mix(in srgb,var(--accent) 75%,#fff),color-mix(in srgb,var(--accent) 55%,#05090d));border:2px solid #dce6ec;box-shadow:0 7px 16px color-mix(in srgb,var(--accent) 22%,transparent);z-index:1}
+.ugv-body:before{content:"";position:absolute;left:8px;top:-7px;width:22px;height:8px;border-radius:4px 7px 2px 2px;background:#273744;border:1px solid #7f8c95}
+.ugv-body i{position:absolute;right:5px;top:6px;width:6px;height:6px;border-radius:50%;background:#f8fafc;box-shadow:0 0 8px #fff}
+.ugv-body em{position:absolute;left:6px;bottom:4px;width:11px;height:3px;border-radius:3px;background:#111820}
+.fleet-gul .ugv-body{width:46px;height:29px;border-radius:5px 8px 6px 6px}
+.fleet-gul .ugv-body:before{left:12px;width:25px}
+.fleet-rat .ugv-body{width:48px;height:31px;border-radius:9px}
+.fleet-rat .ugv-body:before{left:9px;width:28px;height:10px;top:-9px}
+.fleet-copy{min-width:0;position:relative}
+.fleet-copy b{display:block;font-size:14px;line-height:1.1}
+.fleet-copy small{display:block;margin-top:5px;color:#8fa0ad;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fleet-arrow{position:relative;color:#647887;font-size:25px;font-weight:300;transition:.18s}
+.fleet-item:hover .fleet-arrow{color:var(--accent);transform:translateX(2px)}
+.fleet-foot{margin-top:11px;padding-top:10px;border-top:1px solid #1d2c39;color:#657887;font-size:9px;line-height:1.3}
+@media(max-width:700px){
+  .fleet-picker{top:72px!important;right:10px!important;left:10px!important;padding:12px!important}
+  .fleet-head b{font-size:16px}
+  .fleet-item{min-height:64px;grid-template-columns:52px minmax(0,1fr) 20px}
+  .fleet-foot{font-size:8px}
+}
+</style>
+
+
+<style id="off-card-v20-menu">
+/* v20 — cleaner, quieter fleet selector */
+.v9-picker{
+  width:360px!important;
+  padding:16px!important;
+  border:1px solid rgba(148,163,184,.18)!important;
+  border-radius:18px!important;
+  background:rgba(6,13,21,.94)!important;
+  box-shadow:0 18px 50px rgba(0,0,0,.34)!important;
+}
+.v9-title{
+  margin-bottom:12px!important;
+  padding:0 2px!important;
+}
+.v9-title b{
+  font-size:14px!important;
+  letter-spacing:.2px!important;
+}
+.v9-title span{
+  font-size:9px!important;
+  opacity:.7;
+}
+.v9-grid{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:7px!important;
+}
+.v9-vehicle{
+  position:relative!important;
+  min-height:72px!important;
+  padding:10px 12px!important;
+  display:grid!important;
+  grid-template-columns:48px 1fr auto!important;
+  align-items:center!important;
+  gap:12px!important;
+  text-align:left!important;
+  border:1px solid rgba(148,163,184,.13)!important;
+  border-radius:13px!important;
+  background:#0a121b!important;
+  box-shadow:none!important;
+}
+.v9-vehicle:hover{
+  background:#0d1721!important;
+  border-color:rgba(148,163,184,.25)!important;
+}
+.v9-vehicle.active{
+  border-color:rgba(74,167,255,.55)!important;
+  background:#0c1824!important;
+  box-shadow:inset 3px 0 0 #4aa7ff!important;
+}
+.v9-icon{
+  width:44px!important;
+  height:44px!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:11px!important;
+  font-size:25px!important;
+  line-height:1!important;
+  background:#111c27!important;
+  filter:none!important;
+}
+.v9-name{
+  margin:0!important;
+  font-size:13px!important;
+  font-weight:800!important;
+}
+.v9-desc{
+  margin-top:3px!important;
+  font-size:9px!important;
+  color:#7f8d9b!important;
+}
+.v9-vehicle:after{
+  content:'›';
+  color:#667585;
+  font-size:22px;
+  font-weight:300;
+}
+.v9-vehicle.active:after{
+  content:'✓';
+  color:#4aa7ff;
+  font-size:15px;
+  font-weight:800;
+}
+@media(max-width:700px){
+  .v9-picker{
+    left:12px!important;
+    right:12px!important;
+    width:auto!important;
+    padding:12px!important;
+    border-radius:16px!important;
+  }
+  .v9-vehicle{min-height:64px!important}
+  .v9-icon{width:40px!important;height:40px!important;font-size:23px!important}
+}
+</style>
+
+
+<style id="perun42-brand-map">
+.perun-logo{background:#0a1118!important;border:1px solid #2b3c4b!important;overflow:hidden!important;padding:4px!important;box-shadow:0 5px 20px #0008!important}
+.perun-logo img{width:100%;height:100%;object-fit:contain;display:block}
+.perun-satellite{position:absolute;right:20px;top:84px;z-index:1100;padding:7px 10px;border:1px solid #2e4352;border-radius:10px;background:rgba(7,15,22,.9);color:#cbd5e1;font-size:10px;font-weight:800;backdrop-filter:blur(8px)}
+@media(max-width:700px){.perun-satellite{top:72px;right:10px}}
+</style>
+
+<style id="perun-v21-points">
+.v21-points{
+  margin-top:14px;padding-top:14px;border-top:1px solid #22313e
+}
+.v21-points-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.v21-points-title b{font-size:12px;letter-spacing:.5px}
+.v21-add{
+  width:100%;padding:10px 12px;border-radius:11px;border:1px solid #2d4353;
+  background:#101f2b;color:#eaf2f7;font-weight:800;cursor:pointer
+}
+.v21-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.v21-point{
+  display:flex;align-items:center;gap:9px;padding:9px 10px;border:1px solid #20313e;
+  border-radius:11px;background:#0a141d
+}
+.v21-point .num{width:25px;height:25px;border-radius:8px;display:grid;place-items:center;
+  background:#122638;color:#63b1ff;font-size:10px;font-weight:900}
+.v21-point .info{flex:1;min-width:0}.v21-point .info b{display:block;font-size:11px}
+.v21-point .info span{display:block;font-size:8px;color:#728391;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v21-point button{background:transparent;color:#8293a0;font-size:15px;padding:4px}
+.v21-dialog{
+  position:fixed;inset:0;z-index:5000;display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.62);backdrop-filter:blur(5px)
+}
+.v21-dialog.show{display:flex}
+.v21-box{
+  width:min(380px,calc(100vw - 30px));padding:18px;border:1px solid #314555;border-radius:18px;
+  background:#08121b;box-shadow:0 25px 80px #000d
+}
+.v21-box h3{margin:0 0 5px;font-size:17px}.v21-box p{margin:0 0 12px;color:#80909d;font-size:10px}
+.v21-box input{width:100%;padding:11px;border-radius:10px;border:1px solid #29404f;background:#0c1822;color:#fff;outline:none}
+.v21-actions{display:flex;gap:8px;margin-top:10px}.v21-actions button{flex:1;padding:10px;border-radius:10px;font-weight:800}
+.v21-cancel{background:#12212c;color:#d8e0e6}.v21-save{background:#1683ff;color:#fff}
+.v21-toast{
+  position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:5100;
+  padding:10px 14px;border:1px solid #30485a;border-radius:11px;background:#0b1822;color:#fff;
+  box-shadow:0 12px 30px #0009;display:none;font-size:11px;font-weight:800
+}
+.v21-toast.show{display:block}
+</style>
+
+
+<style id="perun-v21-responsive">
+@media(max-width:700px){
+  #v21SavedPanel{left:8px!important;right:8px!important;bottom:66px!important;width:auto!important}
+}
+</style>
+
+
+<style id="perun-v22-route-points">
+.v22-route-tools{display:flex;gap:7px;margin-top:8px}
+.v22-route-tools button{flex:1;padding:9px 8px;border-radius:10px;border:1px solid #2a4050;background:#0e1b25;color:#dce7ee;font-size:10px;font-weight:800}
+.v22-route-tools button.primary{background:#122d20;border-color:#28633f;color:#8df0b3}
+.v22-point-list{display:flex;flex-direction:column;gap:6px;margin-top:9px;max-height:230px;overflow:auto}
+.v22-rp{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;padding:8px;border:1px solid #1e303d;border-radius:10px;background:#09131c}
+.v22-rp .n{width:25px;height:25px;border-radius:8px;display:grid;place-items:center;background:#102638;color:#63b1ff;font-size:10px;font-weight:900}
+.v22-rp .txt b{display:block;font-size:10px}.v22-rp .txt span{display:block;color:#70818e;font-size:8px;margin-top:2px}
+.v22-rp button{padding:6px 8px;border-radius:8px;border:1px solid #294050;background:#101f2b;color:#b9cad5;font-size:9px;font-weight:800}
+.v22-saved-tools{display:flex;gap:6px;margin-top:8px}
+.v22-saved-tools button{flex:1;padding:9px 7px;border-radius:10px;border:1px solid #263c4b;background:#0c1923;color:#dce7ee;font-size:9px;font-weight:800}
+.v22-saved-tools .green{border-color:#285b3e;background:#10251a;color:#86e9aa}
+@media(max-width:700px){
+  #v21SavedPanel{max-height:48vh;overflow:auto}
+}
+</style>
+
+
+<style id="perun-v23-cargo-route">
+.v23-block{margin-top:14px;padding-top:14px;border-top:1px solid #22313e}
+.v23-block-title{font-size:12px;font-weight:900;letter-spacing:.5px;margin-bottom:9px}
+.v23-weight{display:flex;align-items:center;gap:8px}
+.v23-weight input{flex:1;min-width:0;padding:10px;border:1px solid #29404f;border-radius:10px;background:#0b1720;color:#fff;font-size:13px}
+.v23-weight span{font-size:10px;color:#788a98}
+.v23-cargo{display:flex;align-items:center;gap:10px;margin-top:9px;padding:10px;border:1px solid #203541;border-radius:11px;background:#09131c}
+.v23-cargo-icon{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:#111f2b;font-size:18px}
+.v23-cargo-info{flex:1}.v23-cargo-info b{display:block;font-size:11px}.v23-cargo-info span{font-size:9px;color:#788a98}
+.v23-toggle{width:38px;height:22px;border-radius:20px;background:#263642;position:relative;cursor:pointer;border:0}
+.v23-toggle:after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#aab7c0;transition:.18s}
+.v23-toggle.on{background:#176a42}.v23-toggle.on:after{left:19px;background:#fff}
+.v23-route-save{width:100%;margin-top:8px;padding:10px;border-radius:10px;border:1px solid #2b4c60;background:#102230;color:#e7f1f7;font-weight:800}
+.v23-route-save:hover{background:#143043}
+.v23-route-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;max-height:130px;overflow:auto}
+.v23-route-row{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid #1e303c;border-radius:10px;background:#08121a}
+.v23-route-row .ri{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:#112536;color:#68b5ff;font-size:10px;font-weight:900}
+.v23-route-row .rt{flex:1;min-width:0}.v23-route-row .rt b{display:block;font-size:10px}.v23-route-row .rt span{display:block;font-size:8px;color:#738491;margin-top:2px}
+.v23-route-row button{padding:5px 7px;border-radius:7px;border:1px solid #273d4b;background:#0d1a24;color:#b9c7d0;font-size:9px}
+.v23-cargo-badge{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:4px 7px;border-radius:8px;background:#10251a;border:1px solid #285a3c;color:#82e7a5;font-size:9px;font-weight:800}
+.v23-cargo-badge.empty{background:#101c25;border-color:#253946;color:#8b9aa6}
+.v23-weight-note{margin-top:5px;font-size:8px;color:#71818d}
+.v23-cargo-overlay{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);z-index:2400;
+padding:9px 13px;border:1px solid #294455;border-radius:11px;background:rgba(7,16,24,.94);color:#fff;
+box-shadow:0 12px 35px #000a;font-size:10px;font-weight:800;display:none}
+.v23-cargo-overlay.show{display:block}
+</style>
+
 </head>
 <body>
 <div id="v12Flash" class="v12-startflash">
@@ -231,7 +763,7 @@ body{padding-bottom:76px!important}
 
 <section class="v15-shell">
  <div class="v15-head">
-  <div><h1>OFF-CARD</h1><p>ВИРТУАЛЬНЫЙ СИМУЛЯТОР МАРШРУТОВ</p></div>
+  <div><h1>ПЕРУН 42</h1><p>ВЕБ-СИМУЛЯТОР МАРШРУТОВ</p></div>
   <div class="v15-badge">● SIM READY</div>
  </div>
  <div class="v15-kpis">
@@ -246,7 +778,7 @@ body{padding-bottom:76px!important}
  <button class="btn" onclick="v14GoNpk()">◈ Выбрать НРК</button>
 </div>
 <div class="v10-start">
-  <h2>Off-Card</h2>
+  <h2>ПЕРУН 42</h2>
   <p>Планирование и визуальная симуляция виртуальных маршрутов. Скорость движения соответствует выбранному значению в режиме 1× real time.</p>
   <div class="v10-actions">
     <button class="btn" onclick="fitAll()">⌖ Показать карту</button>
@@ -259,23 +791,36 @@ body{padding-bottom:76px!important}
 </div>
 
 <section class="v17-test">
-  <div class="v17-test-head"><b>Диагностика приложения</b><span>LOCAL SELF-TEST</span></div>
+  <div class="v17-test-head"><b>Диагностика сайта</b><span>LOCAL SELF-TEST</span></div>
   <button class="btn v17-run" onclick="v17RunTests()">▶ Запустить полный тест</button>
   <div id="v17Results" class="v17-results"></div>
 </section>
-<div class="v9-picker">
-  <div class="v9-title"><b>Выбор виртуального НРК</b><span>SIMULATION ONLY</span></div>
-  <div class="v9-grid">
-    <button class="v9-vehicle" onclick="v9Create('Тарган')" data-v9="Тарган">
-      <div class="v9-icon">🪲</div><div class="v9-name">Тарган</div><div class="v9-desc">компактный</div>
+<div class="v9-picker fleet-picker">
+  <div class="fleet-head">
+    <div>
+      <span class="fleet-kicker">ВИРТУАЛЬНЫЙ ФЛОТ</span>
+      <b>Выберите НРК</b>
+    </div>
+    <span class="fleet-status"><i></i> READY</span>
+  </div>
+  <div class="fleet-list">
+    <button class="fleet-item fleet-tar" onclick="v9Create('Тарган')" data-v9="Тарган">
+      <span class="fleet-visual"><span class="ugv-body"><i></i><em></em></span></span>
+      <span class="fleet-copy"><b>Тарган</b><small>Компактный · манёвренный</small></span>
+      <span class="fleet-arrow">›</span>
     </button>
-    <button class="v9-vehicle" onclick="v9Create('Гулливер')" data-v9="Гулливер">
-      <div class="v9-icon">🛻</div><div class="v9-name">Гулливер</div><div class="v9-desc">крупный</div>
+    <button class="fleet-item fleet-gul" onclick="v9Create('Гулливер')" data-v9="Гулливер">
+      <span class="fleet-visual"><span class="ugv-body"><i></i><em></em></span></span>
+      <span class="fleet-copy"><b>Гулливер</b><small>Крупный · универсальный</small></span>
+      <span class="fleet-arrow">›</span>
     </button>
-    <button class="v9-vehicle" onclick="v9Create('Ратель')" data-v9="Ратель">
-      <div class="v9-icon">🐗</div><div class="v9-name">Ратель</div><div class="v9-desc">тяжёлый</div>
+    <button class="fleet-item fleet-rat" onclick="v9Create('Ратель')" data-v9="Ратель">
+      <span class="fleet-visual"><span class="ugv-body"><i></i><em></em></span></span>
+      <span class="fleet-copy"><b>Ратель</b><small>Тяжёлый · устойчивый</small></span>
+      <span class="fleet-arrow">›</span>
     </button>
   </div>
+  <div class="fleet-foot">Нажмите на модель, чтобы добавить её в симуляцию</div>
 </div>
 
 
@@ -283,7 +828,7 @@ body{padding-bottom:76px!important}
 <div class="v14-top">
   <div class="v14-brandmini">
     <div class="v14-kicker">TACTICAL ROUTE SIMULATOR</div>
-    <div class="v14-title">OFF-CARD</div>
+    <div class="v14-title">ПЕРУН 42</div>
     <div class="v14-sub">Виртуальная среда · 1× real time</div>
   </div>
   <div class="v14-online"><i></i><span>READY</span></div>
@@ -296,12 +841,12 @@ body{padding-bottom:76px!important}
 <div class="v10-brand">
   <img class="v10-logo" src="https://upload.wikimedia.org/wikipedia/commons/6/6c/42mech_perun.png" alt="ПЕРУН · 42 ОМБР">
   <div>
-    <div class="v10-brand-title">ПЕРУН · 42 ОМБР</div>
+    <div class="v10-brand-title">ПЕРУН 42</div>
     <div class="v10-brand-sub">ВИРТУАЛЬНЫЙ СИМУЛЯТОР МАРШРУТОВ</div>
   </div>
 </div>
 <div class="app">
-  <header class="top"><div class="logo">➤</div><div class="brand"><b>Off-Card</b><span>Симулятор маршрутов</span></div><button class="iconbtn" id="settingsBtn">⚙️</button><button class="iconbtn" id="helpBtn">?</button></header><div class="sim-banner">СИМУЛЯЦИЯ · Виртуальные НРК · без управления реальной техникой</div>
+  <header class="top"><div class="logo perun-logo"><img src="data:image/png;base64,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" alt="ПЕРУН 42"></div><div class="brand"><b>ПЕРУН 42</b><span>42 ОМБР · СИЛА ТОЧНОСТИ</span></div><button class="iconbtn" id="settingsBtn">⚙️</button><button class="iconbtn" id="helpBtn">?</button></header><div class="sim-banner">СИМУЛЯЦИЯ · Виртуальные НРК · без управления реальной техникой</div>
   
 <div class="v16-mapwrap">
   <div class="v16-maptop">
@@ -314,7 +859,7 @@ body{padding-bottom:76px!important}
 
     <div class="v16-pill" id="v16MapStatus">READY</div>
   </div>
-<div id="map"></div><div id="hud"><div class="hudtitle"><span class="liveDot"></span> OFF-CARD <small>TACTICAL CONTROL</small></div><div class="hudstats"><span><b id="hudCount">0</b><small>НРК</small></span><span><b id="hudActive">0</b><small>АКТИВНЫ</small></span><span><b id="hudKm">0.0</b><small>КМ</small></span></div></div><div id="drawBar" class="drawbar"><b>📍 Режим маршрута</b><span id="drawHint">Нажми на карту, чтобы поставить первую точку</span><button onclick="finishDrawing()">Готово</button></div><div class="edit-tools">
+<div id="map"></div><div class="perun-satellite">🛰 СПУТНИК · GOOGLE</div><div id="hud"><div class="hudtitle"><span class="liveDot"></span> ПЕРУН 42 <small>SIMULATION</small></div><div class="hudstats"><span><b id="hudCount">0</b><small>НРК</small></span><span><b id="hudActive">0</b><small>АКТИВНЫ</small></span><span><b id="hudKm">0.0</b><small>КМ</small></span></div></div><div id="drawBar" class="drawbar"><b>📍 Режим маршрута</b><span id="drawHint">Нажми на карту, чтобы поставить первую точку</span><button onclick="finishDrawing()">Готово</button></div><div class="edit-tools">
 <button class="btn" onclick="deleteLastRoutePoint()">🗑️ Удалить последнюю</button>
 <button class="btn" onclick="reverseRoute()">↔️ Развернуть</button>
 <button class="btn" onclick="clearRoute()">✕ Очистить</button>
@@ -367,7 +912,7 @@ function createNpk(type){
 
 function persistState(){try{localStorage.setItem(STATE_KEY,JSON.stringify(machines.map(m=>({id:m.id,name:m.name,type:m.type||'Тарган',color:npkType(m.type||'Тарган').color,speed:m.speed,route:m.route,travelled:m.travelled}))));}catch(e){}}
 function restoreState(){try{const a=JSON.parse(localStorage.getItem(STATE_KEY)||'[]');machines=a.map((x,i)=>({id:x.id||String(Date.now()+i),name:x.name||('НРК '+(i+1)),type:NPK_TYPES[x.type]?x.type:Object.keys(NPK_TYPES)[i%3],color:npkType(NPK_TYPES[x.type]?x.type:Object.keys(NPK_TYPES)[i%3]).color,speed:Number(x.speed)||50,route:Array.isArray(x.route)?x.route:[],travelled:Number(x.travelled)||0,running:false,routeLine:null,progressLine:null,marker:null,routePointLayers:[]}));}catch(e){machines=[];}}
-const map=L.map('map',{zoomControl:false}).setView([48.45,35.05],7);L.control.zoom({position:'bottomright'}).addTo(map);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+const map=L.map('map',{zoomControl:false}).setView([48.45,35.05],7);L.control.zoom({position:'bottomright'}).addTo(map);L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{maxZoom:20,attribution:'© Google'}).addTo(map);
 function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
 function dist(a,b){const R=6371, p=Math.PI/180, dlat=(b.lat-a.lat)*p,dlon=(b.lng-a.lng)*p;const x=Math.sin(dlat/2)**2+Math.cos(a.lat*p)*Math.cos(b.lat*p)*Math.sin(dlon/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
 function routeStats(route){let total=0,seg=[];for(let i=1;i<route.length;i++){const d=dist(route[i-1],route[i]);total+=d;seg.push(d)}return {total,seg}}
@@ -444,7 +989,7 @@ function machineCard(m){
 function openMachines(){
   selected=null;
   openSheet(`<div class="sheethead"><h3>🤖 ПУЛЬТ НРК</h3><button class="close" onclick="closeSheet()">×</button></div>
-  <div class="tacticalhead"><b>ВЫБОР ПЛАТФОРМЫ</b><span>OFF-CARD / CONTROL</span></div>
+  <div class="tacticalhead"><b>ВЫБОР ПЛАТФОРМЫ</b><span>ПЕРУН 42 / CONTROL</span></div>
   <div class="small">Выберите НРК для добавления. После выбора сразу можно поставить стартовую точку на карте.</div>
   ${npkMenu()}
   ${machines.length?'<div class="scanline"></div><div class="tacticalhead"><b>АКТИВНЫЕ НРК</b><span>'+machines.length+' ЕД.</span></div>'+machines.map(machineCard).join(''):''}`);
@@ -537,7 +1082,7 @@ function openScenarios(){openSheet(`<div class="sheethead"><h3>🎬 Сценар
 function loadScenario(id){const s=scenarios.find(x=>x.id===id);machines.forEach(removeLayers);machines=s.machines.map((x,i)=>({...x,id:(crypto.randomUUID?crypto.randomUUID():Date.now()+i),running:false,routeLine:null,progressLine:null,marker:null,routePointLayers:[]}));selected=null;persistState();redraw();openMachines();fitAll();toast('Сценарий загружен')}
 function deleteScenario(id){scenarios=scenarios.filter(x=>x.id!==id);localStorage.setItem('offcard_scenarios',JSON.stringify(scenarios));openScenarios()}
 function fitAll(){const pts=machines.flatMap(m=>m.route);if(!pts.length)return;map.fitBounds(L.latLngBounds(pts),{padding:[30,30]})}
-function home(){openSheet(`<div class="menuTitle">Off-Card</div><div class="small" style="margin-bottom:12px">Планируй. Запускай. Контролируй.</div><button class="btn primary full" onclick="createAndDraw()">▶️ Быстрый старт</button><div class="grid2" style="margin-top:8px"><button class="btn" onclick="openMachines()">🚗 Машинки</button><button class="btn" onclick="openRoutes()">🛣 Маршруты</button><button class="btn" onclick="openScenarios()">🎬 Сценарии</button><button class="btn" onclick="openStats()">📊 Статистика</button></div><div class="card"><div class="name">Сейчас</div><div class="small">${machines.length} машинок · ${machines.filter(m=>m.running).length} движутся</div></div>`)}
+function home(){openSheet(`<div class="menuTitle">ПЕРУН 42</div><div class="small" style="margin-bottom:12px">Планируй. Запускай. Контролируй.</div><button class="btn primary full" onclick="createAndDraw()">▶️ Быстрый старт</button><div class="grid2" style="margin-top:8px"><button class="btn" onclick="openMachines()">🚗 Машинки</button><button class="btn" onclick="openRoutes()">🛣 Маршруты</button><button class="btn" onclick="openScenarios()">🎬 Сценарии</button><button class="btn" onclick="openStats()">📊 Статистика</button></div><div class="card"><div class="name">Сейчас</div><div class="small">${machines.length} машинок · ${machines.filter(m=>m.running).length} движутся</div></div>`)}
 function openStats(){let total=machines.reduce((a,m)=>a+routeStats(m.route).total,0);openSheet(`<div class="sheethead"><h3>📊 Статистика</h3><button class="close" onclick="closeSheet()">×</button></div><div class="card"><div class="small">Машинок</div><div style="font-size:28px;font-weight:800">${machines.length}</div></div><div class="card"><div class="small">Общая длина маршрутов</div><div style="font-size:28px;font-weight:800">${total.toFixed(1)} км</div></div>${machines.map(m=>`<div class="card"><div class="name" style="color:${m.color}">${esc(m.name)}</div><div class="small">${routeStats(m.route).total.toFixed(2)} км · ${m.speed} км/ч · ${m.running?'движется':'пауза'}</div></div>`).join('')}`)}
 function openSettings(){openSheet(`<div class="sheethead"><h3>⚙️ Настройки</h3><button class="close" onclick="closeSheet()">×</button></div><div class="card"><div class="name">Единицы</div><div class="small">Скорость: км/ч · расстояние: км</div></div><button class="btn full red" onclick="if(confirm('Очистить все сохранённые маршруты и сценарии?')){localStorage.clear();savedRoutes=[];scenarios=[];machines.forEach(removeLayers);machines=[];selected=null;toast('Данные очищены');openSettings()}">Очистить сохранённые данные</button>`)}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
@@ -923,4 +1468,413 @@ function v17RunTests(){
  box.classList.add('show');
 }
 </script>
+
+<div id="v21SavedPanel" style="position:fixed;right:18px;bottom:18px;z-index:1400;width:360px;max-width:calc(100vw - 36px);
+background:rgba(7,16,24,.96);border:1px solid #2b4050;border-radius:18px;padding:14px;box-shadow:0 18px 50px #000b;">
+  <div class="v21-points-title"><b>СОХРАНЁННЫЕ ТОЧКИ</b><span class="small" id="v21PointCount">0</span></div>
+  <button class="v21-add" id="v21SavePointBtn">＋ Сохранить текущую точку</button>
+  <div class="v21-list" id="v21SavedList"></div>
+  <div class="v22-saved-tools">
+    <button class="green" id="v22UseStart">◎ Как старт</button>
+    <button id="v22UseEnd">◉ Как финиш</button>
+  </div>
+  
+  <div class="v23-block">
+    <div class="v23-block-title">ГРУЗ</div>
+    <div class="v23-weight">
+      <input id="v23Weight" type="number" min="0" max="10000" step="0.1" placeholder="Вес посылки">
+      <span>кг</span>
+    </div>
+    <div class="v23-weight-note">Вес используется только в симуляции и влияет на отображение загрузки.</div>
+    <div class="v23-cargo">
+      <div class="v23-cargo-icon">📦</div>
+      <div class="v23-cargo-info"><b id="v23CargoTitle">Без посылки</b><span id="v23CargoSub">НРК пустой</span></div>
+      <button class="v23-toggle" id="v23CargoToggle" aria-label="Положить посылку"></button>
+    </div>
+    <div id="v23CargoBadge" class="v23-cargo-badge empty">○ ПУСТОЙ</div>
+  </div>
+
+  <div class="v23-block">
+    <div class="v23-block-title">МАРШРУТЫ</div>
+    <button class="v23-route-save" id="v23SaveRoute">＋ Сохранить текущий маршрут</button>
+    <div class="v23-route-list" id="v23Routes"></div>
+  </div>
+
+<div class="v22-route-tools">
+    <button id="v22RoutePointsBtn">▣ Точки маршрута</button>
+    <button class="primary" id="v22SaveRoutePointsBtn">＋ Сохранить точки</button>
+  </div>
+
+</div>
+<div class="v21-dialog" id="v21Dialog">
+  <div class="v21-box">
+    <h3>Сохранить точку</h3>
+    <p id="v21Coords">Выбери точку на карте или используй текущую.</p>
+    <input id="v21PointName" maxlength="40" placeholder="Название точки, например: Дом">
+    <div class="v21-actions">
+      <button class="v21-cancel" id="v21Cancel">Отмена</button>
+      <button class="v21-save" id="v21Confirm">Сохранить</button>
+    </div>
+  </div>
+</div>
+<div class="v21-toast" id="v21Toast"></div>
+
+
+<script id="perun-v21-point-engine">
+(function(){
+  const KEY='perun42_saved_points_v21';
+  let saved=[];
+  let pending=null;
+
+  const $=id=>document.getElementById(id);
+  function load(){try{saved=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){saved=[]}}
+  function persist(){localStorage.setItem(KEY,JSON.stringify(saved))}
+  function toast(t){
+    const x=$('v21Toast'); if(!x)return;
+    x.textContent=t;x.classList.add('show');clearTimeout(window.__v21toast);
+    window.__v21toast=setTimeout(()=>x.classList.remove('show'),1800);
+  }
+  function fmt(p){return `${Number(p.lat).toFixed(5)}, ${Number(p.lng).toFixed(5)}`}
+  function render(){
+    const count=$('v21PointCount'), list=$('v21SavedList');
+    if(!list)return;
+    count.textContent=saved.length;
+    list.innerHTML='';
+    saved.forEach((p,i)=>{
+      const row=document.createElement('div');row.className='v21-point';
+      row.innerHTML=`<div class="num">${i+1}</div><div class="info"><b>${escapeHtml(p.name)}</b><span>${fmt(p)}</span></div><button title="Удалить">×</button>`;
+      row.querySelector('button').onclick=()=>{
+        saved.splice(i,1);persist();render();toast('Точка удалена');
+      };
+      row.querySelector('.info').onclick=()=>focusPoint(p);
+      list.appendChild(row);
+    });
+  }
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function getMap(){
+    // Leaflet exposes the map in the page script; find the first map container's Leaflet instance.
+    const el=document.getElementById('map');
+    return el && el._leaflet_map ? el._leaflet_map : window.map || window.__map || null;
+  }
+  function focusPoint(p){
+    const m=getMap();
+    if(m && m.setView){m.setView([p.lat,p.lng],Math.max(m.getZoom(),15));}
+    toast(p.name);
+  }
+  function openDialog(point){
+    pending=point||pending;
+    if(!pending){toast('Сначала поставь точку на карте');return}
+    $('v21Coords').textContent=fmt(pending);
+    $('v21PointName').value=pending.name||'';
+    $('v21Dialog').classList.add('show');
+    setTimeout(()=>$('v21PointName').focus(),50);
+  }
+  function confirm(){
+    const name=$('v21PointName').value.trim()||`Точка ${saved.length+1}`;
+    if(!pending)return;
+    saved.push({name,lat:Number(pending.lat),lng:Number(pending.lng),created:Date.now()});
+    persist();render();$('v21Dialog').classList.remove('show');toast(`Сохранено: ${name}`);
+    pending=null;
+  }
+
+  $('v21SavePointBtn').onclick=()=>openDialog(null);
+  $('v21Cancel').onclick=()=>{$('v21Dialog').classList.remove('show');pending=null};
+  $('v21Confirm').onclick=confirm;
+  $('v21PointName').addEventListener('keydown',e=>{if(e.key==='Enter')confirm();if(e.key==='Escape')$('v21Cancel').click()});
+  $('v21Dialog').addEventListener('click',e=>{if(e.target.id==='v21Dialog')$('v21Cancel').click()});
+
+  // Add a "save point" action to route point markers/route point list when possible.
+  // Also expose a public helper for the existing route code.
+  window.perun42SavePoint=function(lat,lng,name){openDialog({lat,lng,name:name||''})};
+
+  // Capture map clicks without disrupting route drawing. A normal click saves a pending point;
+  // route drawing can still process the same click through the original Leaflet handler.
+  function hook(){
+    const m=getMap();
+    if(!m || !m.on){return setTimeout(hook,500)}
+    if(m.__v21hook)return;
+    m.__v21hook=true;
+    m._leaflet_map=m;
+    m.on('click',e=>{
+      pending={lat:e.latlng.lat,lng:e.latlng.lng};
+      // Don't force the dialog on every click; the user can name/save it.
+      const btn=$('v21SavePointBtn');
+      if(btn)btn.textContent='＋ Сохранить выбранную точку';
+      $('v21Coords').textContent=fmt(pending);
+    });
+  }
+
+  // Periodically detect the map object if the original script doesn't expose it.
+  function discover(){
+    const el=document.getElementById('map');
+    if(el && el._leaflet_map){hook();return}
+    // Leaflet stores _leaflet_id; recover map from global Leaflet registry is not public,
+    // so the original script is patched below when it calls L.map().
+    hook();
+  }
+
+  // Patch L.map so the app's existing map instance becomes available to this feature.
+  const wait=()=>{
+    if(window.L && !window.L.__v21patched){
+      const orig=window.L.map;
+      window.L.map=function(){
+        const m=orig.apply(this,arguments);
+        window.map=m;
+        const el=document.getElementById('map');
+        if(el)el._leaflet_map=m;
+        setTimeout(hook,0);
+        return m;
+      };
+      window.L.__v21patched=true;
+      discover();
+    } else if(!window.L){setTimeout(wait,300)}
+    else discover();
+  };
+  load();render();wait();
+
+  // Make saved points available for future route insertion.
+  window.perun42SavedPoints=()=>saved.slice();
+})();
+</script>
+
+
+<div class="v21-dialog" id="v22RouteModal">
+  <div class="v21-box">
+    <h3>Точки текущего маршрута</h3>
+    <p>Можно сохранить любую точку или добавить сохранённую точку в маршрут.</p>
+    <div class="v22-point-list" id="v22RoutePointList"></div>
+    <div class="v22-actions" style="display:flex;gap:8px;margin-top:10px">
+      <button class="v21-cancel" id="v22RouteClose" style="flex:1;padding:10px;border-radius:10px">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+
+<script id="perun-v22-route-point-engine">
+(function(){
+  const KEY='perun42_saved_points_v21';
+  const $=id=>document.getElementById(id);
+  function readSaved(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return[]}}
+  function writeSaved(a){localStorage.setItem(KEY,JSON.stringify(a))}
+  function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function currentMachine(){
+    return (typeof machines!=='undefined' && typeof selected!=='undefined' && selected)
+      ? machines.find(m=>m.id===selected) : null;
+  }
+  function ensureMachine(){
+    let m=currentMachine();
+    if(m)return m;
+    if(typeof createMachine==='function') m=createMachine('Тарган');
+    return m;
+  }
+  function savePointObj(p, defaultName){
+    const a=readSaved();
+    a.push({name:defaultName||('Точка '+(a.length+1)),lat:Number(p.lat),lng:Number(p.lng),created:Date.now()});
+    writeSaved(a);
+    if(typeof render==='function'){} // v21 panel has its own renderer
+    if(typeof toast==='function')toast('📍 Точка сохранена');
+    if(typeof window.perun42SavePoint==='function'){
+      // no-op: avoid opening another dialog
+    }
+    location.reload ? null : null;
+  }
+  function saveRoutePoint(i){
+    const m=currentMachine();
+    if(!m || !m.route || !m.route[i]){toast&&toast('Нет выбранного маршрута');return}
+    const p=m.route[i];
+    const a=readSaved();
+    const suggested=`${m.name} · Точка ${i+1}`;
+    a.push({name:suggested,lat:Number(p.lat),lng:Number(p.lng),created:Date.now(),routePoint:true});
+    writeSaved(a);
+    if(typeof toast==='function')toast('Сохранено: '+suggested);
+    renderRoutePoints();
+  }
+  function addSavedToRoute(p,where){
+    const m=ensureMachine(); if(!m)return;
+    m.running=false; m.travelled=0;
+    const pt={lat:Number(p.lat),lng:Number(p.lng)};
+    if(where==='start')m.route.unshift(pt); else m.route.push(pt);
+    if(typeof persistState==='function')persistState();
+    if(typeof drawMachine==='function')drawMachine(m);
+    if(typeof map!=='undefined' && map && m.route.length) map.fitBounds(L.latLngBounds(m.route),{padding:[30,30]});
+    if(typeof toast==='function')toast((where==='start'?'◎ Старт':'◉ Финиш')+' установлен: '+p.name);
+  }
+  function chooseSaved(where){
+    const a=readSaved();
+    if(!a.length){toast&&toast('Сначала сохрани хотя бы одну точку');return}
+    // Open the existing panel as a simple chooser; clicking a saved row is handled here.
+    const list=$('v21SavedList'); if(!list)return;
+    [...list.querySelectorAll('.v21-point')].forEach((row,i)=>{
+      row.style.cursor='pointer';
+      row.onclick=(e)=>{
+        if(e.target.tagName==='BUTTON')return;
+        addSavedToRoute(a[i],where);
+      };
+    });
+    if(typeof toast==='function')toast(where==='start'?'Выбери сохранённую точку как старт':'Выбери сохранённую точку как финиш');
+  }
+  function renderRoutePoints(){
+    const box=$('v22RoutePointList'); if(!box)return;
+    const m=currentMachine();
+    if(!m || !m.route || !m.route.length){
+      box.innerHTML='<div class="empty">У текущего НРК пока нет точек маршрута.</div>';return;
+    }
+    box.innerHTML=m.route.map((p,i)=>`
+      <div class="v22-rp">
+        <div class="n">${i+1}</div>
+        <div class="txt"><b>Точка ${i+1}</b><span>${Number(p.lat).toFixed(5)}, ${Number(p.lng).toFixed(5)}</span></div>
+        <button data-save="${i}">Сохранить</button>
+      </div>`).join('');
+    box.querySelectorAll('[data-save]').forEach(b=>b.onclick=()=>saveRoutePoint(Number(b.dataset.save)));
+  }
+  $('v22UseStart').onclick=()=>chooseSaved('start');
+  $('v22UseEnd').onclick=()=>chooseSaved('end');
+  $('v22RoutePointsBtn').onclick=()=>{
+    renderRoutePoints();
+    $('v22RouteModal').classList.add('show');
+  };
+  $('v22SaveRoutePointsBtn').onclick=()=>{
+    renderRoutePoints();
+    $('v22RouteModal').classList.add('show');
+    if(typeof toast==='function')toast('Выбери точки, которые хочешь сохранить');
+  };
+  $('v22RouteClose').onclick=()=>$('v22RouteModal').classList.remove('show');
+  $('v22RouteModal').addEventListener('click',e=>{if(e.target.id==='v22RouteModal')$('v22RouteModal').classList.remove('show')});
+})();
+</script>
+
+<div id="v23CargoOverlay" class="v23-cargo-overlay"></div>
+
+<script id="perun-v23-cargo-route-engine">
+(function(){
+  const CARGO_KEY='perun42_cargo_v23';
+  const ROUTE_KEY='perun42_routes_v23';
+  const $=id=>document.getElementById(id);
+
+  let cargo={loaded:false,weight:0};
+  let routes=[];
+
+  function load(){
+    try{cargo=JSON.parse(localStorage.getItem(CARGO_KEY)||'{"loaded":false,"weight":0}')}catch(e){}
+    try{routes=JSON.parse(localStorage.getItem(ROUTE_KEY)||'[]')}catch(e){routes=[]}
+  }
+  function persistCargo(){localStorage.setItem(CARGO_KEY,JSON.stringify(cargo))}
+  function persistRoutes(){localStorage.setItem(ROUTE_KEY,JSON.stringify(routes))}
+  function currentMachine(){
+    if(typeof machines!=='undefined' && typeof selected!=='undefined')
+      return machines.find(m=>m.id===selected)||null;
+    return null;
+  }
+  function toast(t){
+    const el=$('v23CargoOverlay');if(!el)return;
+    el.textContent=t;el.classList.add('show');clearTimeout(window.__v23toast);
+    window.__v23toast=setTimeout(()=>el.classList.remove('show'),1800);
+  }
+  function setCargoVisual(){
+    const w=Number(cargo.weight)||0;
+    $('v23Weight').value=w||'';
+    $('v23CargoToggle').classList.toggle('on',!!cargo.loaded);
+    $('v23CargoTitle').textContent=cargo.loaded?'Посылка загружена':'Без посылки';
+    $('v23CargoSub').textContent=cargo.loaded?`Груз ${w.toFixed(1)} кг`:'НРК пустой';
+    const b=$('v23CargoBadge');
+    b.textContent=cargo.loaded?`● ЗАГРУЖЕН · ${w.toFixed(1)} кг`:'○ ПУСТОЙ';
+    b.classList.toggle('empty',!cargo.loaded);
+  }
+  function getRoute(){
+    const m=currentMachine();
+    return m && Array.isArray(m.route) ? m.route.map(p=>({lat:Number(p.lat),lng:Number(p.lng)})) : [];
+  }
+  function saveCurrentRoute(){
+    const route=getRoute();
+    if(route.length<2){toast('Нужно минимум 2 точки маршрута');return}
+    const m=currentMachine();
+    const name=prompt('Название маршрута:',`Маршрут ${routes.length+1}`);
+    if(name===null)return;
+    routes.push({name:name.trim()||`Маршрут ${routes.length+1}`,route,vehicle:m?m.name:'Тарган',created:Date.now()});
+    persistRoutes();renderRoutes();toast('Маршрут сохранён');
+  }
+  function renderRoutes(){
+    const box=$('v23Routes');if(!box)return;
+    if(!routes.length){box.innerHTML='<div class="small" style="padding:7px 2px">Сохранённых маршрутов пока нет</div>';return}
+    box.innerHTML=routes.map((r,i)=>`
+      <div class="v23-route-row">
+        <div class="ri">${i+1}</div>
+        <div class="rt"><b>${escapeHtml(r.name)}</b><span>${r.route.length} точек · ${escapeHtml(r.vehicle||'НРК')}</span></div>
+        <button data-load="${i}">Загрузить</button>
+        <button data-del="${i}">×</button>
+      </div>`).join('');
+    box.querySelectorAll('[data-load]').forEach(b=>b.onclick=()=>loadRoute(Number(b.dataset.load)));
+    box.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{routes.splice(Number(b.dataset.del),1);persistRoutes();renderRoutes();toast('Маршрут удалён')});
+  }
+  function loadRoute(i){
+    const r=routes[i]; if(!r)return;
+    const m=currentMachine();
+    if(!m){toast('Сначала выбери НРК');return}
+    m.route=r.route.map(p=>({lat:p.lat,lng:p.lng}));
+    m.running=false;m.travelled=0;
+    if(typeof persistState==='function')persistState();
+    if(typeof drawMachine==='function')drawMachine(m);
+    if(typeof map!=='undefined' && map && m.route.length && typeof L!=='undefined')
+      map.fitBounds(L.latLngBounds(m.route),{padding:[30,30]});
+    toast('Маршрут загружен: '+r.name);
+  }
+
+  function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+  // Toggle load/unload.
+  $('v23CargoToggle').onclick=()=>{
+    const w=Number($('v23Weight').value)||0;
+    if(!cargo.loaded && w<=0){toast('Укажи вес посылки');return}
+    cargo.loaded=!cargo.loaded;
+    cargo.weight=w;
+    persistCargo();setCargoVisual();
+    if(cargo.loaded){
+      animateCargo(true);
+      toast(`📦 Посылка загружена · ${w.toFixed(1)} кг`);
+    }else{
+      animateCargo(false);
+      toast('Посылка выгружена · НРК пустой');
+    }
+  };
+  $('v23Weight').addEventListener('change',()=>{
+    const w=Math.max(0,Number($('v23Weight').value)||0);
+    cargo.weight=w;
+    if(cargo.loaded && w<=0)cargo.loaded=false;
+    persistCargo();setCargoVisual();
+  });
+  $('v23SaveRoute').onclick=saveCurrentRoute;
+
+  function animateCargo(loaded){
+    const m=currentMachine();
+    // Find the simulator marker for the selected virtual vehicle and add a small package indicator.
+    if(m && m.marker && m.marker.getElement){
+      const el=m.marker.getElement();
+      if(el){
+        let badge=el.querySelector('.v23-package');
+        if(loaded){
+          if(!badge){
+            badge=document.createElement('div');badge.className='v23-package';
+            badge.textContent='📦';badge.style.cssText='position:absolute;right:-9px;bottom:-8px;font-size:17px;filter:drop-shadow(0 3px 4px #000);animation:v23pack .55s ease-out';
+            el.style.position='relative';el.appendChild(badge);
+          }else badge.style.animation='v23pack .55s ease-out';
+          el.style.transformOrigin='center bottom';
+          el.animate([{transform:'scale(1)'},{transform:'scale(1.08) translateY(-2px)'},{transform:'scale(1)'}],{duration:550,easing:'ease-out'});
+        }else if(badge){
+          badge.animate([{transform:'scale(1)',opacity:1},{transform:'scale(.6)',opacity:0}],{duration:280}).onfinish=()=>badge.remove();
+        }
+      }
+    }
+  }
+
+  // CSS animation for the package indicator.
+  const st=document.createElement('style');
+  st.textContent='@keyframes v23pack{0%{transform:scale(.2) translateY(-12px);opacity:0}70%{transform:scale(1.2) translateY(0);opacity:1}100%{transform:scale(1);opacity:1}}';
+  document.head.appendChild(st);
+
+  load();setCargoVisual();renderRoutes();
+})();
+</script>
+
 </body></html>
