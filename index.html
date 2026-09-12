@@ -1149,33 +1149,6 @@ background:rgba(6,13,19,.91);color:#cdd8df;font-size:9px;box-shadow:0 8px 22px #
 }
 </style>
 
-
-<style id="perun-v31-labels">
-.perun-v31-label{
-  pointer-events:none!important;
-  background:rgba(5,12,18,.78)!important;
-  border:1px solid rgba(210,225,235,.42)!important;
-  color:#f3f7fa!important;
-  border-radius:5px!important;
-  padding:2px 5px!important;
-  box-shadow:0 2px 7px #0009!important;
-  font-size:10px!important;
-  font-weight:800!important;
-  text-shadow:0 1px 2px #000!important;
-  white-space:nowrap!important;
-}
-.perun-v31-road{
-  pointer-events:none!important;
-  background:transparent!important;
-  border:0!important;
-  color:#e7edf1!important;
-  font-size:8px!important;
-  font-weight:700!important;
-  text-shadow:0 1px 3px #000,0 0 4px #000!important;
-  white-space:nowrap!important;
-}
-</style>
-
 </head>
 <body>
 <div id="v12Flash" class="v12-startflash">
@@ -1351,12 +1324,20 @@ function createNpk(type){
 
 function persistState(){try{localStorage.setItem(STATE_KEY,JSON.stringify(machines.map(m=>({id:m.id,name:m.name,type:m.type||'Тарган',color:npkType(m.type||'Тарган').color,speed:m.speed,route:m.route,travelled:m.travelled}))));}catch(e){}}
 function restoreState(){try{const a=JSON.parse(localStorage.getItem(STATE_KEY)||'[]');machines=a.map((x,i)=>({id:x.id||String(Date.now()+i),name:x.name||('НРК '+(i+1)),type:NPK_TYPES[x.type]?x.type:Object.keys(NPK_TYPES)[i%3],color:npkType(NPK_TYPES[x.type]?x.type:Object.keys(NPK_TYPES)[i%3]).color,speed:Number(x.speed)||50,route:Array.isArray(x.route)?x.route:[],travelled:Number(x.travelled)||0,running:false,routeLine:null,progressLine:null,marker:null,routePointLayers:[]}));}catch(e){machines=[];}}
-const map=L.map('map',{zoomControl:false}).setView([48.45,35.05],7);L.control.zoom({position:'bottomright'}).addTo(map);
+const map=L.map('map',{zoomControl:false}).setView([48.45,35.05],7);window.map=map;L.control.zoom({position:'bottomright'}).addTo(map);
 const baseSatellite=L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{maxZoom:20,attribution:'© Google'});
 const baseMap=L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{maxZoom:20,attribution:'© Google'});
 const baseHybrid=L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',{maxZoom:20,attribution:'© Google'});
 baseSatellite.addTo(map);
-function setBaseLayer(k){[baseSatellite,baseMap,baseHybrid].forEach(x=>{if(map.hasLayer(x))map.removeLayer(x)});const x=k==='map'?baseMap:k==='hyb'?baseHybrid:baseSatellite;x.addTo(map);document.querySelectorAll('#v24Layers button').forEach(b=>b.classList.toggle('active',b.dataset.layer===k));}
+const placeLabels=L.tileLayer('https://mt1.google.com/vt/lyrs=h&x={x}&y={y}&z={z}',{maxZoom:20,opacity:.95,attribution:'© Google'}).setZIndex(450);
+function setBaseLayer(k){
+  [baseSatellite,baseMap,baseHybrid].forEach(x=>{if(map.hasLayer(x))map.removeLayer(x)});
+  if(map.hasLayer(placeLabels))map.removeLayer(placeLabels);
+  const x=k==='map'?baseMap:k==='hyb'?baseHybrid:baseSatellite;
+  x.addTo(map);
+  if(k!=='map') placeLabels.addTo(map);
+  document.querySelectorAll('#v24Layers button').forEach(b=>b.classList.toggle('active',b.dataset.layer===k));
+}
 
 function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
 function dist(a,b){const R=6371, p=Math.PI/180, dlat=(b.lat-a.lat)*p,dlon=(b.lng-a.lng)*p;const x=Math.sin(dlat/2)**2+Math.cos(a.lat*p)*Math.cos(b.lat*p)*Math.sin(dlon/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
@@ -2596,53 +2577,4 @@ background:rgba(7,16,24,.96);border:1px solid #2b4050;border-radius:18px;padding
   setInterval(upd,400);
   setTimeout(upd,1000);
 })();
-</script>
-<script id="perun-v31-map-labels">
-(function(){
-  // Labels layer: use OpenStreetMap's public tile layer only for transparent labels/roads,
-  // while the satellite imagery remains the map's visual base layer.
-  let labelsLayer=null;
-  const labelsUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-  function initLabels(){
-    if(!window.L || !window.map) return setTimeout(initLabels,500);
-    if(labelsLayer) return;
-    labelsLayer=L.tileLayer(labelsUrl,{
-      maxZoom:19,
-      opacity:.92,
-      attribution:'© OpenStreetMap contributors',
-      className:'perun-v31-label-tiles'
-    });
-    labelsLayer.addTo(window.map);
-    // Keep labels above satellite imagery but below markers.
-    if(labelsLayer.setZIndex) labelsLayer.setZIndex(450);
-  }
-  // Expose a layer toggle for the existing Супутник/Карта/Гібрид buttons.
-  window.perun31Labels=labelsLayer;
-  window.perun31SetLabels=function(on){
-    if(!labelsLayer) initLabels();
-    if(labelsLayer){
-      if(on) labelsLayer.addTo(window.map);
-      else if(window.map.hasLayer(labelsLayer)) window.map.removeLayer(labelsLayer);
-    }
-  };
-  function patchLayers(){
-    document.querySelectorAll('.p27-layers button').forEach(btn=>{
-      if(btn.__v31) return;
-      btn.__v31=true;
-      btn.addEventListener('click',function(){
-        const t=(btn.textContent||'').toLowerCase();
-        // Hybrid keeps labels; pure satellite hides them.
-        if(t.includes('супут') && !t.includes('гібр')) window.perun31SetLabels(false);
-        else window.perun31SetLabels(true);
-      },true);
-    });
-  }
-  const wait=()=>{
-    if(window.map && window.L){initLabels();patchLayers()}
-    else setTimeout(wait,400);
-  };
-  wait();
-})();
-</script>
-
-</body></html>
+</script></body></html>
